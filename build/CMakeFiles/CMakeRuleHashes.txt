@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+6a3a4c26d47224df19c4867e94f2a6a5 CMakeFiles/obs-plugintemplate_autogen
