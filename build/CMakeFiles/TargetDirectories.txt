@@ -1,4 +1,0 @@
-/Users/matthieuribeaucoup-nahon/Documents/ubicast/obs-plugintemplate/build/CMakeFiles/rebuild_cache.dir
-/Users/matthieuribeaucoup-nahon/Documents/ubicast/obs-plugintemplate/build/CMakeFiles/edit_cache.dir
-/Users/matthieuribeaucoup-nahon/Documents/ubicast/obs-plugintemplate/build/CMakeFiles/obs-plugintemplate.dir
-/Users/matthieuribeaucoup-nahon/Documents/ubicast/obs-plugintemplate/build/CMakeFiles/obs-plugintemplate_autogen.dir
