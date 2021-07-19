@@ -16,33 +16,12 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include <obs-module.h>
+#ifndef PLUGINNAME_H
+#define PLUGINNAME_H
 
-#include "plugin-macros.generated.h"
+#define PLUGIN_NAME "@CMAKE_PROJECT_NAME@"
+#define PLUGIN_VERSION "@CMAKE_PROJECT_VERSION@"
 
+#define blog(level, msg, ...) blog(level, "[" PLUGIN_NAME "] " msg, ##__VA_ARGS__)
 
-#include <iostream>
-
-extern "C"
-{
-EXPORT void *obs_frontend_get_main_window(void);
-EXPORT void *obs_frontend_add_tools_menu_qaction(const char *name);
-}
-
-OBS_DECLARE_MODULE()
-OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
-
-
-bool obs_module_load()
-{
-    void * toolsAction;
-    std::cout << "Hello World, This is my CPP OBS plugin!\n";
-    blog(LOG_INFO, "plugin loaded successfully (version %s)", PLUGIN_VERSION);
-    toolsAction =  obs_frontend_add_tools_menu_qaction("Passe un bon weekend devant la soupe aux choux");
-    return true;
-}
-
-void obs_module_unload()
-{
-    blog(LOG_INFO, "plugin unloaded");
-}
+#endif // PLUGINNAME_H
