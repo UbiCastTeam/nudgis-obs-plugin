@@ -1,4 +1,4 @@
-#define MyAppName "obs-plugintemplate"
+#define MyAppName "nudgis-obs-plugin"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Your Name Here"
 #define MyAppURL "http://www.mywebsite.com"
