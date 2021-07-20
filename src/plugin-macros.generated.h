@@ -19,7 +19,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #ifndef PLUGINNAME_H
 #define PLUGINNAME_H
 
-#define PLUGIN_NAME "obs-plugintemplate"
+#define PLUGIN_NAME "nudgis-obs-plugin"
 #define PLUGIN_VERSION "1.0.0"
 
 #define blog(level, msg, ...) blog(level, "[" PLUGIN_NAME "] " msg, ##__VA_ARGS__)
