@@ -71,6 +71,7 @@ include_directories(
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
 	libobs
+	Qt5::Widgets
 )
 
 # --- End of section ---
