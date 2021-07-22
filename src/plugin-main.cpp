@@ -1,26 +1,13 @@
 /*
-Plugin Name
-Copyright (C) <Year> <Developer> <Email Address>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program. If not, see <https://www.gnu.org/licenses/>
+Nudgis-OBS-Plugin
+Copyright (C) 2021 Ubicast 
 */
 
 #include <obs-module.h>
-
 #include "plugin-macros.generated.h"
-
-
+#include <QMainWindow>
+#include <QAction>
+#include <QtWidgets>
 #include <iostream>
 
 extern "C"
@@ -32,15 +19,32 @@ EXPORT void *obs_frontend_add_tools_menu_qaction(const char *name);
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
+const char *obs_module_name(void)
+{
+	return "Nudgis Obs Plugin";
+}
+
+void openWindow()
+{
+    blog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
+    QWidget * window = new QWidget();
+    window->resize(320, 240);
+    window->show();
+    window->setWindowTitle(QApplication::translate("toplevel", "Nudgis Plugin Settings"));
+
+}
 
 bool obs_module_load()
 {
-    void * toolsAction;
-    std::cout << "Hello World, This is my CPP OBS plugin!\n";
-    blog(LOG_INFO, "plugin loaded successfully (version %s)", PLUGIN_VERSION);
-    toolsAction =  obs_frontend_add_tools_menu_qaction("Passe un bon weekend devant la soupe aux choux");
+    //std::cout << "Hello World 2, This is my CPP OBS plugin!\n";
+    blog(LOG_INFO, "Nudgis plugin loaded successfully (version %s)", PLUGIN_VERSION);
+    QAction * menu_action = (QAction*) obs_frontend_add_tools_menu_qaction("Nudgis Plugin Settings");
+    blog(LOG_INFO, "[%s] Menu entry for Settings added", obs_module_name());
+    menu_action->connect(menu_action, &QAction::triggered, openWindow);
     return true;
 }
+
+
 
 void obs_module_unload()
 {
