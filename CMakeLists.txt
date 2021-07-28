@@ -169,6 +169,7 @@ if(UNIX AND NOT APPLE)
     include(GNUInstallDirs)
 
 	set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
 	target_link_libraries(${CMAKE_PROJECT_NAME} obs-frontend-api)
 
 	file(GLOB locale_files data/locale/*.ini)
@@ -186,6 +187,7 @@ if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fvisibility=default")
 
 	set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 1)
 	target_link_libraries(${CMAKE_PROJECT_NAME} "${OBS_FRONTEND_LIB}")
 endif()
 # -- End of section --
