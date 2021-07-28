@@ -4,18 +4,14 @@
 #include <QString>
 
 class NudgisSettings : public QWidget {
-
     Q_OBJECT
 
-    public: 
+public: 
 
-        NudgisSettings();
-        ~NudgisSettings();
-        void openSettings();
-        void closeSettings();
-
-    private:
-
+    NudgisSettings();
+    ~NudgisSettings();
+    void openSettings();
+    void closeSettings();
 
 };
 
