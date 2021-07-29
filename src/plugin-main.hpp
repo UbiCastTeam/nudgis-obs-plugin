@@ -3,13 +3,15 @@
 
 #include <QWidget>
 
+class Ui_Settings;
+
 class NudgisSettings : public QWidget
 {
     Q_OBJECT
-    
-public:
+    Ui_Settings * ui;
 
-    explicit NudgisSettings(QWidget *parent = nullptr);
+public:
+    NudgisSettings();
 
 signals:
 
