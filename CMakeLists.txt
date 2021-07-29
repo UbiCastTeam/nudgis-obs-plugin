@@ -55,14 +55,20 @@ configure_file(
     ../ci/ci_includes.generated.cmd
 )
 
+set(PLUGIN_UI
+    ui/settings.ui)
+
+
 set(PLUGIN_SOURCES
 	src/plugin-main.cpp)
 
 set(PLUGIN_HEADERS
 	src/plugin-macros.generated.h)
 
+qt5_wrap_ui(PLUGIN_UI_HEADERS ${PLUGIN_UI})
+
 # --- Platform-independent build settings ---
-add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS})
+add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS} ${PLUGIN_UI_HEADERS})
 
 include_directories(
 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
