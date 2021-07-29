@@ -74,7 +74,7 @@ static NudgisSettings *settingsWindow = nullptr;
 NudgisSettings::NudgisSettings(): QWidget(nullptr), ui(new Ui_Settings)
 {
     blog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
-    ui.SetupUi(this);
+    ui->setupUi(this);
 
 }   
 
