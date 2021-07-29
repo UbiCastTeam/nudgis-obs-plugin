@@ -6,6 +6,7 @@ Copyright (C) 2021 Ubicast
 #include <obs-module.h>
 #include "plugin-macros.generated.h"
 #include "plugin-main.hpp"
+#include "ui_settings.h"
 
 #include <QMainWindow>
 #include <QApplication>
@@ -70,9 +71,11 @@ extern "C"
 /*-----------------------------------------------------------------------------------------------*/
 static NudgisSettings *settingsWindow = nullptr;
 
-NudgisSettings::NudgisSettings(QWidget *parent) : QWidget(parent)
+NudgisSettings::NudgisSettings(): QWidget(nullptr), ui(new Ui_Settings)
 {
     blog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
+    ui.SetupUi(this);
+
 }   
 
 /*HANDLING OBS EVENTS*/
