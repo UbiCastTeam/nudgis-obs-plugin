@@ -55,6 +55,8 @@ configure_file(
     ../ci/ci_includes.generated.cmd
 )
 
+
+set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 set(PLUGIN_UI
     ui/settings.ui)
 
