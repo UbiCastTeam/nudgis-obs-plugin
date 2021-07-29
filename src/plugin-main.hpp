@@ -1,19 +1,21 @@
-#pragma once
+#ifndef NUDGISSETTINGS_H
+#define NUDGISSETTINGS_H
 
 #include <QWidget>
-#include <QString>
 
-class NudgisSettings : public QWidget {
+class NudgisSettings : public QWidget
+{
     Q_OBJECT
+    
+public:
 
-public: 
+    explicit NudgisSettings(QWidget *parent = nullptr);
 
-    NudgisSettings();
-    ~NudgisSettings();
-    void openSettings();
-    void closeSettings();
+signals:
 
 };
+
+#endif // NUDGISSETTINGS_H
 
 
 
