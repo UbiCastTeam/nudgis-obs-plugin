@@ -74,9 +74,29 @@ static NudgisSettings *settingsWindow = nullptr;
 NudgisSettings::NudgisSettings(): QWidget(nullptr), ui(new Ui_Settings)
 {
     blog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
+
     ui->setupUi(this);
+    connect(ui->pushButton, &QPushButton::clicked, this, &NudgisSettings::clearWindow);
+    connect(ui->checkBox, &QCheckBox::isChecked, this, &NudgisSettings::box);
 
 }   
+
+void NudgisSettings::clearWindow()
+{
+    ui->lineEdit->setText(QString());
+    ui->lineEdit_2->setText(QString());
+    ui->lineEdit_3->setText(QString());
+    ui->lineEdit_4->setText(QString());
+    ui->lineEdit_5->setText(QString());
+    ui->lineEdit_6->setText(QString());
+    //std::cout << ui->lineEdit->text().toStdString() << std::endl;
+}
+
+void NudgisSettings::box()
+{
+    std::cout << "Hello" << std::endl;
+    upload = true;
+}
 
 /*HANDLING OBS EVENTS*/
 /*-----------------------------------------------------------------------------------------------*/
@@ -128,7 +148,7 @@ void openWindow()
     if (!settingsWindow) 
     {
         settingsWindow = new NudgisSettings();
-        settingsWindow->resize(420, 340);
+        settingsWindow->resize(375, 410);
         settingsWindow->show();
         settingsWindow->setWindowTitle(QApplication::translate("toplevel", "Nudgis Plugin Settings"));
 	} 
