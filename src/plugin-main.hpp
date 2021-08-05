@@ -12,6 +12,10 @@ class NudgisSettings : public QWidget
 
 public:
     NudgisSettings();
+private:
+    void clearWindow();
+    void box();
+    bool upload = false;
 
 signals:
 
