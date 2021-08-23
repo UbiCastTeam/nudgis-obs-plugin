@@ -14,10 +14,20 @@ public:
     NudgisSettings();
 private:
     void clearWindow();
+    void saveSettings();
     void box();
-    bool upload = false;
+    std::string removeQuotes(std::string str);
 
-signals:
+    void uploadVod();
+    bool upload = false;
+    std::string apiKey;
+    std::string url;
+    std::string streamTitle;
+    std::string vodTitle;
+    std::string streamChannel;
+    std::string vodChannel;  
+
+signals:    
 
 };
 
