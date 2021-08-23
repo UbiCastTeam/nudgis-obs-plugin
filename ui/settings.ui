@@ -203,25 +203,12 @@
     <string/>
    </property>
   </widget>
-  <widget class="QCheckBox" name="checkBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>300</y>
-     <width>361</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Automatically publish live when stream is finished</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>30</x>
      <y>340</y>
-     <width>111</width>
+     <width>121</width>
      <height>25</height>
     </rect>
    </property>
@@ -271,7 +258,7 @@
     <rect>
      <x>210</x>
      <y>340</y>
-     <width>111</width>
+     <width>121</width>
      <height>25</height>
     </rect>
    </property>
@@ -337,6 +324,19 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>300</y>
+     <width>271</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Auto Publish</string>
    </property>
   </widget>
  </widget>
