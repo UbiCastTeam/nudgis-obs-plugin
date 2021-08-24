@@ -1,5 +1,5 @@
 #include <obs-module.h>
-
+#include "nudgis-service.h"
 
 struct nudgis {
 	char *server, *key;
@@ -63,13 +63,13 @@ static obs_properties_t *nudgis_properties(void *unused)
 static const char *nudgis_url(void *data)
 {
 	struct nudgis *service =  data;
-	return service->server;
+	return "mystreamurl";
 }
 
 static const char *nudgis_key(void *data)
 {
 	struct nudgis *service =  data;
-	return service->key;
+	return "mystreamkey";
 }
 
 
