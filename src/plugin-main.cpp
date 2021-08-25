@@ -4,6 +4,7 @@ Copyright (C) 2021 Ubicast
 */
  
 #include <obs-module.h>
+#include <obs-frontend-api.h>
 #include "plugin-macros.generated.h"
 #include "plugin-main.hpp"
 #include "nudgis-service.h"
@@ -18,64 +19,6 @@ Copyright (C) 2021 Ubicast
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
-
-extern "C"
-{
-    EXPORT void *obs_frontend_get_main_window(void);
-    EXPORT void *obs_frontend_add_tools_menu_qaction(const char *name);
-    enum obs_frontend_event 
-    {
-        OBS_FRONTEND_EVENT_STREAMING_STARTING,
-        OBS_FRONTEND_EVENT_STREAMING_STARTED,
-        OBS_FRONTEND_EVENT_STREAMING_STOPPING,
-        OBS_FRONTEND_EVENT_STREAMING_STOPPED,
-        OBS_FRONTEND_EVENT_RECORDING_STARTING,
-        OBS_FRONTEND_EVENT_RECORDING_STARTED,
-        OBS_FRONTEND_EVENT_RECORDING_STOPPING,
-        OBS_FRONTEND_EVENT_RECORDING_STOPPED,
-        OBS_FRONTEND_EVENT_SCENE_CHANGED,
-        OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED,
-        OBS_FRONTEND_EVENT_TRANSITION_CHANGED,
-        OBS_FRONTEND_EVENT_TRANSITION_STOPPED,
-        OBS_FRONTEND_EVENT_TRANSITION_LIST_CHANGED,
-        OBS_FRONTEND_EVENT_SCENE_COLLECTION_CHANGED,
-        OBS_FRONTEND_EVENT_SCENE_COLLECTION_LIST_CHANGED,
-        OBS_FRONTEND_EVENT_PROFILE_CHANGED,
-        OBS_FRONTEND_EVENT_PROFILE_LIST_CHANGED,
-        OBS_FRONTEND_EVENT_EXIT,
-
-        OBS_FRONTEND_EVENT_REPLAY_BUFFER_STARTING,
-        OBS_FRONTEND_EVENT_REPLAY_BUFFER_STARTED,
-        OBS_FRONTEND_EVENT_REPLAY_BUFFER_STOPPING,
-        OBS_FRONTEND_EVENT_REPLAY_BUFFER_STOPPED,
-
-        OBS_FRONTEND_EVENT_STUDIO_MODE_ENABLED,
-        OBS_FRONTEND_EVENT_STUDIO_MODE_DISABLED,
-        OBS_FRONTEND_EVENT_PREVIEW_SCENE_CHANGED,
-
-        OBS_FRONTEND_EVENT_SCENE_COLLECTION_CLEANUP,
-        OBS_FRONTEND_EVENT_FINISHED_LOADING,
-
-        OBS_FRONTEND_EVENT_RECORDING_PAUSED,
-        OBS_FRONTEND_EVENT_RECORDING_UNPAUSED,
-
-        OBS_FRONTEND_EVENT_TRANSITION_DURATION_CHANGED,
-        OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVED,
-
-        OBS_FRONTEND_EVENT_VIRTUALCAM_STARTED,
-        OBS_FRONTEND_EVENT_VIRTUALCAM_STOPPED,
-
-        OBS_FRONTEND_EVENT_TBAR_VALUE_CHANGED,
-    };
-
-    typedef void (*obs_frontend_event_cb)(enum obs_frontend_event event,
-				      void *private_data);
-
-    EXPORT void *obs_frontend_add_event_callback(obs_frontend_event_cb callback,void *private_data);
-    EXPORT void obs_data_set_string(obs_data_t *data, const char *name, const char *val);
-    EXPORT void obs_frontend_set_streaming_service(obs_service_t *service);
-
-}
 
 bool fileExists(const char* file) 
 {
@@ -284,6 +227,8 @@ void stopStream()
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
+static obs_service_t * nudgis_service = NULL;
+
 const char *obs_module_name(void)
 {
 	return "Nudgis Obs Plugin";
@@ -325,14 +270,21 @@ bool obs_module_load()
     QAction * menu_action = (QAction*) obs_frontend_add_tools_menu_qaction("Nudgis Plugin Settings");
     blog(LOG_INFO, "[%s] Menu entry for Settings added", obs_module_name());
     menu_action->connect(menu_action, &QAction::triggered, openWindow);
-    //nudgis_service_register();
+    nudgis_service_register();
+    nudgis_service = obs_service_create("nudgis",NULL,NULL,nullptr);
+    obs_frontend_set_streaming_service(nudgis_service);
+    obs_frontend_save_streaming_service();
     obs_frontend_add_event_callback(obs_event, nullptr);
-    //obs_frontend_set_streaming_service(obs_service_t * nudgis_service);
     return true;
 }
 
 void obs_module_unload()
 {
     blog(LOG_INFO, "Nudgis Plugin Successfully Unloaded");
+    if (nudgis_service != NULL)
+    {
+      obs_service_release(nudgis_service);
+      nudgis_service = NULL;
+    }
 }
 
