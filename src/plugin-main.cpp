@@ -240,8 +240,6 @@ void stopStream()
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
-static obs_service_t * nudgis_service = NULL;
-
 const char *obs_module_name(void)
 {
 	return "Nudgis Obs Plugin";
@@ -284,9 +282,6 @@ bool obs_module_load()
     blog(LOG_INFO, "[%s] Menu entry for Settings added", obs_module_name());
     menu_action->connect(menu_action, &QAction::triggered, openWindow);
     nudgis_service_register();
-    nudgis_service = obs_service_create("nudgis",NULL,NULL,nullptr);
-    obs_frontend_set_streaming_service(nudgis_service);
-    obs_frontend_save_streaming_service();
     obs_frontend_add_event_callback(obs_event, nullptr);
     return true;
 }
@@ -294,10 +289,5 @@ bool obs_module_load()
 void obs_module_unload()
 {
     blog(LOG_INFO, "Nudgis Plugin Successfully Unloaded");
-    if (nudgis_service != NULL)
-    {
-      obs_service_release(nudgis_service);
-      nudgis_service = NULL;
-    }
 }
 
