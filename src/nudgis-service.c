@@ -55,23 +55,6 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
     return true;
 }
 
-static obs_properties_t *nudgis_properties(void *unused)
-{
-    blog(LOG_INFO, "Enter in %s", __func__);
-	UNUSED_PARAMETER(unused);
-
-	obs_properties_t *ppts = obs_properties_create();
-	obs_property_t *p;
-    (void)p;
-
-	obs_properties_add_text(ppts, "server", "URL", OBS_TEXT_DEFAULT);
-
-	obs_properties_add_text(ppts, "key", obs_module_text("StreamKey"),
-				OBS_TEXT_PASSWORD);
-
-	return ppts;
-}
-
 static const char *nudgis_url(void *data)
 {
     blog(LOG_INFO, "Enter in %s", __func__);
@@ -96,7 +79,6 @@ struct obs_service_info nudgis_service = {
 	.destroy = nudgis_destroy,
 	.update = nudgis_update,
 	.initialize = nudgis_initialize,
-	.get_properties = nudgis_properties,
 	.get_url = nudgis_url,
 	.get_key = nudgis_key,
 };
