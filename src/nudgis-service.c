@@ -1,18 +1,20 @@
-#include <obs-module.h>
 #include "nudgis-service.h"
+
+#include <obs-module.h>
 #include <curl/curl.h>
 #include <jansson.h>
-#include <unistd.h>
 
-#define FAKE_API_KEY ""
-#define FAKE_TITLE "MonStream2"
-#define FAKE_CHANNEL "MonChannel"
+#define FAKE_API_KEY         ""
+#define FAKE_TITLE           "MonStream2"
+#define FAKE_CHANNEL         "MonChannel"
 
-#define PREPARE_URL  "https://beta.ubicast.net/api/v2/lives/prepare/"
-#define START_URL  "https://beta.ubicast.net/api/v2/lives/start/"
+#define RTMP_PROTOCOL        "rtmp"
+
+#define PREPARE_URL          "https://beta.ubicast.net/api/v2/lives/prepare/"
+#define START_URL            "https://beta.ubicast.net/api/v2/lives/start/"
 
 #define FMT_PREPARE_REQUEST  "api_key=%s&title=%s&channel=%s"
-#define FMT_START_REQUEST  "api_key=%s&oid=%s"
+#define FMT_START_REQUEST    "api_key=%s&oid=%s"
 
 typedef struct _buffer_data_t
 {
@@ -52,8 +54,8 @@ void process_prepare_response(const buffer_data_t * buffer_data,nudgis_t * nudgi
     {
 
         if (buffer_data->buffer != NULL)
-        {        
-            json_t *root;        
+        {
+            json_t *root;
             root = json_loadb(buffer_data->buffer,buffer_data->len,0,NULL);
             json_t *streams = json_object_get(root,"streams");
             json_t *oid = json_object_get(root,"oid");
@@ -133,9 +135,7 @@ static void nudgis_update(void *data, obs_data_t *settings)
 	bfree(service->server);
 	bfree(service->key);
 
-	//service->server = bstrdup(obs_data_get_string(settings, "server"));
-	//service->key = bstrdup(obs_data_get_string(settings, "key"));
-	service->server = bstrdup("fake server");
+	service->server = bstrdup(RTMP_PROTOCOL);
 	service->key = bstrdup("fake key");
 }
 

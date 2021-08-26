@@ -290,4 +290,3 @@ void obs_module_unload()
 {
     blog(LOG_INFO, "Nudgis Plugin Successfully Unloaded");
 }
-
