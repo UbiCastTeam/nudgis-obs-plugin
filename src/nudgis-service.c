@@ -49,6 +49,7 @@ static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
 static bool nudgis_initialize(void *data, obs_output_t *output)
 {
     blog(LOG_INFO, "Enter in %s", __FUNCTION__);
+    return true;
 }
 
 static obs_properties_t *nudgis_properties(void *unused)
