@@ -187,37 +187,9 @@ static void obs_event(enum obs_frontend_event event, void *)
 }
 
 
-void prepareStream(char * streamData)
-{
-    FILE * prepjson;
-    CURL *curl;
-    CURLcode res;
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
 
-    if(curl) 
-    {
-    curl_easy_setopt(curl, CURLOPT_URL, "https://beta.ubicast.net/api/v2/lives/prepare/");
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, streamData);
-    res = curl_easy_perform(curl);
 
-    if(res != CURLE_OK)
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-    curl_easy_cleanup(curl);
-    }
 
-    curl_global_cleanup();
-}
-
-void startStream()
-{
-    
-}
-
-void stopStream()
-{
-
-}
 
 /*LOAD AND UNLOAD OF THE PLUGIN*/
 /*-----------------------------------------------------------------------------------------------*/
