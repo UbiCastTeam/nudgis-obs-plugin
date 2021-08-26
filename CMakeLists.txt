@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 # (e.g.: obs-myawesomeplugin) and set 
 project(nudgis-obs-plugin VERSION 1.0.0)
 
+add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+
 # Replace `Your Name Here` with the name (yours or your organization's) you want
 # to see as the author of the plugin (in the plugin's metadata itself and in the installers)
 set(PLUGIN_AUTHOR "Your Name Here")
