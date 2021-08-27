@@ -26,6 +26,7 @@ private:
     std::string vodTitle;
     std::string streamChannel;
     std::string vodChannel;  
+    void UpdateNudgisData();
 
 signals:    
 
