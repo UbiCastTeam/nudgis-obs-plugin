@@ -9,7 +9,10 @@ Copyright (C) 2021 Ubicast
 #include "plugin-main.hpp"
 #include "nudgis-service.h"
 #include "ui_settings.h"
-
+extern "C"
+{
+#include "nudgis_data.h"
+}
 #include <json/json.h>
 #include <curl/curl.h>
 #include <QMainWindow>
@@ -29,6 +32,18 @@ bool fileExists(const char* file)
 /*NUDGIS SETTINGS METHODS DEFINITION*/
 /*-----------------------------------------------------------------------------------------------*/
 static NudgisSettings *settingsWindow = nullptr;
+
+void NudgisSettings::UpdateNudgisData()
+{
+    nudgis_data_t nudgis_data;
+    nudgis_data.apiKey = bstrdup(ui->lineEdit_2->text().toStdString().c_str());
+    nudgis_data.url = bstrdup(ui->lineEdit->text().toStdString().c_str());
+    nudgis_data.streamTitle = bstrdup(ui->lineEdit_3->text().toStdString().c_str());
+    nudgis_data.streamChannel = bstrdup(ui->lineEdit_4->text().toStdString().c_str());
+    nudgis_data.vodTitle = bstrdup(ui->lineEdit_6->text().toStdString().c_str());
+    nudgis_data.vodChannel = bstrdup(ui->lineEdit_5->text().toStdString().c_str());
+    set_nudgis_data(&nudgis_data);
+}
 
 NudgisSettings::NudgisSettings(): QWidget(nullptr), ui(new Ui_Settings)
 {
@@ -87,6 +102,8 @@ NudgisSettings::NudgisSettings(): QWidget(nullptr), ui(new Ui_Settings)
         ui->lineEdit_6->setText(q_vodTitle);
     }
 
+    UpdateNudgisData();
+
     connect(ui->pushButton, &QPushButton::clicked, this, &NudgisSettings::clearWindow);
     connect(ui->pushButton_2, &QPushButton::clicked, this, &NudgisSettings::saveSettings);
 }   
@@ -131,6 +148,7 @@ void NudgisSettings::saveSettings()
     std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
     std::ofstream outputFileStream("data.json");
     writer -> write(rootJsonValue, &outputFileStream);
+    UpdateNudgisData();
     this->close();
 }
 
@@ -280,6 +298,7 @@ bool obs_module_load()
     blog(LOG_INFO, "Nudgis plugin loaded successfully (version %s)", PLUGIN_VERSION);
     QAction * menu_action = (QAction*) obs_frontend_add_tools_menu_qaction("Nudgis Plugin Settings");
     blog(LOG_INFO, "[%s] Menu entry for Settings added", obs_module_name());
+    settingsWindow = new NudgisSettings();
     menu_action->connect(menu_action, &QAction::triggered, openWindow);
     nudgis_service_register();
     obs_frontend_add_event_callback(obs_event, nullptr);
