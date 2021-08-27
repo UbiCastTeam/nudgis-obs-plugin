@@ -1,17 +1,15 @@
 #include "nudgis-service.h"
+#include "nudgis_data.h"
 
 #include <obs-module.h>
 #include <curl/curl.h>
 #include <jansson.h>
 
-#define FAKE_API_KEY         ""
-#define FAKE_TITLE           "MonStream2"
-#define FAKE_CHANNEL         "MonChannel"
-
 #define RTMP_PROTOCOL        "rtmp"
 
-#define PREPARE_URL          "https://beta.ubicast.net/api/v2/lives/prepare/"
-#define START_URL            "https://beta.ubicast.net/api/v2/lives/start/"
+#define FMT_PREPARE_URL      "%s/api/v2/lives/prepare/"
+#define FMT_START_URL        "%s/api/v2/lives/start/"
+
 
 #define FMT_PREPARE_REQUEST  "api_key=%s&title=%s&channel=%s"
 #define FMT_START_REQUEST    "api_key=%s&oid=%s"
@@ -175,23 +173,28 @@ static char * bstrdup_printf(const char * format, ... )
 
 static bool nudgis_initialize(void *data, obs_output_t *output)
 {
+    const nudgis_data_t * nudgis_data = get_nudgis_data();
     (void)output;
     nudgis_t * nudgis = data;
     blog(LOG_INFO, "Enter in %s", __func__);
     buffer_data_t buffer_data = {0};
-    char * payload_prepare_url = bstrdup_printf(FMT_PREPARE_REQUEST,FAKE_API_KEY,FAKE_TITLE,FAKE_CHANNEL);
+    char * payload_prepare_url = bstrdup_printf(FMT_PREPARE_REQUEST,nudgis_data->apiKey,nudgis_data->streamTitle,nudgis_data->streamChannel);
     blog(LOG_INFO,"payload_prepare_url: %s",payload_prepare_url);
-    send_request(PREPARE_URL,payload_prepare_url,&buffer_data);
+    char * prepare_url = bstrdup_printf(FMT_PREPARE_URL,nudgis_data->url);
+    send_request(prepare_url,payload_prepare_url,&buffer_data);
     process_prepare_response(&buffer_data,nudgis);
     buffer_data_free(&buffer_data);
 
-    char * payload_start_url = bstrdup_printf(FMT_START_REQUEST,FAKE_API_KEY,nudgis->oid);
+    char * payload_start_url = bstrdup_printf(FMT_START_REQUEST,nudgis_data->apiKey,nudgis->oid);
     blog(LOG_INFO,"payload_start_url: %s",payload_start_url);
-    send_request(START_URL,payload_start_url,&buffer_data);
+    char * start_url = bstrdup_printf(FMT_START_URL,nudgis_data->url);
+    send_request(start_url,payload_start_url,&buffer_data);
     blog(LOG_INFO,"start_request_response: %.*s",(int)buffer_data.len,buffer_data.buffer);
 
     bfree(payload_prepare_url);
     bfree(payload_start_url);
+    bfree(prepare_url);
+    bfree(start_url);
 
     return true;
 }
