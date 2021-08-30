@@ -1,9 +1,10 @@
-#include "nudgis-service.h"
+#include "nudgis-service.hpp"
 #include "nudgis_data.h"
 
 #include <obs-module.h>
 #include <curl/curl.h>
 #include <jansson.h>
+#include <obs-utils.hpp>
 
 #define RTMP_PROTOCOL        "rtmp"
 
@@ -23,7 +24,7 @@ typedef struct _buffer_data_t
 static size_t write_callback(void *data, size_t size, size_t nmemb, buffer_data_t * buffer_data)
 {
     size_t size_new_data = size * nmemb;
-    buffer_data->buffer = realloc(buffer_data->buffer,buffer_data->len + size_new_data);
+    buffer_data->buffer = (char*)realloc(buffer_data->buffer,buffer_data->len + size_new_data);
     if (buffer_data->buffer)
     {
         memcpy(buffer_data->buffer + buffer_data->len,data,size_new_data);
@@ -128,7 +129,7 @@ static void nudgis_update(void *data, obs_data_t *settings)
 {
     (void)settings;
     blog(LOG_INFO, "Enter in %s", __func__);
-	struct nudgis *service =  data;
+	nudgis_t *service =  (nudgis_t *)data;
 
 	bfree(service->server);
 	bfree(service->key);
@@ -140,7 +141,7 @@ static void nudgis_update(void *data, obs_data_t *settings)
 static void nudgis_destroy(void *data)
 {
     blog(LOG_INFO, "Enter in %s", __func__);
-	struct nudgis *service =  data;
+	nudgis_t *service =  (nudgis_t *)data;
 
 	bfree(service->server);
 	bfree(service->key);
@@ -151,7 +152,7 @@ static void nudgis_destroy(void *data)
 static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
 {
     blog(LOG_INFO, "Enter in %s", __func__);
-	struct nudgis *data = bzalloc(sizeof(struct nudgis));
+	nudgis_t *data = (nudgis_t *)bzalloc(sizeof(struct nudgis));
 	nudgis_update(data, settings);
 
 	UNUSED_PARAMETER(service);
@@ -164,7 +165,7 @@ static char * bstrdup_printf(const char * format, ... )
     va_list args;
     va_start (args, format);
     int len_alloc = vsnprintf(NULL,0,format, args) + 1;
-    result = bzalloc(len_alloc);
+    result = (char *)bmalloc(len_alloc);
     va_start (args, format);
     vsnprintf(result,len_alloc,format, args);
     va_end (args);
@@ -175,9 +176,9 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
 {
     const nudgis_data_t * nudgis_data = get_nudgis_data();
     (void)output;
-    nudgis_t * nudgis = data;
+    nudgis_t * nudgis = (nudgis_t *)data;
     blog(LOG_INFO, "Enter in %s", __func__);
-    buffer_data_t buffer_data = {0};
+    buffer_data_t buffer_data = {};
     char * payload_prepare_url = bstrdup_printf(FMT_PREPARE_REQUEST,nudgis_data->apiKey,nudgis_data->streamTitle,nudgis_data->streamChannel);
     blog(LOG_INFO,"payload_prepare_url: %s",payload_prepare_url);
     char * prepare_url = bstrdup_printf(FMT_PREPARE_URL,nudgis_data->url);
@@ -202,28 +203,71 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
 static const char *nudgis_url(void *data)
 {
     blog(LOG_INFO, "Enter in %s", __func__);
-	struct nudgis *service =  data;
+	nudgis_t *service =  (nudgis_t *)data;
     return service->server;
 }
 
 static const char *nudgis_key(void *data)
 {
     blog(LOG_INFO, "Enter in %s", __func__);
-	struct nudgis *service =  data;
+	nudgis_t *service =  (nudgis_t *)data;
     return service->key;
 }
 
+struct obs_service_info nudgis_service =
+ {
+	/* required */
+	"nudgis",          // const char *id;
 
-struct obs_service_info nudgis_service = 
-{
-	.id = "nudgis",
-	.get_name = nudgis_name,
-	.create = nudgis_create,
-	.destroy = nudgis_destroy,
-	.update = nudgis_update,
-	.initialize = nudgis_initialize,
-	.get_url = nudgis_url,
-	.get_key = nudgis_key,
+	nudgis_name,       //const char *(*get_name)(void *type_data);
+	nudgis_create,     //void *(*create)(obs_data_t *settings, obs_service_t *service);
+	nudgis_destroy,    //void (*destroy)(void *data);
+
+	/* optional */
+	NULL,              //void (*activate)(void *data, obs_data_t *settings);
+	NULL,              //void (*deactivate)(void *data);
+
+	nudgis_update,     //void (*update)(void *data, obs_data_t *settings);
+
+	NULL,              //void (*get_defaults)(obs_data_t *settings);
+
+	NULL,              //obs_properties_t *(*get_properties)(void *data);
+
+	/**
+	 * Called when getting ready to start up an output, before the encoders
+	 * and output are initialized
+	 *
+	 * @param  data    Internal service data
+	 * @param  output  Output context
+	 * @return         true to allow the output to start up,
+	 *                 false to prevent output from starting up
+	 */
+	nudgis_initialize, //bool (*initialize)(void *data, obs_output_t *output);
+
+	nudgis_url,        //const char *(*get_url)(void *data);
+	nudgis_key,        // const char *(*get_key)(void *data);
+
+	NULL,              //const char *(*get_username)(void *data);
+	NULL,              //const char *(*get_password)(void *data);
+
+	NULL,              //bool (*deprecated_1)();
+
+	NULL,              //void (*apply_encoder_settings)(void *data,
+                       //       obs_data_t *video_encoder_settings,
+                       //       obs_data_t *audio_encoder_settings);
+
+	NULL,              //void *type_data;
+	NULL,              //void (*free_type_data)(void *type_data);
+
+	NULL,              //const char *(*get_output_type)(void *data);
+
+	NULL,              //void (*get_supported_resolutions)(
+                       //void *data, struct obs_service_resolution **resolutions,
+                       //size_t *count);
+	NULL,              //void (*get_max_fps)(void *data, int *fps);
+
+	NULL,              //void (*get_max_bitrate)(void *data, int *video_bitrate,
+                       //int *audio_bitrate);
 };
 
 void nudgis_service_register()

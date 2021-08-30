@@ -7,7 +7,7 @@ Copyright (C) 2021 Ubicast
 #include <obs-frontend-api.h>
 #include "plugin-macros.generated.h"
 #include "plugin-main.hpp"
-#include "nudgis-service.h"
+#include "nudgis-service.hpp"
 #include "ui_settings.h"
 #include "nudgis_data.h"
 #include <json/json.h>
