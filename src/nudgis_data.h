@@ -1,6 +1,10 @@
 #ifndef NUDGIS_DATA_H
 #define NUDGIS_DATA_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _nudgis_data
 {
     char * apiKey;
@@ -14,5 +18,9 @@ typedef struct _nudgis_data
 void set_nudgis_data(const nudgis_data_t * nudgis_data);
 const nudgis_data_t * get_nudgis_data();
 void free_nudgis_data();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
