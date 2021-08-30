@@ -13,5 +13,6 @@ typedef struct _nudgis_data
 
 void set_nudgis_data(const nudgis_data_t * nudgis_data);
 const nudgis_data_t * get_nudgis_data();
+void free_nudgis_data();
 
 #endif
