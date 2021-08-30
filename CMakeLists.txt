@@ -72,7 +72,7 @@ set(PLUGIN_UI
 
 set(PLUGIN_SOURCES
 	src/plugin-main.cpp
-        src/nudgis-service.c
+        src/nudgis-service.cpp
         src/nudgis_data.c)
 
 set(PLUGIN_HEADERS
