@@ -3,126 +3,55 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 #include <obs-module.h>
-#include <curl/curl.h>
 #include <jansson.h>
+
+using namespace std;
 
 #define RTMP_PROTOCOL        "rtmp"
 
-#define FMT_PREPARE_URL      "%s/api/v2/lives/prepare/"
-#define FMT_START_URL        "%s/api/v2/lives/start/"
+#define PATH_PREPARE_URL     "/api/v2/lives/prepare/"
+#define PATH_START_URL       "/api/v2/lives/start/"
 
-
-#define FMT_PREPARE_REQUEST  "api_key=%s&title=%s&channel=%s"
-#define FMT_START_REQUEST    "api_key=%s&oid=%s"
-
-extern bool GetRemoteFile(const char *url, std::string &str, std::string &error,
-		   long *responseCode, const char *contentType,
-		   std::string request_type, const char *postData,
-		   std::vector<std::string> extraHeaders,
-		   std::string *signature, int timeoutSec, bool fail_on_error);
-
-typedef struct _buffer_data_t
-{
-    char * buffer;
-    size_t len;
-}buffer_data_t;
-
-static size_t write_callback(void *data, size_t size, size_t nmemb, buffer_data_t * buffer_data)
-{
-    size_t size_new_data = size * nmemb;
-    buffer_data->buffer = (char*)realloc(buffer_data->buffer,buffer_data->len + size_new_data);
-    if (buffer_data->buffer)
-    {
-        memcpy(buffer_data->buffer + buffer_data->len,data,size_new_data);
-        buffer_data->len += size_new_data;
-    }
-    return size_new_data;
-}
+#define PARAM_API_KEY        "api_key="
+#define PARAM_TITLE          "title="
+#define PARAM_CHANNEL        "channel="
+#define PARAM_OID            "oid="
 
 typedef struct nudgis {
 	char *server, *key, *oid;
 } nudgis_t;
 
-static void buffer_data_free(buffer_data_t * buffer_data)
+void process_prepare_response(string response,nudgis_t * nudgis)
 {
-    if (buffer_data != NULL)
+    if (nudgis != NULL)
     {
-        free(buffer_data->buffer);
-        buffer_data->buffer = NULL;
-        buffer_data->len = 0;
+        json_t *root;
+        root = json_loads(response.c_str(),0,NULL);
+        json_t *streams = json_object_get(root,"streams");
+        json_t *oid = json_object_get(root,"oid");
+        const char * oid_str = json_string_value(oid);
+        json_t *stream= json_array_get(streams,0);
+        json_t *server_uri = json_object_get(stream,"server_uri");
+        const char * server_uri_str = json_string_value(server_uri);
+        json_t *stream_id = json_object_get(stream,"stream_id");
+        const char * stream_id_str = json_string_value(stream_id);
+
+        blog(LOG_INFO,"server_uri_str: %s",server_uri_str);
+        blog(LOG_INFO,"stream_id_str: %s",stream_id_str);
+
+        bfree(nudgis->key);
+        nudgis->key = bstrdup(stream_id_str);
+
+        bfree(nudgis->server);
+        nudgis->server = bstrdup(server_uri_str);
+
+        bfree(nudgis->oid);
+        nudgis->oid = bstrdup(oid_str);
+
+        json_decref(root);
     }
-}
-
-void process_prepare_response(const buffer_data_t * buffer_data,nudgis_t * nudgis)
-{
-    if (buffer_data != NULL && nudgis != NULL)
-    {
-
-        if (buffer_data->buffer != NULL)
-        {
-            json_t *root;
-            root = json_loadb(buffer_data->buffer,buffer_data->len,0,NULL);
-            json_t *streams = json_object_get(root,"streams");
-            json_t *oid = json_object_get(root,"oid");
-            const char * oid_str = json_string_value(oid);
-            json_t *stream= json_array_get(streams,0);
-            json_t *server_uri = json_object_get(stream,"server_uri");
-            const char * server_uri_str = json_string_value(server_uri);
-            json_t *stream_id = json_object_get(stream,"stream_id");
-            const char * stream_id_str = json_string_value(stream_id);
-
-            blog(LOG_INFO,"server_uri_str: %s",server_uri_str);
-            blog(LOG_INFO,"stream_id_str: %s",stream_id_str);
-
-            bfree(nudgis->key);
-            nudgis->key = bstrdup(stream_id_str);
-
-            bfree(nudgis->server);
-            nudgis->server = bstrdup(server_uri_str);
-
-            bfree(nudgis->oid);
-            nudgis->oid = bstrdup(oid_str);
-
-            json_decref(root);
-        }
-    }
-}
-
-int send_request(const char * url,char * data,buffer_data_t * buffer_data)
-{
-    int result = -1;
-    if (buffer_data != NULL && url != NULL)
-    {
-        CURL *curl;
-        buffer_data_free(buffer_data);
-        CURLcode res;
-        curl_global_init(CURL_GLOBAL_ALL);
-        curl = curl_easy_init();
-
-        if(curl) 
-        {
-
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, buffer_data);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-        res = curl_easy_perform(curl);
-
-        if(res != CURLE_OK)
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        curl_easy_cleanup(curl);
-        }
-
-        curl_global_cleanup();
-
-        if (buffer_data->buffer != NULL)
-        {
-            printf("%.*s\n",(int)buffer_data->len,buffer_data->buffer);
-            result = 0;
-        }
-    }
-    return result;
 }
 
 static const char *nudgis_name(void *unused)
@@ -166,43 +95,56 @@ static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
 	return data;
 }
 
-static char * bstrdup_printf(const char * format, ... )
+bool GetRemoteFile(
+	const char *url, std::string &str, std::string &error,
+	long *responseCode = nullptr, const char *contentType = nullptr,
+	std::string request_type = "", const char *postData = nullptr,
+	std::vector<std::string> extraHeaders = std::vector<std::string>(),
+	std::string *signature = nullptr, int timeoutSec = 0,
+	bool fail_on_error = true);
+
+bool GetRemoteFile(const char *url, std::string &str, const char *postData = nullptr)
 {
-    char * result = NULL;
-    va_list args;
-    va_start (args, format);
-    int len_alloc = vsnprintf(NULL,0,format, args) + 1;
-    result = (char *)bmalloc(len_alloc);
-    va_start (args, format);
-    vsnprintf(result,len_alloc,format, args);
-    va_end (args);
-    return result;
+    string error = {};
+    return GetRemoteFile(url,str,error,nullptr,nullptr,"",postData);
+}
+
+bool GetRemoteFile(const char *url, const char *postData = nullptr)
+{
+    string str = {};
+    return GetRemoteFile(url, str, postData);
 }
 
 static bool nudgis_initialize(void *data, obs_output_t *output)
 {
-    const nudgis_data_t * nudgis_data = get_nudgis_data();
-    (void)output;
-    nudgis_t * nudgis = (nudgis_t *)data;
     blog(LOG_INFO, "Enter in %s", __func__);
-    buffer_data_t buffer_data = {};
-    char * payload_prepare_url = bstrdup_printf(FMT_PREPARE_REQUEST,nudgis_data->apiKey,nudgis_data->streamTitle,nudgis_data->streamChannel);
-    blog(LOG_INFO,"payload_prepare_url: %s",payload_prepare_url);
-    char * prepare_url = bstrdup_printf(FMT_PREPARE_URL,nudgis_data->url);
-    send_request(prepare_url,payload_prepare_url,&buffer_data);
-    process_prepare_response(&buffer_data,nudgis);
-    buffer_data_free(&buffer_data);
+    (void)output;
+    const nudgis_data_t * nudgis_data = get_nudgis_data();
+    nudgis_t * nudgis = (nudgis_t *)data;
 
-    char * payload_start_url = bstrdup_printf(FMT_START_REQUEST,nudgis_data->apiKey,nudgis->oid);
-    blog(LOG_INFO,"payload_start_url: %s",payload_start_url);
-    char * start_url = bstrdup_printf(FMT_START_URL,nudgis_data->url);
-    send_request(start_url,payload_start_url,&buffer_data);
-    blog(LOG_INFO,"start_request_response: %.*s",(int)buffer_data.len,buffer_data.buffer);
+    ostringstream prepare_url("");
+    prepare_url << nudgis_data->url << PATH_PREPARE_URL;
+    blog(LOG_INFO,"prepare_url: %s",prepare_url.str().c_str());
 
-    bfree(payload_prepare_url);
-    bfree(payload_start_url);
-    bfree(prepare_url);
-    bfree(start_url);
+    ostringstream prepare_postdata("");
+    prepare_postdata << PARAM_API_KEY << nudgis_data->apiKey << "&" << PARAM_TITLE << nudgis_data->streamTitle << "&" << PARAM_CHANNEL << nudgis_data->streamChannel;
+    blog(LOG_INFO,"prepare_postdata: %s",prepare_postdata.str().c_str());
+
+    string response_url = {};
+    GetRemoteFile(prepare_url.str().c_str(),response_url,prepare_postdata.str().c_str());
+
+    blog(LOG_INFO,"response_url: %s",response_url.c_str());
+    process_prepare_response(response_url,nudgis);
+
+    ostringstream start_url("");
+    start_url << nudgis_data->url << PATH_START_URL;
+    blog(LOG_INFO,"start_url: %s",start_url.str().c_str());
+
+    ostringstream start_postdata("");
+    start_postdata << PARAM_API_KEY << nudgis_data->apiKey << "&" << PARAM_OID << nudgis->oid;
+    blog(LOG_INFO,"start_postdata: %s",start_postdata.str().c_str());
+
+    GetRemoteFile(start_url.str().c_str(),start_postdata.str().c_str());
 
     return true;
 }
