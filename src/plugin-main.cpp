@@ -9,10 +9,7 @@ Copyright (C) 2021 Ubicast
 #include "plugin-main.hpp"
 #include "nudgis-service.h"
 #include "ui_settings.h"
-extern "C"
-{
 #include "nudgis_data.h"
-}
 #include <json/json.h>
 #include <curl/curl.h>
 #include <QMainWindow>
