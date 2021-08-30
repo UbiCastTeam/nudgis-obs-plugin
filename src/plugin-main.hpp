@@ -12,6 +12,7 @@ class NudgisSettings : public QWidget
 
 public:
     NudgisSettings();
+    ~NudgisSettings();
 private:
     void clearWindow();
     void saveSettings();

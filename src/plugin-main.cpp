@@ -108,6 +108,11 @@ NudgisSettings::NudgisSettings(): QWidget(nullptr), ui(new Ui_Settings)
     connect(ui->pushButton_2, &QPushButton::clicked, this, &NudgisSettings::saveSettings);
 }   
 
+NudgisSettings::~NudgisSettings()
+{
+    free_nudgis_data();
+}
+
 void NudgisSettings::clearWindow()
 {
     ui->lineEdit->setText(QString());
