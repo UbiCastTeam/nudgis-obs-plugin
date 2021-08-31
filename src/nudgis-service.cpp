@@ -96,8 +96,11 @@ static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
 
 bool GetRemoteFile(const char *url, std::string &str, const char *postData = nullptr)
 {
+    bool result = false;
     string error = {};
-    return GetRemoteFile(url,str,error,nullptr,nullptr,"",postData);
+    result =  GetRemoteFile(url,str,error,nullptr,nullptr,"",postData);
+    blog(LOG_DEBUG, "GetRemoteFile response: %s", str.c_str());
+    return result;
 }
 
 bool GetRemoteFile(const char *url, const char *postData = nullptr)
@@ -124,7 +127,6 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
     string response_url = {};
     GetRemoteFile(prepare_url.str().c_str(),response_url,prepare_postdata.str().c_str());
 
-    blog(LOG_INFO,"response_url: %s",response_url.c_str());
     process_prepare_response(response_url,nudgis);
 
     ostringstream start_url("");
