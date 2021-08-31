@@ -12,6 +12,7 @@ using namespace std;
 
 #define PATH_PREPARE_URL     "/api/v2/lives/prepare/"
 #define PATH_START_URL       "/api/v2/lives/start/"
+#define PATH_STOP_URL        "/api/v2/lives/stop/"
 
 #define PARAM_API_KEY        "api_key="
 #define PARAM_TITLE          "title="
@@ -156,6 +157,24 @@ static const char *nudgis_key(void *data)
     return service->key;
 }
 
+static void nudgis_deactivate(void *data)
+{
+    blog(LOG_INFO, "Enter in %s", __func__);
+    (void)data;
+    nudgis_t *nudgis =  (nudgis_t *)data;
+    const nudgis_data_t * nudgis_data = get_nudgis_data();
+
+    ostringstream stop_url("");
+    stop_url << nudgis_data->url << PATH_STOP_URL;
+    blog(LOG_INFO,"start_url: %s",stop_url.str().c_str());
+
+    ostringstream stop_postdata("");
+    stop_postdata << PARAM_API_KEY << nudgis_data->apiKey << "&" << PARAM_OID << nudgis->oid;
+    blog(LOG_INFO,"stop_postdata: %s",stop_postdata.str().c_str());
+
+    GetRemoteFile(stop_url.str().c_str(),stop_postdata.str().c_str());
+}
+
 struct obs_service_info nudgis_service =
  {
 	/* required */
@@ -167,7 +186,7 @@ struct obs_service_info nudgis_service =
 
 	/* optional */
 	NULL,              //void (*activate)(void *data, obs_data_t *settings);
-	NULL,              //void (*deactivate)(void *data);
+	nudgis_deactivate, //void (*deactivate)(void *data);
 
 	nudgis_update,     //void (*update)(void *data, obs_data_t *settings);
 
