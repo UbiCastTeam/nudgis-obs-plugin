@@ -54,11 +54,13 @@ void process_prepare_response(string response,nudgis_t * nudgis)
     }
 }
 
+#define NUDGIS_NAME   "Nudgis"
+
 static const char *nudgis_name(void *unused)
 {
     blog(LOG_INFO, "Enter in %s", __func__);
 	UNUSED_PARAMETER(unused);
-	return obs_module_text("Nudgis");
+	return obs_module_text(NUDGIS_NAME);
 }
 
 static void nudgis_update(void *data, obs_data_t *settings)
@@ -175,6 +177,26 @@ static void nudgis_deactivate(void *data)
     GetRemoteFile(stop_url.str().c_str(),stop_postdata.str().c_str());
 }
 
+static obs_properties_t *nudgis_properties(void *data)
+{
+    blog(LOG_INFO, "Enter in %s", __func__);
+    (void)data;
+    const nudgis_data_t * nudgis_data = get_nudgis_data();
+    obs_property_t *p;
+    obs_properties_t *ppts = obs_properties_create();
+    p = obs_properties_add_list(ppts, "service", obs_module_text("Service"),
+				    OBS_COMBO_TYPE_LIST,
+				    OBS_COMBO_FORMAT_STRING);
+    obs_property_list_add_string( p, nudgis_name(data), NUDGIS_NAME);
+
+    p = obs_properties_add_list(ppts, "server", obs_module_text("Server"),
+				OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+
+    obs_property_list_add_string( p, obs_module_text(nudgis_data->url), nudgis_data->url);
+
+    return ppts;
+}
+
 struct obs_service_info nudgis_service =
  {
 	/* required */
@@ -192,7 +214,7 @@ struct obs_service_info nudgis_service =
 
 	NULL,              //void (*get_defaults)(obs_data_t *settings);
 
-	NULL,              //obs_properties_t *(*get_properties)(void *data);
+	nudgis_properties, //obs_properties_t *(*get_properties)(void *data);
 
 	/**
 	 * Called when getting ready to start up an output, before the encoders
