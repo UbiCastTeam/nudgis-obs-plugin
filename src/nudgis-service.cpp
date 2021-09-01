@@ -1,5 +1,5 @@
 #include "nudgis-service.hpp"
-#include "nudgis_data.h"
+#include "nudgis-config.hpp"
 
 #include <string>
 #include <vector>
@@ -124,15 +124,15 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
 {
     UNUSED_PARAMETER(output);
     blog(LOG_INFO, "Enter in %s", __func__);
-    const nudgis_data_t * nudgis_data = get_nudgis_data();
+    NudgisConfig * nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     nudgis_t * nudgis = (nudgis_t *)data;
 
     ostringstream prepare_url("");
-    prepare_url << nudgis_data->url << PATH_PREPARE_URL;
+    prepare_url << nudgis_config->url << PATH_PREPARE_URL;
     blog(LOG_INFO,"prepare_url: %s",prepare_url.str().c_str());
 
     ostringstream prepare_postdata("");
-    prepare_postdata << PARAM_API_KEY << nudgis_data->apiKey << "&" << PARAM_TITLE << nudgis_data->streamTitle << "&" << PARAM_CHANNEL << nudgis_data->streamChannel;
+    prepare_postdata << PARAM_API_KEY << nudgis_config->api_key << "&" << PARAM_TITLE << nudgis_config->stream_title << "&" << PARAM_CHANNEL << nudgis_config->stream_channel;
     blog(LOG_INFO,"prepare_postdata: %s",prepare_postdata.str().c_str());
 
     string response_url = {};
@@ -141,11 +141,11 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
     process_prepare_response(response_url,nudgis);
 
     ostringstream start_url("");
-    start_url << nudgis_data->url << PATH_START_URL;
+    start_url << nudgis_config->url << PATH_START_URL;
     blog(LOG_INFO,"start_url: %s",start_url.str().c_str());
 
     ostringstream start_postdata("");
-    start_postdata << PARAM_API_KEY << nudgis_data->apiKey << "&" << PARAM_OID << nudgis->oid;
+    start_postdata << PARAM_API_KEY << nudgis_config->api_key << "&" << PARAM_OID << nudgis->oid;
     blog(LOG_INFO,"start_postdata: %s",start_postdata.str().c_str());
 
     GetRemoteFile(start_url.str().c_str(),start_postdata.str().c_str());
@@ -172,14 +172,14 @@ static void nudgis_deactivate(void *data)
     UNUSED_PARAMETER(data);
     blog(LOG_INFO, "Enter in %s", __func__);
     nudgis_t *nudgis =  (nudgis_t *)data;
-    const nudgis_data_t * nudgis_data = get_nudgis_data();
+    NudgisConfig * nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
 
     ostringstream stop_url("");
-    stop_url << nudgis_data->url << PATH_STOP_URL;
+    stop_url << nudgis_config->url << PATH_STOP_URL;
     blog(LOG_INFO,"start_url: %s",stop_url.str().c_str());
 
     ostringstream stop_postdata("");
-    stop_postdata << PARAM_API_KEY << nudgis_data->apiKey << "&" << PARAM_OID << nudgis->oid;
+    stop_postdata << PARAM_API_KEY << nudgis_config->api_key << "&" << PARAM_OID << nudgis->oid;
     blog(LOG_INFO,"stop_postdata: %s",stop_postdata.str().c_str());
 
     GetRemoteFile(stop_url.str().c_str(),stop_postdata.str().c_str());
@@ -189,7 +189,7 @@ static obs_properties_t *nudgis_properties(void *data)
 {
     UNUSED_PARAMETER(data);
     blog(LOG_INFO, "Enter in %s", __func__);
-    const nudgis_data_t * nudgis_data = get_nudgis_data();
+    NudgisConfig * nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     obs_property_t *p;
     obs_properties_t *ppts = obs_properties_create();
     p = obs_properties_add_list(ppts, "service", obs_module_text("Service"),
@@ -200,7 +200,7 @@ static obs_properties_t *nudgis_properties(void *data)
     p = obs_properties_add_list(ppts, "server", obs_module_text("Server"),
 				OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 
-    obs_property_list_add_string( p, obs_module_text(nudgis_data->url), nudgis_data->url);
+    obs_property_list_add_string( p, obs_module_text(nudgis_config->url.c_str()), nudgis_config->url.c_str());
 
     return ppts;
 }

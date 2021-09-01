@@ -12,24 +12,12 @@ class NudgisSettings : public QWidget
 
 public:
     NudgisSettings();
-    ~NudgisSettings();
 private:
     void clearWindow();
     void saveSettings();
-    void box();
-    std::string removeQuotes(std::string str);
-
-    void uploadVod();
-    bool upload = false;
-    std::string apiKey;
-    std::string url;
-    std::string streamTitle;
-    std::string vodTitle;
-    std::string streamChannel;
-    std::string vodChannel;  
-    void UpdateNudgisData();
-
-signals:    
+    void loadSettings();
+protected:
+    void showEvent(QShowEvent *event);
 
 };
 
