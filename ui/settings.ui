@@ -79,7 +79,7 @@
     <string>Live Settings</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_3">
+  <widget class="QLineEdit" name="stream_title">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -92,7 +92,7 @@
     <string/>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_4">
+  <widget class="QLineEdit" name="stream_channel">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -177,7 +177,7 @@
     <string>Title :</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_5">
+  <widget class="QLineEdit" name="vod_title">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -190,7 +190,7 @@
     <string/>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_6">
+  <widget class="QLineEdit" name="vod_channel">
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -303,7 +303,7 @@
     <string>Clear</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="url">
    <property name="geometry">
     <rect>
      <x>70</x>
@@ -313,7 +313,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_2">
+  <widget class="QLineEdit" name="api_key">
    <property name="geometry">
     <rect>
      <x>70</x>

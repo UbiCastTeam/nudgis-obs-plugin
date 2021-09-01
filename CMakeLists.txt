@@ -34,13 +34,6 @@ endif()
 
 find_package(LibObs REQUIRED)
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSONCPP jsoncpp)
-link_libraries(${JSONCPP_LIBRARIES})
-
-message("FOUND CONFIG: ${JSONCPP_CONFIG}")
-message("INCLUDE DIRS: ${JSONCPP_INCLUDE_DIRS}")
-message("LIBRARIES: ${JSONCPP_LIBRARIES}")
 
 configure_file(
     src/plugin-macros.h.in
@@ -73,7 +66,8 @@ set(PLUGIN_UI
 set(PLUGIN_SOURCES
 	src/plugin-main.cpp
         src/nudgis-service.cpp
-        src/nudgis_data.c)
+        src/nudgis-config.cpp
+        )
 
 set(PLUGIN_HEADERS
 	src/plugin-macros.generated.h)
@@ -86,13 +80,11 @@ add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS} ${P
 include_directories(
 	${Qt5Core_INCLUDES}
 	${Qt5Widgets_INCLUDES}
-	${JSONCPP_INCLUDE_DIRS}
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
 	libobs
 	Qt5::Widgets
-	${JSONCPP_LIBRARIES}
 )
 
 # --- End of section ---
