@@ -58,14 +58,14 @@ void process_prepare_response(string response,nudgis_t * nudgis)
 
 static const char *nudgis_name(void *unused)
 {
+    UNUSED_PARAMETER(unused);
     blog(LOG_INFO, "Enter in %s", __func__);
-	UNUSED_PARAMETER(unused);
 	return obs_module_text(NUDGIS_NAME);
 }
 
 static void nudgis_update(void *data, obs_data_t *settings)
 {
-    (void)settings;
+    UNUSED_PARAMETER(settings);
     blog(LOG_INFO, "Enter in %s", __func__);
 	nudgis_t *service =  (nudgis_t *)data;
 
@@ -89,11 +89,10 @@ static void nudgis_destroy(void *data)
 
 static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
 {
+    UNUSED_PARAMETER(service);
     blog(LOG_INFO, "Enter in %s", __func__);
 	nudgis_t *data = (nudgis_t *)bzalloc(sizeof(struct nudgis));
 	nudgis_update(data, settings);
-
-	UNUSED_PARAMETER(service);
 	return data;
 }
 
@@ -114,8 +113,8 @@ bool GetRemoteFile(const char *url, const char *postData = nullptr)
 
 static bool nudgis_initialize(void *data, obs_output_t *output)
 {
+    UNUSED_PARAMETER(output);
     blog(LOG_INFO, "Enter in %s", __func__);
-    (void)output;
     const nudgis_data_t * nudgis_data = get_nudgis_data();
     nudgis_t * nudgis = (nudgis_t *)data;
 
@@ -161,8 +160,8 @@ static const char *nudgis_key(void *data)
 
 static void nudgis_deactivate(void *data)
 {
+    UNUSED_PARAMETER(data);
     blog(LOG_INFO, "Enter in %s", __func__);
-    (void)data;
     nudgis_t *nudgis =  (nudgis_t *)data;
     const nudgis_data_t * nudgis_data = get_nudgis_data();
 
@@ -179,8 +178,8 @@ static void nudgis_deactivate(void *data)
 
 static obs_properties_t *nudgis_properties(void *data)
 {
+    UNUSED_PARAMETER(data);
     blog(LOG_INFO, "Enter in %s", __func__);
-    (void)data;
     const nudgis_data_t * nudgis_data = get_nudgis_data();
     obs_property_t *p;
     obs_properties_t *ppts = obs_properties_create();
