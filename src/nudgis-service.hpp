@@ -1,6 +1,6 @@
 #ifndef NUDGIS_SERVICE_HPP
 #define NUDGIS_SERVICE_HPP
 
-void nudgis_service_register();
+extern struct obs_service_info nudgis_service;
 
 #endif
