@@ -31,7 +31,7 @@ static const string & GetRemoteFile(const string &url, const string &postData, b
     bool get_remote_file = GetRemoteFile(url.c_str(),response,error,nullptr,nullptr,"",postData.c_str());
     if (result != NULL)
         *result = get_remote_file;
-    mlog(LOG_DEBUG, "GetRemoteFile response: %s", response.c_str());
+    mlog(LOG_DEBUG, "GetRemoteFile (%s) response: %s", get_remote_file ? "OK" : "NOK",response.c_str());
     return response;
 }
 
@@ -69,13 +69,20 @@ class NudgisData {
         string stream_id = DEF_STREAM_ID;
         string oid = DEF_OID;
 
-        const string & PostData(const string &url, const string &postData, bool * result = nullptr)
+        const string & PostData(const string &url, const string &postData, bool * result)
         {
             bool get_remote_file;
             const string &response = GetRemoteFile(url,postData,&get_remote_file);
             if (get_remote_file && result != NULL)
                 *result = this->GetResponseSuccess(response);
             return response;
+        }
+
+        bool PostData(const string &url, const string &postData)
+        {
+            bool result;
+            this->PostData(url,postData,&result);
+            return result;
         }
 
         bool InitFromPrepareResponse(const string &prepare_response)
@@ -217,16 +224,19 @@ static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
 
 static bool nudgis_initialize(void *data, obs_output_t *output)
 {
+    bool result = false;
     UNUSED_PARAMETER(output);
     mlog(LOG_DEBUG, "Enter in %s", __func__);
     NudgisData * nudgis_data = (NudgisData *)data;
 
-    string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(),nudgis_data->GetPreparePostdata());
-    nudgis_data->InitFromPrepareResponse(prepare_response);
+    string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(),nudgis_data->GetPreparePostdata(),&result);
+    if (result)
+    {
+        nudgis_data->InitFromPrepareResponse(prepare_response);
+        result = nudgis_data->PostData(nudgis_data->GetStartUrl(),nudgis_data->GetStartPostdata());
+    }
 
-    nudgis_data->PostData(nudgis_data->GetStartUrl(),nudgis_data->GetStartPostdata());
-
-    return true;
+    return result;
 }
 
 static const char *nudgis_url(void *data)
