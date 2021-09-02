@@ -19,7 +19,8 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 /*-----------------------------------------------------------------------------------------------*/
 static NudgisSettings *settingsWindow = nullptr;
 
-NudgisSettings::NudgisSettings(): QWidget(nullptr), ui(new Ui_Settings)
+NudgisSettings::NudgisSettings()
+        : QWidget(nullptr), ui(new Ui_Settings)
 {
     mlog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
     ui->setupUi(this);
@@ -36,7 +37,7 @@ void NudgisSettings::showEvent(QShowEvent *event)
 
 void NudgisSettings::loadSettings()
 {
-    NudgisConfig * nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
+    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     ui->url->setText(QString(nudgis_config->url.c_str()));
     ui->api_key->setText(QString(nudgis_config->api_key.c_str()));
     ui->stream_title->setText(QString(nudgis_config->stream_title.c_str()));
@@ -47,23 +48,23 @@ void NudgisSettings::loadSettings()
 
 void NudgisSettings::clearWindow()
 {
-    QLineEdit * lines_edit  [] =
-    {
-        ui->url,
-        ui->api_key,
-        ui->stream_title,
-        ui->stream_channel,
-        ui->vod_title,
-        ui->vod_channel,
-    };
-    for (QLineEdit * line_edit : lines_edit)
+    QLineEdit *lines_edit[] =
+            {
+                    ui->url,
+                    ui->api_key,
+                    ui->stream_title,
+                    ui->stream_channel,
+                    ui->vod_title,
+                    ui->vod_channel,
+            };
+    for (QLineEdit *line_edit : lines_edit)
         line_edit->clear();
     mlog(LOG_INFO, "Window Cleared Succesfully !");
 }
 
 void NudgisSettings::saveSettings()
 {
-    NudgisConfig * nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
+    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     nudgis_config->url = ui->url->text().toStdString();
     nudgis_config->api_key = ui->api_key->text().toStdString();
     nudgis_config->stream_title = ui->stream_title->text().toStdString();
@@ -79,13 +80,12 @@ void NudgisSettings::saveSettings()
 
 const char *obs_module_name(void)
 {
-	return "Nudgis Obs Plugin";
+    return "Nudgis Obs Plugin";
 }
 
 void openWindow()
 {
-    if (!settingsWindow) 
-    {
+    if (!settingsWindow) {
         settingsWindow = new NudgisSettings();
         settingsWindow->resize(375, 410);
         settingsWindow->setWindowTitle(QApplication::translate("toplevel", "Nudgis Plugin Settings"));
@@ -98,7 +98,7 @@ void openWindow()
 bool obs_module_load()
 {
     mlog(LOG_INFO, "Nudgis plugin loaded successfully (version %s)", PLUGIN_VERSION);
-    QAction * menu_action = (QAction*) obs_frontend_add_tools_menu_qaction("Nudgis Plugin Settings");
+    QAction *menu_action = (QAction *)obs_frontend_add_tools_menu_qaction("Nudgis Plugin Settings");
     mlog(LOG_INFO, "Menu entry for Settings added");
     menu_action->connect(menu_action, &QAction::triggered, openWindow);
     obs_register_service(&nudgis_service);
