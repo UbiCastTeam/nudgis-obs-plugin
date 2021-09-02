@@ -8,8 +8,6 @@
 #define DEF_API_KEY ""
 #define DEF_STREAM_TITLE "Title"
 #define DEF_STREAM_CHANNEL "Channel"
-#define DEF_VOD_TITLE ""
-#define DEF_VOD_CHANNEL ""
 
 #define SIZEOF_PATH 512
 
@@ -21,8 +19,6 @@ NudgisConfig::NudgisConfig()
     this->api_key = DEF_API_KEY;
     this->stream_title = DEF_STREAM_TITLE;
     this->stream_channel = DEF_STREAM_CHANNEL;
-    this->vod_title = DEF_VOD_TITLE;
-    this->vod_channel = DEF_VOD_CHANNEL;
 }
 
 void NudgisConfig::load(const char *filename)
@@ -45,12 +41,6 @@ void NudgisConfig::load(const char *filename)
         obs_data_set_default_string(data, "stream_channel", DEF_STREAM_CHANNEL);
         this->stream_channel = obs_data_get_string(data, "stream_channel");
 
-        obs_data_set_default_string(data, "vod_title", DEF_VOD_TITLE);
-        this->vod_title = obs_data_get_string(data, "vod_title");
-
-        obs_data_set_default_string(data, "vod_channel", DEF_VOD_CHANNEL);
-        this->vod_channel = obs_data_get_string(data, "vod_channel");
-
         obs_data_release(data);
     }
 }
@@ -66,8 +56,6 @@ void NudgisConfig::save(const char *filename)
     obs_data_set_string(data, "api_key", this->api_key.c_str());
     obs_data_set_string(data, "stream_title", this->stream_title.c_str());
     obs_data_set_string(data, "stream_channel", this->stream_channel.c_str());
-    obs_data_set_string(data, "vod_title", this->vod_title.c_str());
-    obs_data_set_string(data, "vod_channel", this->vod_channel.c_str());
 
     if (!obs_data_save_json_safe(data, path, "tmp", "bak"))
         mlog(LOG_WARNING, "Failed to save nudgis_config");
