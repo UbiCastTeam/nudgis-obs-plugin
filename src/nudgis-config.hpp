@@ -12,8 +12,6 @@ public:
     string api_key;
     string stream_title;
     string stream_channel;
-    string vod_title;
-    string vod_channel;
     NudgisConfig();
     void load(const char *filename = DEF_FILE_NAME);
     void save(const char *filename = DEF_FILE_NAME);

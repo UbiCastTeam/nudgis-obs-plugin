@@ -42,8 +42,6 @@ void NudgisSettings::loadSettings()
     ui->api_key->setText(QString(nudgis_config->api_key.c_str()));
     ui->stream_title->setText(QString(nudgis_config->stream_title.c_str()));
     ui->stream_channel->setText(QString(nudgis_config->stream_channel.c_str()));
-    ui->vod_title->setText(QString(nudgis_config->vod_title.c_str()));
-    ui->vod_channel->setText(QString(nudgis_config->vod_channel.c_str()));
 }
 
 void NudgisSettings::clearWindow()
@@ -54,8 +52,6 @@ void NudgisSettings::clearWindow()
                     ui->api_key,
                     ui->stream_title,
                     ui->stream_channel,
-                    ui->vod_title,
-                    ui->vod_channel,
             };
     for (QLineEdit *line_edit : lines_edit)
         line_edit->clear();
@@ -69,8 +65,6 @@ void NudgisSettings::saveSettings()
     nudgis_config->api_key = ui->api_key->text().toStdString();
     nudgis_config->stream_title = ui->stream_title->text().toStdString();
     nudgis_config->stream_channel = ui->stream_channel->text().toStdString();
-    nudgis_config->vod_title = ui->vod_title->text().toStdString();
-    nudgis_config->vod_channel = ui->vod_channel->text().toStdString();
     nudgis_config->save();
     this->close();
 }

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>396</width>
-    <height>371</height>
+    <height>241</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_settings">
@@ -133,76 +133,6 @@
       <widget class="QLineEdit" name="stream_channel">
        <property name="text">
         <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_vod_settings">
-     <item alignment="Qt::AlignHCenter">
-      <widget class="QLabel" name="label_vod_settings">
-       <property name="text">
-        <string>VOD Settings</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_vod_title">
-     <item>
-      <widget class="QLabel" name="label_vod_title">
-       <property name="minimumSize">
-        <size>
-         <width>70</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Title :</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="vod_title">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_vod_channel">
-     <item>
-      <widget class="QLabel" name="label_vod_channel">
-       <property name="minimumSize">
-        <size>
-         <width>70</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Channel :</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="vod_channel">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_auto_publish">
-     <item alignment="Qt::AlignHCenter">
-      <widget class="QCheckBox" name="checkBox_auto_publish">
-       <property name="text">
-        <string>Auto Publish</string>
        </property>
       </widget>
      </item>
