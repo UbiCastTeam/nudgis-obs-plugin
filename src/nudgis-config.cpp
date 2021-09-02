@@ -1,11 +1,13 @@
 #include "nudgis-config.hpp"
-#include "obs.hpp"
+#include "plugin-macros.generated.h"
+
+#include <obs.hpp>
 #include <obs-utils.hpp>
 
 #define DEF_URL            "https://beta.ubicast.net"
 #define DEF_API_KEY        ""
-#define DEF_STREAM_TITLE   "Test de live OBS"
-#define DEF_STREAM_CHANNEL "OBS"
+#define DEF_STREAM_TITLE   "Title"
+#define DEF_STREAM_CHANNEL "Channel"
 #define DEF_VOD_TITLE      ""
 #define DEF_VOD_CHANNEL    ""
 
@@ -14,11 +16,6 @@
 static NudgisConfig currentNudgisConfig;
 
 NudgisConfig::NudgisConfig()
-{
-    this->load_default();
-}
-
-void NudgisConfig::load_default()
 {
     this->url = DEF_URL;
     this->api_key = DEF_API_KEY;
@@ -74,7 +71,7 @@ void NudgisConfig::save(const char * filename)
     obs_data_set_string(data, "vod_channel", this->vod_channel.c_str());
 
     if (!obs_data_save_json_safe(data, path, "tmp", "bak"))
-        blog(LOG_WARNING, "Failed to save nudgis_config");
+        mlog(LOG_WARNING, "Failed to save nudgis_config");
 
     obs_data_release(data);
 }

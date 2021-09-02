@@ -64,7 +64,7 @@ set(PLUGIN_UI
 
 
 set(PLUGIN_SOURCES
-	src/plugin-main.cpp
+	src/nudgis-plugin.cpp
         src/nudgis-service.cpp
         src/nudgis-config.cpp
         )
