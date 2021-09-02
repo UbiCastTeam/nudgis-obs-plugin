@@ -87,7 +87,6 @@ void openWindow()
 {
     if (!settingsWindow) {
         settingsWindow = new NudgisSettings();
-        settingsWindow->resize(375, 410);
         settingsWindow->setWindowTitle(QApplication::translate("toplevel", "Nudgis Plugin Settings"));
     }
 
