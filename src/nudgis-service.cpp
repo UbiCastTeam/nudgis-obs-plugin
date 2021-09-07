@@ -7,6 +7,7 @@
 #include <sstream>
 #include <obs-module.h>
 #include <jansson.h>
+#include <obs-frontend-api.h>
 
 using namespace std;
 
@@ -50,6 +51,8 @@ static const string &GetRemoteFile(const string &url, const string &postData, bo
 
 class NudgisData {
 private:
+    obs_data_t *settings = NULL;
+
     NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
 
     bool GetResponseSuccess(obs_data_t *obs_data)
@@ -125,6 +128,11 @@ public:
     string stream_id = DEF_STREAM_ID;
     string oid = DEF_OID;
 
+    NudgisData(obs_data_t *settings)
+    {
+        this->settings = settings;
+    }
+
     const string &PostData(const string &url, const string &postData, bool *result)
     {
         bool get_remote_file;
@@ -156,6 +164,9 @@ public:
 
                     obs_data_set_default_string(stream, "stream_id", DEF_STREAM_ID);
                     this->stream_id = obs_data_get_string(stream, "stream_id");
+
+                    obs_data_set_string(settings, "key", this->stream_id.c_str());
+                    obs_frontend_save_streaming_service();
 
                     obs_data_release(stream);
                 }
@@ -271,7 +282,7 @@ static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
     UNUSED_PARAMETER(settings);
     UNUSED_PARAMETER(service);
     mlog(LOG_DEBUG, "Enter in %s", __func__);
-    NudgisData *nudgis_data = new NudgisData();
+    NudgisData *nudgis_data = new NudgisData(settings);
     return nudgis_data;
 }
 
