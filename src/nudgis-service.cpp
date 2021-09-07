@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <obs-module.h>
+#include <jansson.h>
 #include <obs-utils.hpp>
 
 using namespace std;
@@ -13,6 +14,7 @@ using namespace std;
 #define DEF_SERVER_URI "rtmp"
 #define DEF_STREAM_ID "stream_id"
 #define DEF_OID "oid"
+#define DEF_MULTI_STREAMS "no"
 
 #define PATH_PREPARE_URL "/api/v2/lives/prepare/"
 #define PATH_START_URL "/api/v2/lives/start/"
@@ -22,6 +24,8 @@ using namespace std;
 #define PARAM_TITLE "title="
 #define PARAM_CHANNEL "channel="
 #define PARAM_OID "oid="
+#define PARAM_MULTI_STREAMS "multi_streams="
+#define PARAM_STREAMS "streams="
 
 static const string &GetRemoteFile(const string &url, const string &postData, bool *result = nullptr)
 {
@@ -58,6 +62,52 @@ private:
             result = this->GetResponseSuccess(obs_data);
             obs_data_release(obs_data);
         }
+        return result;
+    }
+
+    const string &GetJsonStreams(obs_output_t *output)
+    {
+        static string result;
+
+        int width;
+        int height;
+        int video_bitrate;
+        int audio_bitrate;
+        int framerate;
+
+        obs_encoder_t *venc = obs_output_get_video_encoder(output);
+        obs_encoder_t *aenc = obs_output_get_audio_encoder(output, 0);
+        obs_data_t *vsettings = obs_encoder_get_settings(venc);
+        obs_data_t *asettings = obs_encoder_get_settings(aenc);
+
+        video_bitrate = obs_data_get_int(vsettings, "bitrate") * 1000;
+        audio_bitrate = obs_data_get_int(asettings, "bitrate") * 1000;
+
+        obs_data_release(vsettings);
+        obs_data_release(asettings);
+
+        const struct video_output_info *output_video_info = video_output_get_info(obs_output_video(output));
+        width = output_video_info->width;
+        height = output_video_info->height;
+        framerate = output_video_info->fps_num;
+
+        json_t *streams = json_array();
+        if (streams != NULL) {
+            json_t *stream = json_object();
+            if (stream != NULL) {
+                json_object_set(stream, "width", json_integer(width));
+                json_object_set(stream, "height", json_integer(height));
+                json_object_set(stream, "video_bitrate", json_integer(video_bitrate));
+                json_object_set(stream, "audio_bitrate", json_integer(audio_bitrate));
+                json_object_set(stream, "framerate", json_integer(framerate));
+
+                json_array_append_new(streams, stream);
+            }
+
+            result = json_dumps(streams, 0);
+            json_decref(streams);
+        }
+
         return result;
     }
 
@@ -132,12 +182,12 @@ public:
         return result;
     }
 
-    const string &GetPreparePostdata()
+    const string &GetPreparePostdata(obs_output_t *output)
     {
         static string result;
 
         ostringstream prepare_postdata;
-        prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->nudgis_config->stream_channel;
+        prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << GetJsonStreams(output) << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->nudgis_config->stream_channel;
         result = prepare_postdata.str();
         mlog(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
 
@@ -223,7 +273,7 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
     mlog(LOG_DEBUG, "Enter in %s", __func__);
     NudgisData *nudgis_data = (NudgisData *)data;
 
-    string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(), nudgis_data->GetPreparePostdata(), &result);
+    string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(), nudgis_data->GetPreparePostdata(output), &result);
     if (result) {
         nudgis_data->InitFromPrepareResponse(prepare_response);
         result = nudgis_data->PostData(nudgis_data->GetStartUrl(), nudgis_data->GetStartPostdata());
