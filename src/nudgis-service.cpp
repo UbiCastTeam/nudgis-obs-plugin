@@ -17,6 +17,7 @@ using namespace std;
 #define DEF_STREAM_ID "stream_id"
 #define DEF_OID "oid"
 #define DEF_MULTI_STREAMS "no"
+#define DEF_KEYINT_SEC 3
 
 #define PATH_PREPARE_URL "/api/v2/lives/prepare/"
 #define PATH_START_URL "/api/v2/lives/start/"
@@ -28,6 +29,12 @@ using namespace std;
 #define PARAM_OID "oid="
 #define PARAM_MULTI_STREAMS "multi_streams="
 #define PARAM_STREAMS "streams="
+
+#define SIZEOF_PATH 512
+
+#define FILENAME_STREAMENCODER "streamEncoder.json"
+
+int GetProfilePath(char *path, size_t size, const char *file);
 
 bool GetRemoteFile(
         const char *url, std::string &str, std::string &error,
@@ -263,6 +270,31 @@ public:
     }
 };
 
+static void update_video_keyint_sec(int new_value, obs_output_t *output)
+{
+    obs_data_t *settings;
+    obs_encoder_t *venc;
+    int old_value;
+    char path[SIZEOF_PATH];
+    GetProfilePath(path, SIZEOF_PATH, FILENAME_STREAMENCODER);
+
+    settings = obs_data_create_from_json_file_safe(path, "bak");
+    old_value = obs_data_get_int(settings, "keyint_sec");
+
+    if (old_value != new_value) {
+        obs_data_set_int(settings, "keyint_sec", new_value);
+        obs_data_save_json_safe(settings, path, "tmp", "bak");
+    }
+    obs_data_release(settings);
+
+    venc = obs_output_get_video_encoder(output);
+    settings = obs_encoder_get_settings(venc);
+    old_value = obs_data_get_int(settings, "keyint_sec");
+    if (old_value != new_value)
+        obs_data_set_int(settings, "keyint_sec", new_value);
+    obs_data_release(settings);
+}
+
 static const char *nudgis_name(void *unused)
 {
     UNUSED_PARAMETER(unused);
@@ -292,6 +324,8 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
     UNUSED_PARAMETER(output);
     mlog(LOG_DEBUG, "Enter in %s", __func__);
     NudgisData *nudgis_data = (NudgisData *)data;
+
+    update_video_keyint_sec(DEF_KEYINT_SEC, output);
 
     string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(), nudgis_data->GetPreparePostdata(output), &result);
     if (result) {
