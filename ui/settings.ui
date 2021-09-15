@@ -154,6 +154,13 @@
        </property>
       </widget>
      </item>
+     <item alignment="Qt::AlignHCenter">
+      <widget class="QPushButton" name="btn_stream">
+       <property name="text">
+        <string>Basic.Main.StartStreaming</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>

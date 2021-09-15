@@ -262,7 +262,7 @@ static void update_video_keyint_sec(int new_value, obs_output_t *output)
     obs_data_t *settings;
     obs_encoder_t *venc;
     int old_value;
-    const char * path = obs_frontend_get_current_profile_path(FILENAME_STREAMENCODER);
+    const char *path = obs_frontend_get_current_profile_path(FILENAME_STREAMENCODER);
 
     settings = obs_data_create_from_json_file_safe(path, "bak");
     old_value = obs_data_get_int(settings, "keyint_sec");
@@ -364,7 +364,7 @@ static obs_properties_t *nudgis_properties(void *data)
     return ppts;
 }
 
-struct obs_service_info nudgis_service =
+struct obs_service_info nudgis_service_info =
         {
                 /* required */
                 "nudgis", // const char *id;

@@ -2,6 +2,7 @@
 #define NUDGISSETTINGS_H
 
 #include <QWidget>
+#include <obs-frontend-api.h>
 
 class Ui_Settings;
 
@@ -13,9 +14,12 @@ public:
     NudgisSettings();
 
 private:
+    static void obsFrontendEvent(enum obs_frontend_event event, void *private_data);
+    void refreshBtnStreamDisabled();
     void clearWindow();
     void saveSettings();
     void loadSettings();
+    void stream();
 
 protected:
     void showEvent(QShowEvent *event);

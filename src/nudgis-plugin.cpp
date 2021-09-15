@@ -9,7 +9,6 @@ Copyright (C) 2021 Ubicast
 #include "ui_settings.h"
 
 #include <obs-module.h>
-#include <obs-frontend-api.h>
 #include <QAction>
 
 OBS_DECLARE_MODULE()
@@ -18,6 +17,7 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 /*NUDGIS SETTINGS METHODS DEFINITION*/
 /*-----------------------------------------------------------------------------------------------*/
 static NudgisSettings *settingsWindow = nullptr;
+static obs_service_t *nudgis_service = nullptr;
 
 NudgisSettings::NudgisSettings()
         : QWidget(nullptr), ui(new Ui_Settings)
@@ -25,8 +25,25 @@ NudgisSettings::NudgisSettings()
     mlog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
     ui->setupUi(this);
 
+    obs_frontend_add_event_callback(&NudgisSettings::obsFrontendEvent, this);
+    this->refreshBtnStreamDisabled();
+
     connect(ui->btn_clearWindow, &QPushButton::clicked, this, &NudgisSettings::clearWindow);
     connect(ui->btn_saveSettings, &QPushButton::clicked, this, &NudgisSettings::saveSettings);
+    connect(ui->btn_stream, &QPushButton::clicked, this, &NudgisSettings::stream);
+}
+
+void NudgisSettings::refreshBtnStreamDisabled()
+{
+    bool active = obs_frontend_streaming_active();
+    this->ui->btn_stream->setDisabled(active);
+}
+
+void NudgisSettings::obsFrontendEvent(enum obs_frontend_event event, void *private_data)
+{
+    NudgisSettings *nudgis_settings = (NudgisSettings *)private_data;
+    if (event == OBS_FRONTEND_EVENT_STREAMING_STARTED || event == OBS_FRONTEND_EVENT_STREAMING_STOPPED)
+        nudgis_settings->refreshBtnStreamDisabled();
 }
 
 void NudgisSettings::showEvent(QShowEvent *event)
@@ -69,6 +86,13 @@ void NudgisSettings::saveSettings()
     this->close();
 }
 
+void NudgisSettings::stream()
+{
+    this->saveSettings();
+    obs_frontend_set_streaming_service(nudgis_service);
+    obs_frontend_streaming_start();
+}
+
 /*LOAD AND UNLOAD OF THE PLUGIN*/
 /*-----------------------------------------------------------------------------------------------*/
 
@@ -94,7 +118,9 @@ bool obs_module_load()
     QAction *menu_action = (QAction *)obs_frontend_add_tools_menu_qaction("Nudgis Plugin Settings");
     mlog(LOG_INFO, "Menu entry for Settings added");
     menu_action->connect(menu_action, &QAction::triggered, openWindow);
-    obs_register_service(&nudgis_service);
+    obs_register_service(&nudgis_service_info);
+    nudgis_service = obs_service_create(nudgis_service_info.id, nudgis_service_info.get_name(nullptr), nullptr, nullptr);
+
     return true;
 }
 
@@ -103,4 +129,6 @@ void obs_module_unload()
     mlog(LOG_INFO, "Nudgis Plugin Successfully Unloaded");
     if (settingsWindow != NULL)
         delete settingsWindow;
+    if (nudgis_service != NULL)
+        obs_service_release(nudgis_service);
 }
