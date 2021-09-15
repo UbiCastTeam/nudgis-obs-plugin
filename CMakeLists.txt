@@ -67,6 +67,7 @@ set(PLUGIN_SOURCES
 	src/nudgis-plugin.cpp
         src/nudgis-service.cpp
         src/nudgis-config.cpp
+        src/obs/obs-utils.cpp
         )
 
 set(PLUGIN_HEADERS
@@ -78,6 +79,7 @@ qt5_wrap_ui(PLUGIN_UI_HEADERS ${PLUGIN_UI})
 add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS} ${PLUGIN_UI_HEADERS})
 
 include_directories(
+	src/obs
 	${Qt5Core_INCLUDES}
 	${Qt5Widgets_INCLUDES}
 )
