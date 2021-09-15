@@ -1,15 +1,13 @@
 #include "nudgis-config.hpp"
 #include "plugin-macros.generated.h"
+#include "obs-utils.hpp"
 
 #include <obs.hpp>
-#include <obs-utils.hpp>
 
 #define DEF_URL "https://beta.ubicast.net"
 #define DEF_API_KEY ""
 #define DEF_STREAM_TITLE "Title"
 #define DEF_STREAM_CHANNEL "Channel"
-
-#define SIZEOF_PATH 512
 
 static NudgisConfig currentNudgisConfig;
 
@@ -23,8 +21,7 @@ NudgisConfig::NudgisConfig()
 
 void NudgisConfig::load(const char *filename)
 {
-    char path[SIZEOF_PATH];
-    GetProfilePath(path, SIZEOF_PATH, filename);
+    const char * path = obs_frontend_get_current_profile_path(filename);
 
     obs_data_t *data = obs_data_create_from_json_file_safe(path, "bak");
 
@@ -47,8 +44,7 @@ void NudgisConfig::load(const char *filename)
 
 void NudgisConfig::save(const char *filename)
 {
-    char path[SIZEOF_PATH];
-    GetProfilePath(path, SIZEOF_PATH, filename);
+    const char * path = obs_frontend_get_current_profile_path(filename);
 
     obs_data_t *data = obs_data_create();
 
