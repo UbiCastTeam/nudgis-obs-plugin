@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>396</width>
-    <height>241</height>
+    <height>340</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_settings">
@@ -154,10 +154,17 @@
        </property>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_warning">
      <item alignment="Qt::AlignHCenter">
-      <widget class="QPushButton" name="btn_stream">
+      <widget class="QLabel" name="label_warning">
        <property name="text">
-        <string>Basic.Main.StartStreaming</string>
+        <string>Attention - toute modification de service dans l'interface de paramètres d'OBS supprime la sélection du service Nudgis pour le streaming. Pour réactiver la sélection du service Nugdis ouvrez à nouveau cette interface et cliquez sur Enregistrer.</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

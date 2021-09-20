@@ -25,25 +25,8 @@ NudgisSettings::NudgisSettings()
     mlog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
     ui->setupUi(this);
 
-    obs_frontend_add_event_callback(&NudgisSettings::obsFrontendEvent, this);
-    this->refreshBtnStreamDisabled();
-
     connect(ui->btn_clearWindow, &QPushButton::clicked, this, &NudgisSettings::clearWindow);
     connect(ui->btn_saveSettings, &QPushButton::clicked, this, &NudgisSettings::saveSettings);
-    connect(ui->btn_stream, &QPushButton::clicked, this, &NudgisSettings::stream);
-}
-
-void NudgisSettings::refreshBtnStreamDisabled()
-{
-    bool active = obs_frontend_streaming_active();
-    this->ui->btn_stream->setDisabled(active);
-}
-
-void NudgisSettings::obsFrontendEvent(enum obs_frontend_event event, void *private_data)
-{
-    NudgisSettings *nudgis_settings = (NudgisSettings *)private_data;
-    if (event == OBS_FRONTEND_EVENT_STREAMING_STARTED || event == OBS_FRONTEND_EVENT_STREAMING_STOPPED)
-        nudgis_settings->refreshBtnStreamDisabled();
 }
 
 void NudgisSettings::showEvent(QShowEvent *event)
@@ -83,14 +66,9 @@ void NudgisSettings::saveSettings()
     nudgis_config->stream_title = ui->stream_title->text().toStdString();
     nudgis_config->stream_channel = ui->stream_channel->text().toStdString();
     nudgis_config->save();
-    this->close();
-}
-
-void NudgisSettings::stream()
-{
-    this->saveSettings();
     obs_frontend_set_streaming_service(nudgis_service);
-    obs_frontend_streaming_start();
+    obs_frontend_save_streaming_service();
+    this->close();
 }
 
 /*LOAD AND UNLOAD OF THE PLUGIN*/
