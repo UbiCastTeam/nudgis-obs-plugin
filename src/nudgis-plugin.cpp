@@ -55,7 +55,7 @@ void NudgisSettings::clearWindow()
             };
     for (QLineEdit *line_edit : lines_edit)
         line_edit->clear();
-    mlog(LOG_INFO, "Window Cleared Succesfully !");
+    mlog(LOG_INFO, "%s", "Window Cleared Succesfully !");
 }
 
 void NudgisSettings::saveSettings()
@@ -94,7 +94,7 @@ bool obs_module_load()
 {
     mlog(LOG_INFO, "Nudgis plugin loaded successfully (version %s)", PLUGIN_VERSION);
     QAction *menu_action = (QAction *)obs_frontend_add_tools_menu_qaction("Nudgis Plugin Settings");
-    mlog(LOG_INFO, "Menu entry for Settings added");
+    mlog(LOG_INFO, "%s", "Menu entry for Settings added");
     menu_action->connect(menu_action, &QAction::triggered, openWindow);
     obs_register_service(&nudgis_service_info);
     nudgis_service = obs_service_create(nudgis_service_info.id, nudgis_service_info.get_name(nullptr), nullptr, nullptr);
@@ -104,7 +104,7 @@ bool obs_module_load()
 
 void obs_module_unload()
 {
-    mlog(LOG_INFO, "Nudgis Plugin Successfully Unloaded");
+    mlog(LOG_INFO, "%s", "Nudgis Plugin Successfully Unloaded");
     if (settingsWindow != NULL)
         delete settingsWindow;
     if (nudgis_service != NULL)

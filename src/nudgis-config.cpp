@@ -54,7 +54,7 @@ void NudgisConfig::save(const char *filename)
     obs_data_set_string(data, "stream_channel", this->stream_channel.c_str());
 
     if (!obs_data_save_json_safe(data, path, "tmp", "bak"))
-        mlog(LOG_WARNING, "Failed to save nudgis_config");
+        mlog(LOG_WARNING, "%s", "Failed to save nudgis_config");
 
     obs_data_release(data);
 }
