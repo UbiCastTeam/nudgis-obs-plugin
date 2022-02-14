@@ -21,7 +21,7 @@ NudgisConfig::NudgisConfig()
 
 void NudgisConfig::load(const char *filename)
 {
-    const char * path = obs_frontend_get_current_profile_path(filename);
+    const char *path = obs_frontend_get_current_profile_path(filename);
 
     obs_data_t *data = obs_data_create_from_json_file_safe(path, "bak");
 
@@ -44,7 +44,7 @@ void NudgisConfig::load(const char *filename)
 
 void NudgisConfig::save(const char *filename)
 {
-    const char * path = obs_frontend_get_current_profile_path(filename);
+    const char *path = obs_frontend_get_current_profile_path(filename);
 
     obs_data_t *data = obs_data_create();
 
