@@ -131,8 +131,12 @@ public:
     {
         bool get_remote_file;
         const string &response = GetRemoteFile(url, postData, &get_remote_file);
-        if (get_remote_file && result != NULL)
-            *result = this->GetResponseSuccess(response);
+        if (result != NULL)
+        {
+            *result = false;
+            if (get_remote_file)
+                *result = this->GetResponseSuccess(response);
+        }
         return response;
     }
 
