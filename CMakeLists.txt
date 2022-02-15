@@ -27,7 +27,12 @@ target_sources(${CMAKE_PROJECT_NAME}
 
 # /!\ TAKE NOTE: No need to edit things past this point /!\
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+find_package(Jansson REQUIRED)
+find_package(Libcurl REQUIRED)
 find_package(LibObs REQUIRED)
+find_package(LibObsFrontendApi REQUIRED)
 include(external/ObsPluginHelpers.cmake)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
@@ -47,13 +52,18 @@ target_include_directories(${CMAKE_PROJECT_NAME}
 	PRIVATE
 		${CMAKE_SOURCE_DIR}/src/obs
 		${CMAKE_SOURCE_DIR}/src
-        ${LIBOBS_INCLUDE_DIRS}/../UI/obs-frontend-api)
+		${LIBOBSFRONTENDAPI_INCLUDE_DIR}
+		${LIBCURL_INCLUDE_DIRS}
+		${JANSSON_INCLUDE_DIRS})
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
 	PRIVATE
 		libobs
 		Qt5::Core
-		Qt5::Widgets)
+		Qt5::Widgets
+		${LIBOBSFRONTENDAPI_LIBRARIES}
+		${LIBCURL_LIBRARIES}
+		${JANSSON_LIBRARIES})
 
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
 	AUTOMOC ON

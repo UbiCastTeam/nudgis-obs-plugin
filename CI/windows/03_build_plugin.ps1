@@ -34,6 +34,7 @@ function Build-OBS-Plugin {
         $DepsFolder = "${CheckoutDir}/../obs-build-dependencies/dependencies${WindowsDepsVersion}/win64"
         $Env:CMAKE_PREFIX_PATH="${QtFolder};${DepsFolder}/bin;${DepsFolder}"
         $Env:LibObs_DIR="${CheckoutDir}/../obs-studio/plugin_${BuildDirectory}64/libobs"
+        $Env:JanssonPath="${CheckoutDir}/../obs-studio/plugin_${BuildDirectory}64/deps/jansson"
 
         cmake -S . -B "${BuildDirectory}64" -G "Visual Studio 16 2019" `
             -DCMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT=TRUE `
@@ -47,6 +48,7 @@ function Build-OBS-Plugin {
         $DepsFolder = "${CheckoutDir}/../obs-build-dependencies/dependencies${WindowsDepsVersion}/win32"
         $Env:CMAKE_PREFIX_PATH="${QtFolder};${DepsFolder}/bin;${DepsFolder}"
         $Env:LibObs_DIR="${CheckoutDir}/../obs-studio/plugin_${BuildDirectory}32/libobs"
+        $Env:JanssonPath="${CheckoutDir}/../obs-studio/plugin_${BuildDirectory}32/deps/jansson"
 
         cmake -S . -B "${BuildDirectory}32" -G "Visual Studio 16 2019" `
             -DCMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT=TRUE `
