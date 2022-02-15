@@ -10,7 +10,7 @@ on:
     branches: [master]
 
 env:
-  OBS_VERSION: '27.1.3'
+  OBS_VERSION: '27.2.0'
   PRODUCT_NAME: 'obs-plugin'
   QT_VERSION_MAC: '5.15.2'
   QT_HASH_MAC: 'a09690095d16b3f476ae6e0f5bf3154effcd6571738c1c40f8abbb83676d2afb'

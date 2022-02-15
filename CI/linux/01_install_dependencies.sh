@@ -61,7 +61,8 @@ install_linux_dependencies() {
         libmbedtls-dev \
         libgl1-mesa-dev \
         pkg-config \
-        libcurl4-openssl-dev
+        libcurl4-openssl-dev \
+        libpci-dev
 
     if ! type cmake &>/dev/null; then
         sudo apt-get install -y cmake
