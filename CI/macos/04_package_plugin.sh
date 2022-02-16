@@ -12,76 +12,30 @@
 set -eE
 
 package_obs_plugin() {
-    if [ "${CODESIGN}" ]; then
-        read_codesign_ident
-    fi
+    rm -rf ${BUILD_FOLDER}/${BUNDLE_IMAGE_FOLDER}
 
-    status "Package OBS plugin ${PRODUCT_NAME}"
-    trap "caught_error 'package_obs_plugin'" ERR
+    install -d ${BUILD_FOLDER}/${BUNDLE_IMAGE_FOLDER}/Applications/OBS.app/Contents/PlugIns
+    install -d ${BUILD_FOLDER}/${BUNDLE_IMAGE_FOLDER}/Applications/OBS.app/Contents/Resources/data/obs-plugins/${PLUGIN_NAME}/locale
 
-    ensure_dir "${CHECKOUT_DIR}"
+    install -m 0755 ${BUILD_FOLDER}/${PLUGIN_NAME}.so  ${BUILD_FOLDER}/${BUNDLE_IMAGE_FOLDER}/Applications/OBS.app/Contents/PlugIns/
+    install -m 0644 ${BUILD_FOLDER}/../data/locale/* ${BUILD_FOLDER}/${BUNDLE_IMAGE_FOLDER}/Applications/OBS.app/Contents/Resources/data/obs-plugins/${PLUGIN_NAME}/locale/
 
-    if [ -d "${BUILD_DIR}/rundir/${PRODUCT_NAME}.plugin" ]; then
-        rm -rf "${BUILD_DIR}/rundir/${PRODUCT_NAME}.plugin"
-    fi
+    tar -C ${BUILD_FOLDER}/${BUNDLE_IMAGE_FOLDER} -caf ${BUILD_FOLDER}/${PLUGIN_NAME}.tar.gz Applications/OBS.app/Contents/PlugIns/ Applications/OBS.app/Contents/Resources/data/obs-plugins/${PLUGIN_NAME}/locale
 
-    cmake --install ${BUILD_DIR}
+    cat > ${BUILD_FOLDER}/${PLUGIN_NAME}-install.command <<EOF
+#! /usr/bin/env bash
+cd \$(dirname "\$0")
+tar -C / -xvf ${PLUGIN_NAME}.tar.gz
+EOF
+    chmod a+x ${BUILD_FOLDER}/${PLUGIN_NAME}-install.command
 
-    if ! type packagesbuild &>/dev/null; then
-        status "Setting up dependency Packages.app"
-        step "Download..."
-        check_and_fetch "http://s.sudre.free.fr/Software/files/Packages.dmg" "6afdd25386295974dad8f078b8f1e41cabebd08e72d970bf92f707c7e48b16c9"
+    cat > ${BUILD_FOLDER}/${PLUGIN_NAME}-uninstall.command <<EOF
+#! /usr/bin/env bash
+rm -rf /Applications/OBS.app//Contents/PlugIns/${PLUGIN_NAME}.so /Applications/OBS.app//Contents/Resources/data/obs-plugins/${PLUGIN_NAME}
+EOF
+    chmod a+x ${BUILD_FOLDER}/${PLUGIN_NAME}-uninstall.command
 
-        step "Mount disk image..."
-        hdiutil attach -noverify Packages.dmg
-
-        step "Install Packages.app"
-        PACKAGES_VOLUME=$(hdiutil info -plist | grep "/Volumes/Packages" | sed 's/<string>\/Volumes\/\([^<]*\)<\/string>/\1/' | sed -e 's/^[[:space:]]*//')
-        sudo installer -pkg "/Volumes/${PACKAGES_VOLUME}/packages/Packages.pkg" -target /
-        hdiutil detach "/Volumes/${PACKAGES_VOLUME}"
-    fi
-
-    step "Package ${PRODUCT_NAME}..."
-    packagesbuild ./bundle/installer-macOS.generated.pkgproj
-
-    if [ "${CODESIGN}" ]; then
-        step "Codesigning installer package..."
-        read_codesign_ident_installer
-
-        /usr/bin/productsign --sign "${CODESIGN_IDENT_INSTALLER}" "${BUILD_DIR}/${PRODUCT_NAME}.pkg" "${FILE_NAME}"
-    fi
-}
-
-notarize_obs_plugin() {
-    status "Notarize ${PRODUCT_NAME}"
-    trap "caught_error 'notarize_obs_plugin'" ERR
-
-    if ! exists brew; then
-        error "Homebrew not found - please install homebrew (https://brew.sh)"
-        exit 1
-    fi
-
-    if ! exists xcnotary; then
-        step "Install notarization dependency 'xcnotary'"
-        brew install akeru-inc/tap/xcnotary
-    fi
-
-    ensure_dir "${CHECKOUT_DIR}"
-
-    if [ -f "${FILE_NAME}" ]; then
-        xcnotary precheck "${FILE_NAME}"
-    else
-        error "No notarization package installer ('${FILE_NAME}') found"
-        return
-    fi
-
-    if [ "$?" -eq 0 ]; then
-        read_codesign_ident_installer
-        read_codesign_pass
-
-        step "Run xcnotary with ${FILE_NAME}..."
-        xcnotary notarize "${FILE_NAME}" --developer-account "${CODESIGN_IDENT_USER}" --developer-password-keychain-item "OBS-Codesign-Password" --provider "${CODESIGN_IDENT_SHORT}"
-    fi
+    tar -C ${BUILD_FOLDER} -caf ${BUILD_FOLDER}/${PLUGIN_NAME}-package.tar.gz ${PLUGIN_NAME}.tar.gz ${PLUGIN_NAME}-uninstall.command ${PLUGIN_NAME}-install.command
 }
 
 package-plugin-standalone() {
@@ -89,31 +43,11 @@ package-plugin-standalone() {
     if [ -f "${CHECKOUT_DIR}/CI/include/build_environment.sh" ]; then
         source "${CHECKOUT_DIR}/CI/include/build_environment.sh"
     fi
-    PRODUCT_NAME="${PRODUCT_NAME:-obs-plugin}"
-    source "${CHECKOUT_DIR}/CI/include/build_support.sh"
-    source "${CHECKOUT_DIR}/CI/include/build_support_macos.sh"
+    PLUGIN_NAME="${PRODUCT_NAME:-nudgis-obs-plugin}"
+    BUILD_FOLDER="${BUILD_FOLDER:-build}"
+    BUNDLE_IMAGE_FOLDER="${BUNDLE_IMAGE_FOLDER:-bundle-image}"
 
-    GIT_BRANCH=$(/usr/bin/git rev-parse --abbrev-ref HEAD)
-    GIT_HASH=$(/usr/bin/git rev-parse --short HEAD)
-    GIT_TAG=$(/usr/bin/git describe --tags --abbrev=0 2&>/dev/null || true)
-
-    check_macos_version
-    check_archs
-
-    if [ "${ARCH}" = "arm64" ]; then
-        FILE_NAME="${PRODUCT_NAME}-${GIT_TAG:-${PRODUCT_VERSION}}-${GIT_HASH}-macOS-Apple.pkg"
-    elif [ "${ARCH}" = "x86_64" ]; then
-        FILE_NAME="${PRODUCT_NAME}-${GIT_TAG:-${PRODUCT_VERSION}}-${GIT_HASH}-macOS-Intel.pkg"
-    else
-        FILE_NAME="${PRODUCT_NAME}-${GIT_TAG:-${PRODUCT_VERSION}}-${GIT_HASH}-macOS-Universal.pkg"
-    fi
-
-    check_curl
     package_obs_plugin
-
-    if [ "${NOTARIZE}" ]; then
-        notarize_obs_plugin
-    fi
 }
 
 print_usage() {
@@ -121,10 +55,8 @@ print_usage() {
             "-h, --help                     : Print this help\n" \
             "-q, --quiet                    : Suppress most build process output\n" \
             "-v, --verbose                  : Enable more verbose build process output\n" \
-            "-a, --architecture             : Specify build architecture (default: x86_64, alternative: arm64)\n" \
-            "-c, --codesign                 : Codesign OBS and all libraries (default: ad-hoc only)\n" \
-            "-n, --notarize                 : Notarize OBS (default: off)\n" \
-            "--build-dir                    : Specify alternative build directory (default: build)\n"
+            "--build-dir                    : Specify alternative build directory (default: build)\n" \
+            "--bundle-image-folder          : Specify alternative bundle-image directory (default: bundle-image)\n"
 }
 
 package-plugin-main() {
@@ -134,11 +66,8 @@ package-plugin-main() {
                 -h | --help ) print_usage; exit 0 ;;
                 -q | --quiet ) export QUIET=TRUE; shift ;;
                 -v | --verbose ) export VERBOSE=TRUE; shift ;;
-                -a | --architecture ) ARCH="${2}"; shift 2 ;;
-                -c | --codesign ) CODESIGN=TRUE; shift ;;
-                -n | --notarize ) NOTARIZE=TRUE; CODESIGN=TRUE; shift ;;
-                -s | --standalone ) STANDALONE=TRUE; shift ;;
-                --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
+                --build-dir ) BUILD_FOLDER="${2}"; shift 2 ;;
+                --bundle-image-folder ) BUNDLE_IMAGE_FOLDER="${2}"; shift 2 ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

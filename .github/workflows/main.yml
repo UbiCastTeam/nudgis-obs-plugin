@@ -146,14 +146,14 @@ jobs:
       - name: 'Create build artifact'
         if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
         working-directory: 'plugin'
-        run: CI/macos/04_package_plugin.sh "${{ env.CODESIGN_OPTION }}" --architecture "${{ matrix.arch }}"
+        run: CI/macos/04_package_plugin.sh
 
       - name: 'Upload build Artifact'
         if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
         uses: actions/upload-artifact@v2
         with:
           name: '${{ env.PRODUCT_NAME }}-macos-${{ matrix.arch }}'
-          path: '${{ github.workspace }}/plugin/build/*.pkg'
+          path: '${{ github.workspace }}/plugin/build/nudgis-obs-plugin-package.tar.gz'
 
   linux_build:
     name: '02 - Linux (Ubuntu, 20.04)'
@@ -358,51 +358,3 @@ jobs:
         with:
           name: '${{ env.PRODUCT_NAME }}-windows-release'
           path: '${{ github.workspace }}/*-Windows-Installer.exe'
-
-  macos_release:
-    name: '03 - macOS notarized image'
-    runs-on: [macos-latest]
-    needs: [macos_build]
-    env:
-      HAVE_CODESIGN_IDENTITY: ${{ secrets.MACOS_SIGNING_APPLICATION_IDENTITY != '' && secrets.MACOS_SIGNING_INSTALLER_IDENTITY && secrets.MACOS_SIGNING_CERT != '' }}
-    if: startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request'
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: 'Checkout'
-        if: env.HAVE_CODESIGN_IDENTITY == 'true'
-        uses: actions/checkout@v2.3.3
-        with:
-          submodules: 'recursive'
-
-      - name: 'Download artifact'
-        if: env.HAVE_CODESIGN_IDENTITY == 'true'
-        uses: actions/download-artifact@v2
-        with:
-          name: '${{ env.PRODUCT_NAME }}-macos'
-
-      - name: 'Install Apple Developer Certificate'
-        if: env.HAVE_CODESIGN_IDENTITY == 'true'
-        uses: apple-actions/import-codesign-certs@253ddeeac23f2bdad1646faac5c8c2832e800071
-        with:
-          p12-file-base64: ${{ secrets.MACOS_SIGNING_CERT }}
-          p12-password: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
-
-      - name: 'Install prerequisite XCNotary'
-        if: env.HAVE_CODESIGN_IDENTITY == 'true'
-        run: brew bundle --file CI/include/Xcnotary
-
-      - name: 'Create disk image for distribution'
-        if: env.HAVE_CODESIGN_IDENTITY == 'true'
-        env:
-          CODESIGN_IDENT_USER: '${{ secrets.MACOS_NOTARIZATION_USERNAME }}'
-          CODESIGN_IDENT_PASS: '${{ secrets.MACOS_NOTARIZATION_PASSWORD }}'
-        run: CI/macos/04_package_plugin.sh --notarize
-
-      - name: 'Upload notarized installer package'
-        if: env.HAVE_CODESIGN_IDENTITY == 'true'
-        uses: actions/upload-artifact@v2
-        with:
-          name: '${{ env.PRODUCT_NAME }}-macos-release'
-          path: '${{ github.workspace }}/plugin/build/*.pkg'
