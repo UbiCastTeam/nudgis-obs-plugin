@@ -2,6 +2,7 @@
 #define NUDGISSETTINGS_H
 
 #include <QWidget>
+#include <QLineEdit>
 #include <obs-frontend-api.h>
 
 class Ui_Settings;
@@ -14,12 +15,16 @@ public:
     NudgisSettings();
 
 private:
-    void clearWindow();
-    void saveSettings();
     void loadSettings();
+    void Set_sw_EchoMode(QLineEdit::EchoMode mode);
 
 protected:
     void showEvent(QShowEvent *event);
+
+private slots:
+    void on_btn_clearWindow_clicked();
+    void on_btn_saveSettings_clicked();
+    void on_btn_sw_EchoMode_clicked();
 };
 
 #endif // NUDGISSETTINGS_H

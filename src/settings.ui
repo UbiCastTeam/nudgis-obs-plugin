@@ -10,6 +10,9 @@
     <height>340</height>
    </rect>
   </property>
+  <property name="WindowTitle" stdset="0">
+   <string>NudgisPlugin.settings.WindowTitle</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_settings">
    <property name="sizeConstraint">
     <enum>QLayout::SetFixedSize</enum>
@@ -19,7 +22,7 @@
      <item alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="label_configuration">
        <property name="text">
-        <string>Configuration</string>
+        <string>NudgisPlugin.settings.Configuration</string>
        </property>
       </widget>
      </item>
@@ -36,7 +39,7 @@
         </size>
        </property>
        <property name="text">
-        <string>URL :</string>
+        <string>NudgisPlugin.settings.URL</string>
        </property>
       </widget>
      </item>
@@ -66,7 +69,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Api Key : </string>
+        <string>NudgisPlugin.settings.Api_Key</string>
        </property>
       </widget>
      </item>
@@ -74,6 +77,16 @@
       <widget class="QLineEdit" name="api_key">
        <property name="text">
         <string/>
+       </property>
+       <property name="EchoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_sw_EchoMode">
+       <property name="text">
+        <string>Show</string>
        </property>
       </widget>
      </item>
@@ -84,7 +97,7 @@
      <item alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="label_live_setting">
        <property name="text">
-        <string>Live Settings</string>
+        <string>NudgisPlugin.settings.Live_Settings</string>
        </property>
       </widget>
      </item>
@@ -101,7 +114,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Title :</string>
+        <string>NudgisPlugin.settings.Title</string>
        </property>
       </widget>
      </item>
@@ -125,7 +138,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Channel :</string>
+        <string>NudgisPlugin.settings.Channel</string>
        </property>
       </widget>
      </item>
@@ -135,6 +148,57 @@
         <string/>
        </property>
       </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_upload_setting">
+     <item alignment="Qt::AlignHCenter">
+      <widget class="QLabel" name="label_upload_setting">
+       <property name="text">
+        <string>NudgisPlugin.settings.Upload_Settings</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_publish_recording_automatically">
+     <item>
+      <widget class="QLabel" name="label_publish_recording_automatically">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>NudgisPlugin.settings.PublishRecordingAutomatically</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="publish_recording_automatically"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_auto_delete_uploaded_file">
+     <item>
+      <widget class="QLabel" name="label_auto_delete_uploaded_file">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>NudgisPlugin.settings.AutoDeleteUploadedFile</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="auto_delete_uploaded_file"/>
      </item>
     </layout>
    </item>
@@ -161,7 +225,7 @@
      <item alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="label_warning">
        <property name="text">
-        <string>Attention - toute modification de service dans l'interface de paramètres d'OBS supprime la sélection du service Nudgis pour le streaming. Pour réactiver la sélection du service Nugdis ouvrez à nouveau cette interface et cliquez sur Enregistrer.</string>
+        <string>NudgisPlugin.settings.Warning_Msg</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
