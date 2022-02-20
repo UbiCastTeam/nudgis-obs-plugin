@@ -3,31 +3,38 @@
 #include "obs-utils.hpp"
 
 #include <obs.hpp>
+#include <vector>
+#include <string>
+#include <algorithm>
 
 #define DEF_URL "https://my.ubicast.tv"
 #define DEF_API_KEY ""
 #define DEF_STREAM_TITLE "Title"
 #define DEF_STREAM_CHANNEL "Personal channel"
-#define DEF_AUTOSTATES AutoStates[ASK]
+#define DEF_AUTOSTATES (&auto_states[0])
 #define DEF_AUTO_DELETE_UPLOADED_FILE DEF_AUTOSTATES
 #define DEF_PUBLISH_RECORDING_AUTOMATICALLY DEF_AUTOSTATES
 
+static const vector<AutoState> auto_states {
+    {"NudgisPlugin.settings.Ask", AutoState::ASK},
+    {"NudgisPlugin.settings.Never", AutoState::NEVER},
+    {"NudgisPlugin.settings.Yes", AutoState::YES},
+};
+
 static NudgisConfig currentNudgisConfig;
 
-enum AutoStates{
-    ASK,
-    NEVER,
-    YES,
-};
-
-static const char * AutoStates[]
+const vector<AutoState>& AutoState::GetAll()
 {
-    [ASK] = "NudgisPlugin.settings.Ask",
-    [NEVER] = "NudgisPlugin.settings.Never",
-    [YES] = "NudgisPlugin.settings.Yes",
-};
+    return auto_states;
+}
 
-#define AUTOSTATES_LEN (sizeof(AutoStates)/sizeof(AutoStates[0]))
+const AutoState& AutoState::Find(const char* str)
+{
+    const AutoState *result = DEF_AUTOSTATES;
+    if (count_if(auto_states.begin(),auto_states.end(),[str](const AutoState& autostate){return (autostate.name == str);}) > 0)
+        result = &*find_if(auto_states.begin(),auto_states.end(),[str](const AutoState& autostate){return (autostate.name == str);});
+    return *result;
+}
 
 NudgisConfig::NudgisConfig()
 {
@@ -37,28 +44,6 @@ NudgisConfig::NudgisConfig()
     this->stream_channel = DEF_STREAM_CHANNEL;
     this->auto_delete_uploaded_file = DEF_AUTO_DELETE_UPLOADED_FILE;
     this->publish_recording_automatically = DEF_PUBLISH_RECORDING_AUTOMATICALLY;
-}
-
-
-const char** NudgisConfig::GetAllAutoStates()
-{
-    return AutoStates;
-}
-
-size_t NudgisConfig::GetAutoStatesCount()
-{
-    return AUTOSTATES_LEN;
-}
-
-const char * NudgisConfig::FindAutoState(const char *str)
-{
-    const char * result = NULL;
-    for (size_t i=0;str != NULL && i < AUTOSTATES_LEN && result == NULL;i++)
-    {
-        if (!strcmp(str,AutoStates[i]))
-            result = AutoStates[i];
-    }
-    return result ? result : DEF_AUTOSTATES;
 }
 
 void NudgisConfig::load(const char *filename)
@@ -80,11 +65,11 @@ void NudgisConfig::load(const char *filename)
         obs_data_set_default_string(data, "stream_channel", DEF_STREAM_CHANNEL);
         this->stream_channel = obs_data_get_string(data, "stream_channel");
 
-        obs_data_set_default_string(data, "auto_delete_uploaded_file", DEF_AUTO_DELETE_UPLOADED_FILE);
-        this->auto_delete_uploaded_file = this->FindAutoState(obs_data_get_string(data, "auto_delete_uploaded_file"));
+        obs_data_set_default_string(data, "auto_delete_uploaded_file", DEF_AUTO_DELETE_UPLOADED_FILE->name.c_str());
+        this->auto_delete_uploaded_file = &AutoState::Find(obs_data_get_string(data, "auto_delete_uploaded_file"));
 
-        obs_data_set_default_string(data, "publish_recording_automatically", DEF_PUBLISH_RECORDING_AUTOMATICALLY);
-        this->publish_recording_automatically = this->FindAutoState(obs_data_get_string(data, "publish_recording_automatically"));
+        obs_data_set_default_string(data, "publish_recording_automatically", DEF_PUBLISH_RECORDING_AUTOMATICALLY->name.c_str());
+        this->publish_recording_automatically = &AutoState::Find(obs_data_get_string(data, "publish_recording_automatically"));
 
         obs_data_release(data);
     }
@@ -100,8 +85,8 @@ void NudgisConfig::save(const char *filename)
     obs_data_set_string(data, "api_key", this->api_key.c_str());
     obs_data_set_string(data, "stream_title", this->stream_title.c_str());
     obs_data_set_string(data, "stream_channel", this->stream_channel.c_str());
-    obs_data_set_string(data, "auto_delete_uploaded_file", this->auto_delete_uploaded_file);
-    obs_data_set_string(data, "publish_recording_automatically", this->publish_recording_automatically);
+    obs_data_set_string(data, "auto_delete_uploaded_file", this->auto_delete_uploaded_file->name.c_str());
+    obs_data_set_string(data, "publish_recording_automatically", this->publish_recording_automatically->name.c_str());
 
     if (!obs_data_save_json_safe(data, path, "tmp", "bak"))
         mlog(LOG_WARNING, "%s", "Failed to save nudgis_config");

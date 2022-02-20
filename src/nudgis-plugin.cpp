@@ -12,7 +12,7 @@ Copyright (C) 2021 Ubicast
 #include <obs-module.h>
 #include <QAction>
 
-Q_DECLARE_METATYPE(const char*)
+Q_DECLARE_METATYPE(const AutoState*)
 
 #define TEXT_NUDGISPLUGIN_SETTINGS_MENUTITLE obs_module_text("NudgisPlugin.settings.MenuTitle")
 
@@ -32,9 +32,8 @@ NudgisSettings::NudgisSettings()
     QComboBox *combos_auto_state[] = {ui->auto_delete_uploaded_file, ui->publish_recording_automatically};
     for (QComboBox * combo_auto_state: combos_auto_state)
     {
-        const char **all_auto_states = NudgisConfig::GetAllAutoStates();
-        for (size_t i=0;i < NudgisConfig::GetAutoStatesCount();i++ )
-            combo_auto_state->addItem(obs_module_text(all_auto_states[i]), QVariant::fromValue(all_auto_states[i]));
+        for (const AutoState& autostate: AutoState::GetAll())
+            combo_auto_state->addItem(obs_module_text(autostate.name.c_str()),QVariant::fromValue(&autostate));
     }
 }
 
@@ -80,8 +79,8 @@ void NudgisSettings::on_btn_saveSettings_clicked()
     nudgis_config->api_key = ui->api_key->text().toStdString();
     nudgis_config->stream_title = ui->stream_title->text().toStdString();
     nudgis_config->stream_channel = ui->stream_channel->text().toStdString();
-    nudgis_config->auto_delete_uploaded_file = ui->auto_delete_uploaded_file->currentData().value<const char *>();
-    nudgis_config->publish_recording_automatically = ui->publish_recording_automatically->currentData().value<const char *>();
+    nudgis_config->auto_delete_uploaded_file = ui->auto_delete_uploaded_file->currentData().value<const AutoState*>();
+    nudgis_config->publish_recording_automatically = ui->publish_recording_automatically->currentData().value<const AutoState*>();
     nudgis_config->save();
     obs_frontend_set_streaming_service(nudgis_service);
     obs_frontend_save_streaming_service();
