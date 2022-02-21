@@ -11,9 +11,9 @@ class AutoState {
 public:
 
 enum Types {
-    ASK,
-    NEVER,
-    YES,
+    AUTOSTATE_ASK,
+    AUTOSTATE_NEVER,
+    AUTOSTATE_YES,
     };
 
     string name;

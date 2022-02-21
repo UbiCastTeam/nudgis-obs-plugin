@@ -16,9 +16,9 @@
 #define DEF_PUBLISH_RECORDING_AUTOMATICALLY DEF_AUTOSTATES
 
 static const vector<AutoState> auto_states {
-    {"NudgisPlugin.settings.Ask", AutoState::ASK},
-    {"NudgisPlugin.settings.Never", AutoState::NEVER},
-    {"NudgisPlugin.settings.Yes", AutoState::YES},
+    {"NudgisPlugin.settings.Ask", AutoState::AUTOSTATE_ASK},
+    {"NudgisPlugin.settings.Never", AutoState::AUTOSTATE_NEVER},
+    {"NudgisPlugin.settings.Yes", AutoState::AUTOSTATE_YES},
 };
 
 static NudgisConfig currentNudgisConfig;
