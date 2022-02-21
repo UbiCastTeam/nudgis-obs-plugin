@@ -51,6 +51,9 @@
          <height>0</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.URL.toolTip</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -75,6 +78,9 @@
      </item>
      <item>
       <widget class="QLineEdit" name="api_key">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.Api_Key.toolTip</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -85,6 +91,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="btn_sw_EchoMode">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.Api_Key.BtnSwEchoMode.toolTip</string>
+       </property>
        <property name="text">
         <string>Show</string>
        </property>
@@ -120,6 +129,9 @@
      </item>
      <item>
       <widget class="QLineEdit" name="stream_title">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.Title.toolTip</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -144,6 +156,9 @@
      </item>
      <item>
       <widget class="QLineEdit" name="stream_channel">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.Channel.toolTip</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -178,7 +193,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="publish_recording_automatically"/>
+      <widget class="QComboBox" name="publish_recording_automatically">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.PublishRecordingAutomatically.toolTip</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -198,7 +217,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="auto_delete_uploaded_file"/>
+      <widget class="QComboBox" name="auto_delete_uploaded_file">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.AutoDeleteUploadedFile.toolTip</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -206,6 +229,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_btn">
      <item alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="btn_saveSettings">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.BtnSaveSettings.toolTip</string>
+       </property>
        <property name="text">
         <string>Save</string>
        </property>
@@ -213,6 +239,9 @@
      </item>
      <item alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="btn_clearWindow">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.BtnClearWindow.toolTip</string>
+       </property>
        <property name="text">
         <string>Clear</string>
        </property>
