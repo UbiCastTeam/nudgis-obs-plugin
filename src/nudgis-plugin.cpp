@@ -12,7 +12,7 @@ Copyright (C) 2021 Ubicast
 #include <obs-module.h>
 #include <QAction>
 
-Q_DECLARE_METATYPE(const AutoState*)
+Q_DECLARE_METATYPE(const AutoState *)
 
 #define TEXT_NUDGISPLUGIN_SETTINGS_MENUTITLE obs_module_text("NudgisPlugin.settings.MenuTitle")
 
@@ -30,10 +30,9 @@ NudgisSettings::NudgisSettings()
     mlog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
     ui->setupUi(this);
     QComboBox *combos_auto_state[] = {ui->auto_delete_uploaded_file, ui->publish_recording_automatically};
-    for (QComboBox * combo_auto_state: combos_auto_state)
-    {
-        for (const AutoState& autostate: AutoState::GetAll())
-            combo_auto_state->addItem(obs_module_text(autostate.name.c_str()),QVariant::fromValue(&autostate));
+    for (QComboBox *combo_auto_state : combos_auto_state) {
+        for (const AutoState &autostate : AutoState::GetAll())
+            combo_auto_state->addItem(obs_module_text(autostate.name.c_str()), QVariant::fromValue(&autostate));
     }
 }
 
@@ -67,7 +66,7 @@ void NudgisSettings::on_btn_clearWindow_clicked()
     for (QLineEdit *line_edit : lines_edit)
         line_edit->clear();
     QComboBox *combos_auto_state[] = {ui->auto_delete_uploaded_file, ui->publish_recording_automatically};
-    for (QComboBox * combo_auto_state: combos_auto_state)
+    for (QComboBox *combo_auto_state : combos_auto_state)
         combo_auto_state->setCurrentIndex(0);
     mlog(LOG_INFO, "%s", "Window Cleared Succesfully !");
 }
@@ -79,8 +78,8 @@ void NudgisSettings::on_btn_saveSettings_clicked()
     nudgis_config->api_key = ui->api_key->text().toStdString();
     nudgis_config->stream_title = ui->stream_title->text().toStdString();
     nudgis_config->stream_channel = ui->stream_channel->text().toStdString();
-    nudgis_config->auto_delete_uploaded_file = ui->auto_delete_uploaded_file->currentData().value<const AutoState*>();
-    nudgis_config->publish_recording_automatically = ui->publish_recording_automatically->currentData().value<const AutoState*>();
+    nudgis_config->auto_delete_uploaded_file = ui->auto_delete_uploaded_file->currentData().value<const AutoState *>();
+    nudgis_config->publish_recording_automatically = ui->publish_recording_automatically->currentData().value<const AutoState *>();
     nudgis_config->save();
     obs_frontend_set_streaming_service(nudgis_service);
     obs_frontend_save_streaming_service();
@@ -94,13 +93,10 @@ void NudgisSettings::on_btn_sw_EchoMode_clicked()
 
 void NudgisSettings::Set_sw_EchoMode(QLineEdit::EchoMode mode)
 {
-    if (mode == QLineEdit::Password)
-    {
+    if (mode == QLineEdit::Password) {
         ui->api_key->setEchoMode(QLineEdit::Password);
         ui->btn_sw_EchoMode->setText(QTStr("Show"));
-    }
-    else
-    {
+    } else {
         ui->api_key->setEchoMode(QLineEdit::Normal);
         ui->btn_sw_EchoMode->setText(QTStr("Hide"));
     }

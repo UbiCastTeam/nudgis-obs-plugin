@@ -15,24 +15,24 @@
 #define DEF_AUTO_DELETE_UPLOADED_FILE DEF_AUTOSTATES
 #define DEF_PUBLISH_RECORDING_AUTOMATICALLY DEF_AUTOSTATES
 
-static const vector<AutoState> auto_states {
-    {"NudgisPlugin.settings.Ask", AutoState::AUTOSTATE_ASK},
-    {"NudgisPlugin.settings.Never", AutoState::AUTOSTATE_NEVER},
-    {"NudgisPlugin.settings.Yes", AutoState::AUTOSTATE_YES},
+static const vector<AutoState> auto_states{
+        {"NudgisPlugin.settings.Ask", AutoState::AUTOSTATE_ASK},
+        {"NudgisPlugin.settings.Never", AutoState::AUTOSTATE_NEVER},
+        {"NudgisPlugin.settings.Yes", AutoState::AUTOSTATE_YES},
 };
 
 static NudgisConfig currentNudgisConfig;
 
-const vector<AutoState>& AutoState::GetAll()
+const vector<AutoState> &AutoState::GetAll()
 {
     return auto_states;
 }
 
-const AutoState& AutoState::Find(const char* str)
+const AutoState &AutoState::Find(const char *str)
 {
     const AutoState *result = DEF_AUTOSTATES;
-    if (count_if(auto_states.begin(),auto_states.end(),[str](const AutoState& autostate){return (autostate.name == str);}) > 0)
-        result = &*find_if(auto_states.begin(),auto_states.end(),[str](const AutoState& autostate){return (autostate.name == str);});
+    if (count_if(auto_states.begin(), auto_states.end(), [str](const AutoState &autostate) { return (autostate.name == str); }) > 0)
+        result = &*find_if(auto_states.begin(), auto_states.end(), [str](const AutoState &autostate) { return (autostate.name == str); });
     return *result;
 }
 
