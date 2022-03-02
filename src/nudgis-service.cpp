@@ -16,18 +16,22 @@
 using namespace std;
 
 #define NUDGIS_NAME "Nudgis"
+#define ORIGIN "nudgis-obs-plugin"
 
 #define DEF_SERVER_URI "rtmp"
 #define DEF_STREAM_ID "stream_id"
 #define DEF_OID "oid"
 #define DEF_MULTI_STREAMS "no"
 #define DEF_KEYINT_SEC 3
+#define DEF_VERSION_NUMBER "6.5.4"
 
 #define PATH_PREPARE_URL "/api/v2/lives/prepare/"
 #define PATH_START_URL "/api/v2/lives/start/"
 #define PATH_STOP_URL "/api/v2/lives/stop/"
 #define PATH_API_BASE_URL "/api/v2/"
-#define PATH_UPLOAD_URL "/api/v2/"
+#define PATH_UPLOAD_URL "upload/"
+#define PATH_UPLOADCOMPLETE_URL "upload/complete/"
+#define PATH_MEDIASADD_URL "medias/add/"
 
 #define PARAM_API_KEY "api_key="
 #define PARAM_TITLE "title="
@@ -59,6 +63,7 @@ class NudgisData {
 private:
     obs_data_t *settings = NULL;
     QVersionNumber *server_version = NULL;
+    string *url_prefix = NULL;
 
     NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
 
@@ -149,6 +154,16 @@ public:
     {
         if (server_version != NULL)
             delete server_version;
+        if (url_prefix != NULL)
+            delete url_prefix;
+    }
+
+    const string &GetUrlPrefix()
+    {
+        if (this->url_prefix == NULL) {
+            this->url_prefix = new string(*this->GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "");
+        }
+        return *this->url_prefix;
     }
 
     const string &GetData(const string &url, const string &getData, bool *result)
@@ -219,8 +234,21 @@ public:
     const QVersionNumber *GetServerVersion()
     {
         QVersionNumber **result = &this->server_version;
-        if (*result == NULL)
-            *result = new QVersionNumber(QVersionNumber::fromString("10.2.2"));
+        if (*result == NULL) {
+            QVersionNumber version_number = QVersionNumber::fromString(DEF_VERSION_NUMBER);
+            bool getdata_result;
+            string getdata_response = this->GetData(this->GetApiBaseUrl(), this->GetApiBaseGetdata(), &getdata_result);
+            if (getdata_result) {
+                obs_data_t *obs_data = obs_data_create_from_json(getdata_response.c_str());
+                if (obs_data != NULL) {
+                    const char *mediaserver = obs_data_get_string(obs_data, "mediaserver");
+                    if (mediaserver != NULL && strlen(mediaserver) > 0)
+                        version_number = QVersionNumber::fromString(mediaserver);
+                    obs_data_release(obs_data);
+                }
+            }
+            *result = new QVersionNumber(version_number);
+        }
         return *result;
     }
 
@@ -318,6 +346,90 @@ public:
         mlog(LOG_DEBUG, "apibaseurl_getdata: %s", result.c_str());
 
         return result;
+    }
+
+    const string &GetUploadUrl()
+    {
+        static string result;
+
+        ostringstream upload_url;
+        upload_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOAD_URL;
+        result = upload_url.str();
+        mlog(LOG_DEBUG, "upload_url: %s", result.c_str());
+
+        return result;
+    }
+
+    list<FormField> &GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
+    {
+        static list<FormField> result;
+
+        result = {
+                {"api_key", "", this->nudgis_config->api_key.c_str(), 0},
+                {"file", file_basename, read_buffer, chunk},
+        };
+
+        if (upload_id.length() > 0)
+            result.push_front({"upload_id", "", upload_id.c_str(), 0});
+
+        return result;
+    }
+
+    const string &GetUploadCompleteUrl()
+    {
+        static string result;
+
+        ostringstream uploadcomplete_url;
+        uploadcomplete_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOADCOMPLETE_URL;
+        result = uploadcomplete_url.str();
+        mlog(LOG_DEBUG, "uploadcomplete_url: %s", result.c_str());
+
+        return result;
+    }
+
+    const string &GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum)
+    {
+        static string result;
+
+        ostringstream uploadcomplete_postdata;
+        uploadcomplete_postdata << PARAM_UPLOAD_ID << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&";
+        if (check_md5)
+            uploadcomplete_postdata << PARAM_MD5 << md5sum.result().toHex().toStdString();
+        else
+            uploadcomplete_postdata << PARAM_NO_MD5 << "yes";
+        result = uploadcomplete_postdata.str();
+        mlog(LOG_DEBUG, "uploadcomplete_postdata: %s", result.c_str());
+
+        return result;
+    }
+
+    const string &GetMediasAddUrl()
+    {
+        static string result;
+
+        ostringstream mediasadd_url;
+        mediasadd_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_MEDIASADD_URL;
+        result = mediasadd_url.str();
+        mlog(LOG_DEBUG, "mediasadd_url: %s", result.c_str());
+
+        return result;
+    }
+
+    const string &GetMediasAddPostdata(string &upload_id)
+    {
+        static string result;
+
+        ostringstream mediasadd_postdata;
+        mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key;
+        result = mediasadd_postdata.str();
+        mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
+
+        return result;
+    }
+
+    uint64_t GetUploadChunkSize()
+    {
+        return this->nudgis_config->upload_chunk_size;
     }
 };
 
@@ -487,80 +599,35 @@ struct obs_service_info nudgis_service_info =
 void nudgis_upload_file(const char *filename, bool check_md5)
 {
     string file_basename = QFileInfo(filename).fileName().toStdString();
-
     mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", filename, file_basename.c_str());
-
     NudgisData nudgis_data;
-    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     QCryptographicHash md5sum(QCryptographicHash::Md5);
-
-    string server_version_response = nudgis_data.GetData(nudgis_data.GetApiBaseUrl(), nudgis_data.GetApiBaseGetdata(), NULL);
-
-    //~ url_prefix = 'medias/resource/' if client.get_server_version() < (8, 2) else ''
-    string url_prefix = *nudgis_data.GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "";
-    //~ chunk_size = client.conf['UPLOAD_CHUNK_SIZE']
-    uint64_t chunk_size = nudgis_config->upload_chunk_size;
-
     ifstream file(filename, ifstream::ate | ifstream::binary);
     if (file.is_open()) {
-        //~ total_size = os.path.getsize(file_path)
         streampos total_size = file.tellg();
-        //~ chunks_count = math.ceil(total_size / chunk_size)
+        uint64_t chunk_size = nudgis_data.GetUploadChunkSize();
         uint64_t chunks_count = ceil(total_size * 1.0 / chunk_size);
-        mlog(LOG_INFO, "total_size*1.0 / chunk_size              : %f", total_size * 1.0 / chunk_size);
-        mlog(LOG_INFO, "chunks_count                             : %lu", chunks_count);
-
-        //~ chunk_index = 0
         uint64_t chunk_index = 0;
-        //~ start_offset = 0
         uint64_t start_offset = 0;
-        //~ end_offset = min(chunk_size, total_size) - 1
         uint64_t end_offset = min<uint64_t>(chunk_size, total_size) - 1;
-        //~ data = dict()
-        //~ if check_md5:
-        //~ md5sum = hashlib.md5()
 
-        //~ begin = time.time()
-        //~ with open(file_path, 'rb') as file_object:
-        //~ while True:
         file.seekg(start_offset, ios::beg);
         char read_buffer[chunk_size];
         string upload_id;
         string response;
         string error;
 
-        ostringstream url_upload;
-        url_upload << nudgis_config->url << PATH_API_BASE_URL << url_prefix << "upload/";
-
         while (true) {
-            //~ chunk = file_object.read(chunk_size)
             streamsize chunk = file.readsome(read_buffer, chunk_size);
-            //~ if not chunk:
-            //~ break
             if (chunk < 1)
                 break;
-            //~ chunk_index += 1
             chunk_index++;
-            //~ logger.debug('Uploading chunk %s/%s.', chunk_index, chunks_count)
             mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
-            //~ if check_md5:
-            //~ md5sum.update(chunk)
             if (check_md5)
                 md5sum.addData(read_buffer, chunk);
-            //~ files = {'file': (os.path.basename(file_path), chunk)}
-            //~ headers = {'Content-Range': 'bytes %s-%s/%s' % (start_offset, end_offset, total_size)}
+
             ostringstream headers;
             headers << "Content-Range: bytes " << start_offset << "-" << end_offset << "/" << total_size;
-            mlog(LOG_INFO, "headers : %s", headers.str().c_str());
-
-            list<FormField> form_fields =
-                    {
-                            {"api_key", "", nudgis_config->api_key.c_str(), 0},
-                            {"file", file_basename, read_buffer, (size_t)chunk},
-                    };
-
-            if (upload_id.length() > 0)
-                form_fields.push_front({"upload_id", "", upload_id.c_str(), 0});
 
             std::vector<std::string> extraHeaders =
                     {
@@ -571,9 +638,8 @@ void nudgis_upload_file(const char *filename, bool check_md5)
 
             response.clear();
             error.clear();
-            //~ response = client.api(url_prefix + 'upload/', method='post', data=data, files=files, headers=headers, timeout=timeout, max_retry=max_retry)
             GetRemoteFile(
-                    url_upload.str().c_str(),
+                    nudgis_data.GetUploadUrl().c_str(),
                     response,
                     error,
                     nullptr,
@@ -581,7 +647,7 @@ void nudgis_upload_file(const char *filename, bool check_md5)
                     "",
                     nullptr,
                     true,
-                    form_fields,
+                    nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id),
                     extraHeaders);
 
             mlog(LOG_INFO, "upload response: %s", response.c_str());
@@ -589,8 +655,7 @@ void nudgis_upload_file(const char *filename, bool check_md5)
             //~ if progress_callback:
             //~ pdata = progress_data or dict()
             //~ progress_callback(0.9 * end_offset / total_size, **pdata)
-            //~ if 'upload_id' not in data:
-            //~ data['upload_id'] = response['upload_id']
+
             if (upload_id.length() < 1) {
                 obs_data_t *response_obs_data = obs_data_create_from_json(response.c_str());
                 if (response_obs_data != NULL) {
@@ -601,39 +666,15 @@ void nudgis_upload_file(const char *filename, bool check_md5)
             start_offset += chunk_size;
             end_offset = min<uint64_t>(end_offset + chunk_size, (size_t)total_size - 1);
         }
+
         //~ bandwidth = total_size * 8 / ((time.time() - begin) * 1000000)
         //~ logger.debug('Upload finished, average bandwidth: %.2f Mbits/s', bandwidth)
-
-        ostringstream complete_data;
-        complete_data << PARAM_UPLOAD_ID << upload_id << "&" << PARAM_API_KEY << nudgis_config->api_key << "&";
-
-        //~ if check_md5:
-        //~ data['md5'] = md5sum.hexdigest()
-        //~ else:
-        //~ data['no_md5'] = 'yes'
-
-        if (check_md5)
-            complete_data << PARAM_MD5 << md5sum.result().toHex().toStdString();
-        else
-            complete_data << PARAM_NO_MD5 << "yes";
 
         //~ if remote_path:
         //~ data['path'] = remote_path
 
-        ostringstream url_complete;
-        url_complete << nudgis_config->url << PATH_API_BASE_URL << url_prefix << "upload/complete/";
-
-        //~ response = client.api(url_prefix + 'upload/complete/', method='post', data=data, timeout=timeout, max_retry=max_retry)
-        if (nudgis_data.PostData(url_complete.str(), complete_data.str())) {
-            ostringstream add_data;
-            add_data << PARAM_ORIGIN << "nudgis-obs-plugin"
-                     << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << nudgis_config->api_key;
-
-            ostringstream url_add;
-            url_add << nudgis_config->url << PATH_API_BASE_URL << url_prefix << "medias/add/";
-
-            response = nudgis_data.PostData(url_add.str(), add_data.str().c_str(), NULL);
-        }
+        if (nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum)))
+            response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id), NULL);
 
         //~ if progress_callback:
         //~ pdata = progress_data or dict()
