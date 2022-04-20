@@ -41,6 +41,7 @@ NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
     connect(this->nudgis_upload_thead, SIGNAL(endUpload(bool, NudgisUploadFileResult*)), this, SLOT(on_endUpload(bool, NudgisUploadFileResult*)));
     connect(this->nudgis_upload_thead, SIGNAL(progressUpload(int)), this, SLOT(on_progressUpload(int)));
     ui->setupUi(this);
+    this->updateLabelsTemplate();
     this->manageUploadFile(this->nudgis_config->publish_recording_automatically->type);
 }
 
@@ -59,7 +60,6 @@ void NudgisUploadUi::on_endUpload(bool is_done, NudgisUploadFileResult *result)
     this->nudgis_upload_thead->wait();
     if (is_done)
     {
-        this->ui->label_FileUploadedUrl->setText(this->ui->label_FileUploadedUrl->text().replace("$$NUDGIS_URL$$", this->nudgis_config->url.c_str()));
         this->ui->label_FileUploadedUrl->setText(this->ui->label_FileUploadedUrl->text().replace("$$OID$$", obs_data_get_string(result->media_add_response, "oid")));
         this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE);
     }
@@ -132,6 +132,18 @@ void NudgisUploadUi::manageDeleteUploadedFile(AutoState::Types auto_state)
         if (auto_state == AutoState::AUTOSTATE_YES)
             QFile(this->fileName).remove();
         this->close();
+    }
+}
+
+void NudgisUploadUi::updateLabelsTemplate()
+{
+    QLabel *updated_labels[] = { ui->label_AskUploadFile,
+                                    ui->label_UploadFileProgress,
+                                    ui->label_FileUploadedUrl, };
+
+    for (QLabel *updated_label: updated_labels)
+    {
+        updated_label->setText(updated_label->text().replace("$$NUDGIS_URL$$", this->nudgis_config->url.c_str()));
     }
 }
 

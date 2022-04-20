@@ -56,6 +56,7 @@ private:
     void updateState(NUDGIS_UPLOAD_UI_STATE state);
     void manageUploadFile(AutoState::Types auto_state);
     void manageDeleteUploadedFile(AutoState::Types auto_state);
+    void updateLabelsTemplate();
 
 private slots:
     void on_pushButton_Yes_UploadFile_clicked();

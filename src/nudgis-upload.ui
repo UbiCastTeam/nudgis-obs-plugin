@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Nudgis Upload</string>
+   <string>NudgisPlugin.upload.WindowTitle</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
@@ -23,7 +23,7 @@
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="label_AskUploadFile">
         <property name="text">
-         <string>Do you want to upload the recorded file to my.ubicast.tv ?</string>
+         <string>NudgisPlugin.upload.AskUploadFile</string>
         </property>
        </widget>
       </item>
@@ -32,14 +32,14 @@
         <item>
          <widget class="QPushButton" name="pushButton_Yes_UploadFile">
           <property name="text">
-           <string>yes</string>
+           <string>NudgisPlugin.upload.Yes</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_No_UploadFile">
           <property name="text">
-           <string>no</string>
+           <string>NudgisPlugin.upload.No</string>
           </property>
          </widget>
         </item>
@@ -57,7 +57,7 @@
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="label_UploadFileProgress">
         <property name="text">
-         <string>Uploading to my.ubicast.tv</string>
+         <string>NudgisPlugin.upload.UploadFileProgress</string>
         </property>
        </widget>
       </item>
@@ -71,7 +71,7 @@
       <item>
        <widget class="QPushButton" name="pushButton_Cancel">
         <property name="text">
-         <string>cancel</string>
+         <string>NudgisPlugin.upload.Cancel</string>
         </property>
        </widget>
       </item>
@@ -87,7 +87,7 @@
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="label_FileUploadedTo">
         <property name="text">
-         <string>File uploaded to</string>
+         <string>NudgisPlugin.upload.FileUploadedTo</string>
         </property>
        </widget>
       </item>
@@ -104,7 +104,7 @@
       <item>
        <widget class="QPushButton" name="pushButton_Done">
         <property name="text">
-         <string>done</string>
+         <string>NudgisPlugin.upload.Done</string>
         </property>
        </widget>
       </item>
@@ -115,12 +115,12 @@
     <widget class="QWidget" name="widget_AskRemoveFile" native="true">
      <property name="visible">
       <bool>false</bool>
-     </property>        
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout_AskRemoveFile">
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="label_AskRemoveFile">
         <property name="text">
-         <string>Do you want to remove the recorded file from hard disk ?</string>
+         <string>NudgisPlugin.upload.AskRemoveFile</string>
         </property>
        </widget>
       </item>
@@ -129,14 +129,14 @@
         <item>
          <widget class="QPushButton" name="pushButton_Yes_RemoveFile">
           <property name="text">
-           <string>yes</string>
+           <string>NudgisPlugin.upload.Yes</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_No_RemoveFile">
           <property name="text">
-           <string>no</string>
+           <string>NudgisPlugin.upload.No</string>
           </property>
          </widget>
         </item>
