@@ -25,6 +25,8 @@ using namespace std;
 #define DEF_KEYINT_SEC 3
 #define DEF_VERSION_NUMBER "6.5.4"
 
+#define OID_PERSONAL_CHANNEL_UNDEF "undef"
+
 #define PATH_PREPARE_URL "/api/v2/lives/prepare/"
 #define PATH_START_URL "/api/v2/lives/start/"
 #define PATH_STOP_URL "/api/v2/lives/stop/"
@@ -32,6 +34,7 @@ using namespace std;
 #define PATH_UPLOAD_URL "upload/"
 #define PATH_UPLOADCOMPLETE_URL "upload/complete/"
 #define PATH_MEDIASADD_URL "medias/add/"
+#define PATH_CHANNELS_PERSONAL_URL "/api/v2/channels/personal/"
 
 #define PARAM_API_KEY "api_key="
 #define PARAM_TITLE "title="
@@ -139,6 +142,7 @@ public:
     string server_uri = DEF_SERVER_URI;
     string stream_id = DEF_STREAM_ID;
     string oid = DEF_OID;
+    string oid_personal_channel = OID_PERSONAL_CHANNEL_UNDEF;
 
     NudgisData()
     {
@@ -252,6 +256,32 @@ public:
         return *result;
     }
 
+    const string &GetStreamChannel()
+    {
+        static string result;
+
+        if (this->nudgis_config->stream_channel == DEF_STREAM_CHANNEL)
+        {
+            if (this->oid_personal_channel == OID_PERSONAL_CHANNEL_UNDEF)
+            {
+                bool getdata_result;
+                string getdata_response = this->GetData(this->GetChannelsPersonalUrl(), this->GetChannelsPersonalGetdata(), &getdata_result);
+                if (getdata_result) {
+                    obs_data_t *obs_data = obs_data_create_from_json(getdata_response.c_str());
+                    if (obs_data != NULL) {
+                        this->oid_personal_channel = obs_data_get_string(obs_data, "oid");
+                        obs_data_release(obs_data);
+                    }
+                }
+            }
+            result = this->oid_personal_channel;
+        }
+        else
+            result = this->nudgis_config->stream_channel;
+
+        return result;
+    }
+
     const string &GetPrepareUrl()
     {
         static string result;
@@ -269,7 +299,7 @@ public:
         static string result;
 
         ostringstream prepare_postdata;
-        prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << GetJsonStreams(output) << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->nudgis_config->stream_channel;
+        prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << GetJsonStreams(output) << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
         result = prepare_postdata.str();
         mlog(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
 
@@ -420,9 +450,33 @@ public:
         static string result;
 
         ostringstream mediasadd_postdata;
-        mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title;
+        mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
         result = mediasadd_postdata.str();
         mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
+
+        return result;
+    }
+
+    const string &GetChannelsPersonalUrl()
+    {
+        static string result;
+
+        ostringstream channelspersonal_url;
+        channelspersonal_url << this->nudgis_config->url << PATH_CHANNELS_PERSONAL_URL;
+        result = channelspersonal_url.str();
+        mlog(LOG_DEBUG, "channelspersonal_url: %s", result.c_str());
+
+        return result;
+    }
+
+    const string &GetChannelsPersonalGetdata()
+    {
+        static string result;
+
+        ostringstream channelspersonal_getdata;
+        channelspersonal_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
+        result = channelspersonal_getdata.str();
+        mlog(LOG_DEBUG, "channelspersonal_getdata: %s", result.c_str());
 
         return result;
     }
