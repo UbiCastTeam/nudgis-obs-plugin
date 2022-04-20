@@ -74,6 +74,7 @@ Curl curl{curl_easy_init(), curl_deleter};
 bool GetRemoteFile(const char *url, std::string &str, std::string &error,
                    long *responseCode, const char *contentType,
                    std::string request_type, const char *postData,
+                   bool keepalive,
                    std::vector<std::string> extraHeaders,
                    std::string *signature, int timeoutSec, bool fail_on_error)
 {
@@ -105,6 +106,19 @@ bool GetRemoteFile(const char *url, std::string &str, std::string &error,
 
         for (std::string &h : extraHeaders)
             header = curl_slist_append(header, h.c_str());
+
+        if (keepalive) {
+            /* enable TCP keep-alive for this transfer */
+            curl_easy_setopt(curl.get(), CURLOPT_TCP_KEEPALIVE, 1L);
+
+            /* keep-alive idle time to 120 seconds */
+            curl_easy_setopt(curl.get(), CURLOPT_TCP_KEEPIDLE, 120L);
+
+            /* interval time between keep-alive probes: 60 seconds */
+            curl_easy_setopt(curl.get(), CURLOPT_TCP_KEEPINTVL, 60L);
+
+            header = curl_slist_append(header, "Connection: keep-alive");
+        }
 
         curl_easy_setopt(curl.get(), CURLOPT_URL, url);
         curl_easy_setopt(curl.get(), CURLOPT_ACCEPT_ENCODING, "");
