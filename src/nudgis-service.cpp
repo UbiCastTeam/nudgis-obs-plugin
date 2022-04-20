@@ -36,7 +36,7 @@ static const string &GetRemoteFile(const string &url, const string &postData, bo
     static string response;
     string error = {};
     response = "";
-    bool get_remote_file = GetRemoteFile(url.c_str(), response, error, nullptr, nullptr, "", postData.c_str());
+    bool get_remote_file = GetRemoteFile(url.c_str(), response, error, nullptr, nullptr, "", postData.length() > 0 ? postData.c_str() : nullptr);
     if (result != NULL)
         *result = get_remote_file;
     mlog(LOG_DEBUG, "GetRemoteFile (%s) response: %s", get_remote_file ? "OK" : "NOK", response.c_str());
@@ -125,6 +125,11 @@ public:
     NudgisData(obs_data_t *settings)
     {
         this->settings = settings;
+    }
+
+    const string &GetData(const string &url, const string &getData, bool *result)
+    {
+        return this->PostData(url + "?" + getData, "", result);
     }
 
     const string &PostData(const string &url, const string &postData, bool *result)
