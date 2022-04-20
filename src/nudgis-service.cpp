@@ -415,12 +415,12 @@ public:
         return result;
     }
 
-    const string &GetMediasAddPostdata(string &upload_id)
+    const string &GetMediasAddPostdata(string &upload_id, string &title)
     {
         static string result;
 
         ostringstream mediasadd_postdata;
-        mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key;
+        mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title;
         result = mediasadd_postdata.str();
         mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
 
@@ -697,7 +697,7 @@ NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProg
         result->upload_complete_response = obs_data_create_from_json(response.c_str());
         if (upload_complete_result)
         {
-            response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id), NULL);
+            response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id, file_basename), NULL);
             result->media_add_response = obs_data_create_from_json(response.c_str());
         }
 #endif
