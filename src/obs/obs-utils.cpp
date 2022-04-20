@@ -69,6 +69,8 @@ static size_t header_write(char *ptr, size_t size, size_t nmemb,
     return total;
 }
 
+Curl curl{curl_easy_init(), curl_deleter};
+
 bool GetRemoteFile(const char *url, std::string &str, std::string &error,
                    long *responseCode, const char *contentType,
                    std::string request_type, const char *postData,
@@ -90,7 +92,7 @@ bool GetRemoteFile(const char *url, std::string &str, std::string &error,
         contentTypeString += contentType;
     }
 
-    Curl curl{curl_easy_init(), curl_deleter};
+    //Curl curl{curl_easy_init(), curl_deleter};
     if (curl) {
         struct curl_slist *header = nullptr;
 
