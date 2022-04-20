@@ -3,7 +3,6 @@ Nudgis-OBS-Plugin
 Copyright (C) 2021 Ubicast 
 */
 #include "nudgis-plugin.hpp"
-#include "nudgis-config.hpp"
 #include "nudgis-service.hpp"
 #include "plugin-macros.generated.h"
 #include "ui_settings.h"
@@ -44,9 +43,8 @@ void NudgisSettings::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 }
 
-void NudgisSettings::loadSettings()
+void NudgisSettings::loadSettings(const NudgisConfig *nudgis_config)
 {
-    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     ui->url->setText(QString(nudgis_config->url.c_str()));
     ui->api_key->setText(QString(nudgis_config->api_key.c_str()));
     ui->stream_title->setText(QString(nudgis_config->stream_title.c_str()));
@@ -55,21 +53,15 @@ void NudgisSettings::loadSettings()
     ui->publish_recording_automatically->setCurrentIndex(ui->publish_recording_automatically->findData(QVariant::fromValue(nudgis_config->publish_recording_automatically)));
 }
 
-void NudgisSettings::on_btn_clearWindow_clicked()
+void NudgisSettings::loadSettings()
 {
-    QLineEdit *lines_edit[] =
-            {
-                    ui->url,
-                    ui->api_key,
-                    ui->stream_title,
-                    ui->stream_channel,
-            };
-    for (QLineEdit *line_edit : lines_edit)
-        line_edit->clear();
-    QComboBox *combos_auto_state[] = {ui->auto_delete_uploaded_file, ui->publish_recording_automatically};
-    for (QComboBox *combo_auto_state : combos_auto_state)
-        combo_auto_state->setCurrentIndex(0);
-    mlog(LOG_INFO, "%s", "Window Cleared Succesfully !");
+    this->loadSettings(NudgisConfig::GetCurrentNudgisConfig());
+}
+
+void NudgisSettings::on_btn_DefaultReset_clicked()
+{
+    NudgisConfig defaultNudgisConfig;
+    this->loadSettings(&defaultNudgisConfig);
 }
 
 void NudgisSettings::on_btn_saveSettings_clicked()

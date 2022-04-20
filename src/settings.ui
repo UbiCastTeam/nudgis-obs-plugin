@@ -238,12 +238,12 @@
       </widget>
      </item>
      <item alignment="Qt::AlignHCenter">
-      <widget class="QPushButton" name="btn_clearWindow">
+      <widget class="QPushButton" name="btn_DefaultReset">
        <property name="toolTip">
-        <string>NudgisPlugin.settings.BtnClearWindow.toolTip</string>
+        <string>NudgisPlugin.settings.BtnDefaultReset.toolTip</string>
        </property>
        <property name="text">
-        <string>Clear</string>
+        <string>NudgisPlugin.settings.DefaultReset</string>
        </property>
       </widget>
      </item>
