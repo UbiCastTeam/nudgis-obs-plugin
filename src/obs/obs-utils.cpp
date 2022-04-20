@@ -75,6 +75,7 @@ bool GetRemoteFile(const char *url, std::string &str, std::string &error,
                    long *responseCode, const char *contentType,
                    std::string request_type, const char *postData,
                    bool keepalive,
+                   std::list<FormField> form_fields,
                    std::vector<std::string> extraHeaders,
                    std::string *signature, int timeoutSec, bool fail_on_error)
 {
@@ -166,6 +167,24 @@ bool GetRemoteFile(const char *url, std::string &str, std::string &error,
                              postData);
         }
 
+        curl_mime *form = NULL;
+        curl_mimepart *field = NULL;
+
+        if (form_fields.size() > 0)
+            form = curl_mime_init(curl.get());
+
+        for (FormField &form_field : form_fields) {
+            field = curl_mime_addpart(form);
+            curl_mime_name(field, form_field.name.c_str());
+            if (form_field.filename.length() > 0)
+                curl_mime_filename(field, form_field.filename.c_str());
+            if (form_field.data != NULL)
+                curl_mime_data(field, form_field.data, form_field.datasize > 0 ? form_field.datasize : CURL_ZERO_TERMINATED);
+        }
+
+        if (form_fields.size() > 0)
+            curl_easy_setopt(curl.get(), CURLOPT_MIMEPOST, form);
+
         code = curl_easy_perform(curl.get());
         if (responseCode)
             curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE,
@@ -182,6 +201,9 @@ bool GetRemoteFile(const char *url, std::string &str, std::string &error,
                 }
             }
         }
+
+        if (form != NULL)
+            curl_mime_free(form);
 
         curl_slist_free_all(header);
     }
