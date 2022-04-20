@@ -6,6 +6,7 @@
 using namespace std;
 
 #define DEF_FILE_NAME "nudgis_config.json"
+#define DEF_STREAM_CHANNEL "Personal channel"
 
 class AutoState {
 public:
