@@ -30,6 +30,7 @@ public:
     string stream_channel;
     const AutoState *auto_delete_uploaded_file;
     const AutoState *publish_recording_automatically;
+    uint64_t upload_chunk_size;
     NudgisConfig();
     void load(const char *filename = DEF_FILE_NAME);
     void save(const char *filename = DEF_FILE_NAME);

@@ -14,6 +14,7 @@
 #define DEF_AUTOSTATES (&auto_states[0])
 #define DEF_AUTO_DELETE_UPLOADED_FILE DEF_AUTOSTATES
 #define DEF_PUBLISH_RECORDING_AUTOMATICALLY DEF_AUTOSTATES
+#define DEF_UPLOAD_CHUNK_SIZE 5242880
 
 static const vector<AutoState> auto_states{
         {"NudgisPlugin.settings.Ask", AutoState::AUTOSTATE_ASK},
@@ -44,6 +45,7 @@ NudgisConfig::NudgisConfig()
     this->stream_channel = DEF_STREAM_CHANNEL;
     this->auto_delete_uploaded_file = DEF_AUTO_DELETE_UPLOADED_FILE;
     this->publish_recording_automatically = DEF_PUBLISH_RECORDING_AUTOMATICALLY;
+    this->upload_chunk_size = DEF_UPLOAD_CHUNK_SIZE;
 }
 
 void NudgisConfig::load(const char *filename)
@@ -71,6 +73,9 @@ void NudgisConfig::load(const char *filename)
         obs_data_set_default_string(data, "publish_recording_automatically", DEF_PUBLISH_RECORDING_AUTOMATICALLY->name.c_str());
         this->publish_recording_automatically = &AutoState::Find(obs_data_get_string(data, "publish_recording_automatically"));
 
+        obs_data_set_default_int(data, "upload_chunk_size", DEF_UPLOAD_CHUNK_SIZE);
+        this->upload_chunk_size = obs_data_get_int(data, "upload_chunk_size");
+
         obs_data_release(data);
     }
 }
@@ -87,6 +92,7 @@ void NudgisConfig::save(const char *filename)
     obs_data_set_string(data, "stream_channel", this->stream_channel.c_str());
     obs_data_set_string(data, "auto_delete_uploaded_file", this->auto_delete_uploaded_file->name.c_str());
     obs_data_set_string(data, "publish_recording_automatically", this->publish_recording_automatically->name.c_str());
+    obs_data_set_int(data, "upload_chunk_size", this->upload_chunk_size);
 
     if (!obs_data_save_json_safe(data, path, "tmp", "bak"))
         mlog(LOG_WARNING, "%s", "Failed to save nudgis_config");
