@@ -105,6 +105,72 @@ void NudgisSettings::Set_sw_EchoMode(QLineEdit::EchoMode mode)
 /*LOAD AND UNLOAD OF THE PLUGIN*/
 /*-----------------------------------------------------------------------------------------------*/
 
+static const char *obs_frontend_event_str[] =
+        {
+                [OBS_FRONTEND_EVENT_STREAMING_STARTING] = "STREAMING_STARTING",
+                [OBS_FRONTEND_EVENT_STREAMING_STARTED] = "STREAMING_STARTED",
+                [OBS_FRONTEND_EVENT_STREAMING_STOPPING] = "STREAMING_STOPPING",
+                [OBS_FRONTEND_EVENT_STREAMING_STOPPED] = "STREAMING_STOPPED",
+                [OBS_FRONTEND_EVENT_RECORDING_STARTING] = "RECORDING_STARTING",
+                [OBS_FRONTEND_EVENT_RECORDING_STARTED] = "RECORDING_STARTED",
+                [OBS_FRONTEND_EVENT_RECORDING_STOPPING] = "RECORDING_STOPPING",
+                [OBS_FRONTEND_EVENT_RECORDING_STOPPED] = "RECORDING_STOPPED",
+                [OBS_FRONTEND_EVENT_SCENE_CHANGED] = "SCENE_CHANGED",
+                [OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED] = "SCENE_LIST_CHANGED",
+                [OBS_FRONTEND_EVENT_TRANSITION_CHANGED] = "TRANSITION_CHANGED",
+                [OBS_FRONTEND_EVENT_TRANSITION_STOPPED] = "TRANSITION_STOPPED",
+                [OBS_FRONTEND_EVENT_TRANSITION_LIST_CHANGED] = "TRANSITION_LIST_CHANGED",
+                [OBS_FRONTEND_EVENT_SCENE_COLLECTION_CHANGED] = "SCENE_COLLECTION_CHANGED",
+                [OBS_FRONTEND_EVENT_SCENE_COLLECTION_LIST_CHANGED] = "SCENE_COLLECTION_LIST_CHANGED",
+                [OBS_FRONTEND_EVENT_PROFILE_CHANGED] = "PROFILE_CHANGED",
+                [OBS_FRONTEND_EVENT_PROFILE_LIST_CHANGED] = "PROFILE_LIST_CHANGED",
+                [OBS_FRONTEND_EVENT_EXIT] = "EXIT",
+                [OBS_FRONTEND_EVENT_REPLAY_BUFFER_STARTING] = "REPLAY_BUFFER_STARTING",
+                [OBS_FRONTEND_EVENT_REPLAY_BUFFER_STARTED] = "REPLAY_BUFFER_STARTED",
+                [OBS_FRONTEND_EVENT_REPLAY_BUFFER_STOPPING] = "REPLAY_BUFFER_STOPPING",
+                [OBS_FRONTEND_EVENT_REPLAY_BUFFER_STOPPED] = "REPLAY_BUFFER_STOPPED",
+                [OBS_FRONTEND_EVENT_STUDIO_MODE_ENABLED] = "STUDIO_MODE_ENABLED",
+                [OBS_FRONTEND_EVENT_STUDIO_MODE_DISABLED] = "STUDIO_MODE_DISABLED",
+                [OBS_FRONTEND_EVENT_PREVIEW_SCENE_CHANGED] = "PREVIEW_SCENE_CHANGED",
+                [OBS_FRONTEND_EVENT_SCENE_COLLECTION_CLEANUP] = "SCENE_COLLECTION_CLEANUP",
+                [OBS_FRONTEND_EVENT_FINISHED_LOADING] = "FINISHED_LOADING",
+                [OBS_FRONTEND_EVENT_RECORDING_PAUSED] = "RECORDING_PAUSED",
+                [OBS_FRONTEND_EVENT_RECORDING_UNPAUSED] = "RECORDING_UNPAUSED",
+                [OBS_FRONTEND_EVENT_TRANSITION_DURATION_CHANGED] = "TRANSITION_DURATION_CHANGED",
+                [OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVED] = "REPLAY_BUFFER_SAVED",
+                [OBS_FRONTEND_EVENT_VIRTUALCAM_STARTED] = "VIRTUALCAM_STARTED",
+                [OBS_FRONTEND_EVENT_VIRTUALCAM_STOPPED] = "VIRTUALCAM_STOPPED",
+                [OBS_FRONTEND_EVENT_TBAR_VALUE_CHANGED] = "TBAR_VALUE_CHANGED",
+                [OBS_FRONTEND_EVENT_SCENE_COLLECTION_CHANGING] = "SCENE_COLLECTION_CHANGING",
+                [OBS_FRONTEND_EVENT_PROFILE_CHANGING] = "PROFILE_CHANGING",
+                [OBS_FRONTEND_EVENT_SCRIPTING_SHUTDOWN] = "SCRIPTING_SHUTDOWN",
+};
+
+#define OBS_FRONTEND_EVENT_STR_LEN (sizeof(obs_frontend_event_str) / sizeof(obs_frontend_event_str[0]))
+
+static void obs_event(enum obs_frontend_event event, void *private_data)
+{
+    (void)private_data;
+    const char *event_str = "UNKNOW EVENT";
+    if (event < OBS_FRONTEND_EVENT_STR_LEN)
+        event_str = obs_frontend_event_str[event];
+    mlog(LOG_INFO, "event: %s", event_str);
+
+    if (event == OBS_FRONTEND_EVENT_RECORDING_STOPPED) {
+        obs_output_t *recording_output = obs_frontend_get_recording_output();
+        if (recording_output != NULL) {
+            obs_data_t *settings = obs_output_get_settings(recording_output);
+            if (settings != NULL) {
+                const char *path = obs_data_get_string(settings, "path");
+                mlog(LOG_INFO, "path: %s", path);
+                nudgis_upload_file(path);
+                obs_data_release(settings);
+            }
+            obs_output_release(recording_output);
+        }
+    }
+}
+
 const char *obs_module_name(void)
 {
     return "Nudgis Obs Plugin";
@@ -130,6 +196,8 @@ bool obs_module_load()
     menu_action->connect(menu_action, &QAction::triggered, openWindow);
     obs_register_service(&nudgis_service_info);
     nudgis_service = obs_service_create(nudgis_service_info.id, nudgis_service_info.get_name(nullptr), nullptr, nullptr);
+
+    obs_frontend_add_event_callback(obs_event, nullptr);
 
     return true;
 }
