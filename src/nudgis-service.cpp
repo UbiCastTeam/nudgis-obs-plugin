@@ -7,6 +7,7 @@
 #include <obs-module.h>
 #include <jansson.h>
 #include <obs-frontend-api.h>
+#include <QVersionNumber>
 
 using namespace std;
 
@@ -21,6 +22,7 @@ using namespace std;
 #define PATH_PREPARE_URL "/api/v2/lives/prepare/"
 #define PATH_START_URL "/api/v2/lives/start/"
 #define PATH_STOP_URL "/api/v2/lives/stop/"
+#define PATH_API_BASE_URL "/api/v2/"
 
 #define PARAM_API_KEY "api_key="
 #define PARAM_TITLE "title="
@@ -46,6 +48,7 @@ static const string &GetRemoteFile(const string &url, const string &postData, bo
 class NudgisData {
 private:
     obs_data_t *settings = NULL;
+    QVersionNumber *server_version = NULL;
 
     NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
 
@@ -127,6 +130,12 @@ public:
         this->settings = settings;
     }
 
+    ~NudgisData()
+    {
+        if (server_version != NULL)
+            delete server_version;
+    }
+
     const string &GetData(const string &url, const string &getData, bool *result)
     {
         return this->PostData(url + "?" + getData, "", result);
@@ -190,6 +199,14 @@ public:
         mlog(LOG_INFO, "oid       : %s", this->oid.c_str());
 
         return result;
+    }
+
+    const QVersionNumber *GetServerVersion()
+    {
+        QVersionNumber **result = &this->server_version;
+        if (*result == NULL)
+            *result = new QVersionNumber(QVersionNumber::fromString("10.2.2"));
+        return *result;
     }
 
     const string &GetPrepareUrl()
@@ -260,6 +277,30 @@ public:
         stop_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid;
         result = stop_postdata.str();
         mlog(LOG_DEBUG, "stop_postdata: %s", result.c_str());
+
+        return result;
+    }
+
+    const string &GetApiBaseUrl()
+    {
+        static string result;
+
+        ostringstream apibase_url;
+        apibase_url << this->nudgis_config->url << PATH_API_BASE_URL;
+        result = apibase_url.str();
+        mlog(LOG_DEBUG, "api_base_url: %s", result.c_str());
+
+        return result;
+    }
+
+    const string &GetApiBaseGetdata()
+    {
+        static string result;
+
+        ostringstream apibaseurl_getdata;
+        apibaseurl_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
+        result = apibaseurl_getdata.str();
+        mlog(LOG_DEBUG, "apibaseurl_getdata: %s", result.c_str());
 
         return result;
     }
