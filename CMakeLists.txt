@@ -5,6 +5,16 @@ cmake_minimum_required(VERSION 3.16)
 project(nudgis-obs-plugin VERSION 1.0.0)
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
+add_executable(test)
+
+target_sources(test
+	PRIVATE
+		src/nudgis-plugin.cpp
+		src/nudgis-service.cpp
+		src/nudgis-config.cpp
+		src/obs/obs-utils.cpp
+		src/test.cpp)
+
 # Replace `Your Name Here` with the name (yours or your organization's) you want
 # to see as the author of the plugin (in the plugin's metadata itself and in the installers)
 set(PLUGIN_AUTHOR "Ubicast SA")
@@ -47,6 +57,28 @@ target_sources(${CMAKE_PROJECT_NAME}
 		src/plugin-macros.generated.h)
 
 # --- Platform-independent build settings ---
+
+target_include_directories(test
+	PRIVATE
+		${CMAKE_SOURCE_DIR}/src/obs
+		${CMAKE_SOURCE_DIR}/src
+		${LIBOBSFRONTENDAPI_INCLUDE_DIR}
+		${LIBCURL_INCLUDE_DIRS}
+		${JANSSON_INCLUDE_DIRS})
+
+target_link_libraries(test
+	PRIVATE
+		libobs
+		Qt5::Core
+		Qt5::Widgets
+		${LIBOBSFRONTENDAPI_LIBRARIES}
+		${LIBCURL_LIBRARIES}
+		${JANSSON_LIBRARIES})
+
+set_target_properties(test PROPERTIES
+	AUTOMOC ON
+	AUTOUIC ON
+	AUTORCC ON)
 
 target_include_directories(${CMAKE_PROJECT_NAME}
 	PRIVATE
