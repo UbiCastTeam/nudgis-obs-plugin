@@ -8,6 +8,10 @@
 #include <jansson.h>
 #include <obs-frontend-api.h>
 #include <QVersionNumber>
+#include <QFileInfo>
+#include <QCryptographicHash>
+#include <fstream>
+#include <cmath>
 
 using namespace std;
 
@@ -30,6 +34,11 @@ using namespace std;
 #define PARAM_OID "oid="
 #define PARAM_MULTI_STREAMS "multi_streams="
 #define PARAM_STREAMS "streams="
+#define PARAM_UPLOAD_ID "upload_id="
+#define PARAM_MD5 "md5="
+#define PARAM_NO_MD5 "no_md5="
+#define PARAM_ORIGIN "origin="
+#define PARAM_CODE "code="
 
 #define FILENAME_STREAMENCODER "streamEncoder.json"
 
@@ -124,6 +133,11 @@ public:
     string server_uri = DEF_SERVER_URI;
     string stream_id = DEF_STREAM_ID;
     string oid = DEF_OID;
+
+    NudgisData()
+    {
+        this->settings = NULL;
+    }
 
     NudgisData(obs_data_t *settings)
     {
@@ -468,3 +482,163 @@ struct obs_service_info nudgis_service_info =
                 NULL, //void (*get_max_bitrate)(void *data, int *video_bitrate,
                       //int *audio_bitrate);
 };
+
+void nudgis_upload_file(const char *filename, bool check_md5)
+{
+    string file_basename = QFileInfo(filename).fileName().toStdString();
+
+    mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", filename, file_basename.c_str());
+
+    NudgisData nudgis_data;
+    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
+    QCryptographicHash md5sum(QCryptographicHash::Md5);
+
+    string server_version_response = nudgis_data.GetData(nudgis_data.GetApiBaseUrl(), nudgis_data.GetApiBaseGetdata(), NULL);
+
+    //~ url_prefix = 'medias/resource/' if client.get_server_version() < (8, 2) else ''
+    string url_prefix = *nudgis_data.GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "";
+    //~ chunk_size = client.conf['UPLOAD_CHUNK_SIZE']
+    uint64_t chunk_size = nudgis_config->upload_chunk_size;
+
+    ifstream file(filename, ifstream::ate | ifstream::binary);
+    if (file.is_open()) {
+        //~ total_size = os.path.getsize(file_path)
+        streampos total_size = file.tellg();
+        //~ chunks_count = math.ceil(total_size / chunk_size)
+        uint64_t chunks_count = ceil(total_size * 1.0 / chunk_size);
+        mlog(LOG_INFO, "total_size*1.0 / chunk_size              : %f", total_size * 1.0 / chunk_size);
+        mlog(LOG_INFO, "chunks_count                             : %lu", chunks_count);
+
+        //~ chunk_index = 0
+        uint64_t chunk_index = 0;
+        //~ start_offset = 0
+        uint64_t start_offset = 0;
+        //~ end_offset = min(chunk_size, total_size) - 1
+        uint64_t end_offset = min<uint64_t>(chunk_size, total_size) - 1;
+        //~ data = dict()
+        //~ if check_md5:
+        //~ md5sum = hashlib.md5()
+
+        //~ begin = time.time()
+        //~ with open(file_path, 'rb') as file_object:
+        //~ while True:
+        file.seekg(start_offset, ios::beg);
+        char read_buffer[chunk_size];
+        string upload_id;
+        string response;
+        string error;
+
+        ostringstream url_upload;
+        url_upload << nudgis_config->url << PATH_API_BASE_URL << url_prefix << "upload/";
+
+        while (true) {
+            //~ chunk = file_object.read(chunk_size)
+            streamsize chunk = file.readsome(read_buffer, chunk_size);
+            //~ if not chunk:
+            //~ break
+            if (chunk < 1)
+                break;
+            //~ chunk_index += 1
+            chunk_index++;
+            //~ logger.debug('Uploading chunk %s/%s.', chunk_index, chunks_count)
+            mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
+            //~ if check_md5:
+            //~ md5sum.update(chunk)
+            if (check_md5)
+                md5sum.addData(read_buffer, chunk);
+            //~ files = {'file': (os.path.basename(file_path), chunk)}
+            //~ headers = {'Content-Range': 'bytes %s-%s/%s' % (start_offset, end_offset, total_size)}
+            ostringstream headers;
+            headers << "Content-Range: bytes " << start_offset << "-" << end_offset << "/" << total_size;
+            mlog(LOG_INFO, "headers : %s", headers.str().c_str());
+
+            list<FormField> form_fields =
+                    {
+                            {"api_key", "", nudgis_config->api_key.c_str(), 0},
+                            {"file", file_basename, read_buffer, (size_t)chunk},
+                    };
+
+            if (upload_id.length() > 0)
+                form_fields.push_front({"upload_id", "", upload_id.c_str(), 0});
+
+            std::vector<std::string> extraHeaders =
+                    {
+                            headers.str(),
+                            "Expect:",
+                            "Accept-Language: en",
+                    };
+
+            response.clear();
+            error.clear();
+            //~ response = client.api(url_prefix + 'upload/', method='post', data=data, files=files, headers=headers, timeout=timeout, max_retry=max_retry)
+            GetRemoteFile(
+                    url_upload.str().c_str(),
+                    response,
+                    error,
+                    nullptr,
+                    nullptr,
+                    "",
+                    nullptr,
+                    true,
+                    form_fields,
+                    extraHeaders);
+
+            mlog(LOG_INFO, "upload response: %s", response.c_str());
+
+            //~ if progress_callback:
+            //~ pdata = progress_data or dict()
+            //~ progress_callback(0.9 * end_offset / total_size, **pdata)
+            //~ if 'upload_id' not in data:
+            //~ data['upload_id'] = response['upload_id']
+            if (upload_id.length() < 1) {
+                obs_data_t *response_obs_data = obs_data_create_from_json(response.c_str());
+                if (response_obs_data != NULL) {
+                    upload_id = obs_data_get_string(response_obs_data, "upload_id");
+                    obs_data_release(response_obs_data);
+                }
+            }
+            start_offset += chunk_size;
+            end_offset = min<uint64_t>(end_offset + chunk_size, (size_t)total_size - 1);
+        }
+        //~ bandwidth = total_size * 8 / ((time.time() - begin) * 1000000)
+        //~ logger.debug('Upload finished, average bandwidth: %.2f Mbits/s', bandwidth)
+
+        ostringstream complete_data;
+        complete_data << PARAM_UPLOAD_ID << upload_id << "&" << PARAM_API_KEY << nudgis_config->api_key << "&";
+
+        //~ if check_md5:
+        //~ data['md5'] = md5sum.hexdigest()
+        //~ else:
+        //~ data['no_md5'] = 'yes'
+
+        if (check_md5)
+            complete_data << PARAM_MD5 << md5sum.result().toHex().toStdString();
+        else
+            complete_data << PARAM_NO_MD5 << "yes";
+
+        //~ if remote_path:
+        //~ data['path'] = remote_path
+
+        ostringstream url_complete;
+        url_complete << nudgis_config->url << PATH_API_BASE_URL << url_prefix << "upload/complete/";
+
+        //~ response = client.api(url_prefix + 'upload/complete/', method='post', data=data, timeout=timeout, max_retry=max_retry)
+        if (nudgis_data.PostData(url_complete.str(), complete_data.str())) {
+            ostringstream add_data;
+            add_data << PARAM_ORIGIN << "nudgis-obs-plugin"
+                     << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << nudgis_config->api_key;
+
+            ostringstream url_add;
+            url_add << nudgis_config->url << PATH_API_BASE_URL << url_prefix << "medias/add/";
+
+            response = nudgis_data.PostData(url_add.str(), add_data.str().c_str(), NULL);
+        }
+
+        //~ if progress_callback:
+        //~ pdata = progress_data or dict()
+        //~ progress_callback(1., **pdata)
+        //~ return data['upload_id']
+
+        file.close();
+    }
+}
