@@ -27,6 +27,7 @@ using namespace std;
 #define PATH_START_URL "/api/v2/lives/start/"
 #define PATH_STOP_URL "/api/v2/lives/stop/"
 #define PATH_API_BASE_URL "/api/v2/"
+#define PATH_UPLOAD_URL "/api/v2/"
 
 #define PARAM_API_KEY "api_key="
 #define PARAM_TITLE "title="
