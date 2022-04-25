@@ -596,8 +596,17 @@ struct obs_service_info nudgis_service_info =
                       //int *audio_bitrate);
 };
 
-void nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
+NudgisUploadFileResult::~NudgisUploadFileResult()
 {
+    if (this->upload_complete_response != NULL)
+        obs_data_release(this->upload_complete_response);
+    if (this->media_add_response != NULL)
+        obs_data_release(this->media_add_response);
+}
+
+NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
+{
+    NudgisUploadFileResult * result = new NudgisUploadFileResult();
     string file_basename = QFileInfo(filename).fileName().toStdString();
     mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", filename, file_basename.c_str());
     NudgisData nudgis_data;
@@ -675,8 +684,14 @@ void nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_uploa
         //~ if remote_path:
         //~ data['path'] = remote_path
 
-        if (nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum)))
+        bool upload_complete_result;
+        response = nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum), &upload_complete_result);
+        result->upload_complete_response = obs_data_create_from_json(response.c_str());
+        if (upload_complete_result)
+        {
             response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id), NULL);
+            result->media_add_response = obs_data_create_from_json(response.c_str());
+        }
 
         if (nudgis_upload_progress_cb != NULL)
             (*nudgis_upload_progress_cb)(cb_args,100);
@@ -687,4 +702,5 @@ void nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_uploa
 
         file.close();
     }
+    return result;
 }
