@@ -604,6 +604,8 @@ NudgisUploadFileResult::~NudgisUploadFileResult()
         obs_data_release(this->media_add_response);
 }
 
+//#define DISABLE_UPLOAD 1
+
 NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
 {
     NudgisUploadFileResult * result = new NudgisUploadFileResult();
@@ -647,6 +649,8 @@ NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProg
 
             response.clear();
             error.clear();
+
+#ifndef DISABLE_UPLOAD
             GetRemoteFile(
                     nudgis_data.GetUploadUrl().c_str(),
                     response,
@@ -658,6 +662,7 @@ NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProg
                     true,
                     nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id),
                     extraHeaders);
+#endif
 
             mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
 
@@ -667,6 +672,7 @@ NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProg
             //~ pdata = progress_data or dict()
             //~ progress_callback(0.9 * end_offset / total_size, **pdata)
 
+#ifndef DISABLE_UPLOAD
             if (upload_id.length() < 1) {
                 obs_data_t *response_obs_data = obs_data_create_from_json(response.c_str());
                 if (response_obs_data != NULL) {
@@ -674,6 +680,7 @@ NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProg
                     obs_data_release(response_obs_data);
                 }
             }
+#endif
 
             previous_offset = current_offset;
         }
@@ -684,6 +691,7 @@ NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProg
         //~ if remote_path:
         //~ data['path'] = remote_path
 
+#ifndef DISABLE_UPLOAD
         bool upload_complete_result;
         response = nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum), &upload_complete_result);
         result->upload_complete_response = obs_data_create_from_json(response.c_str());
@@ -692,6 +700,7 @@ NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProg
             response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id), NULL);
             result->media_add_response = obs_data_create_from_json(response.c_str());
         }
+#endif
 
         if (nudgis_upload_progress_cb != NULL)
             (*nudgis_upload_progress_cb)(cb_args,100);
