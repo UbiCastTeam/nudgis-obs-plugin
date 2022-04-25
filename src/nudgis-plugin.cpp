@@ -8,6 +8,7 @@ Copyright (C) 2021 Ubicast
 #include "plugin-macros.generated.h"
 #include "ui_settings.h"
 #include "obs-app.hpp"
+#include "nudgis-upload-ui.hpp"
 
 #include <obs-module.h>
 #include <QAction>
@@ -161,9 +162,20 @@ static void obs_event(enum obs_frontend_event event, void *private_data)
         if (recording_output != NULL) {
             obs_data_t *settings = obs_output_get_settings(recording_output);
             if (settings != NULL) {
-                const char *path = obs_data_get_string(settings, "path");
-                mlog(LOG_INFO, "path: %s", path);
-                nudgis_upload_file(path);
+                if (NudgisConfig::GetCurrentNudgisConfig()->publish_recording_automatically->type != AutoState::AUTOSTATE_NEVER)
+                {
+                    const char *path = obs_data_get_string(settings, "path");
+                    mlog(LOG_INFO, "path: %s", path);
+                    //nudgis_upload_file(path);
+
+                    obs_frontend_push_ui_translation(obs_module_get_string);
+                    NudgisUploadUi nudgis_upload_ui((QWidget *)obs_frontend_get_main_window(), path);
+                    obs_frontend_pop_ui_translation();
+                    nudgis_upload_ui.exec();
+
+                    mlog(LOG_INFO, "nudgis_upload_ui->show pass");
+                }
+
                 obs_data_release(settings);
             }
             obs_output_release(recording_output);
