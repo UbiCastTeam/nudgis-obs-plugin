@@ -608,26 +608,26 @@ void nudgis_upload_file(const char *filename, bool check_md5)
         uint64_t chunk_size = nudgis_data.GetUploadChunkSize();
         uint64_t chunks_count = ceil(total_size * 1.0 / chunk_size);
         uint64_t chunk_index = 0;
-        uint64_t start_offset = 0;
-        uint64_t end_offset = min<uint64_t>(chunk_size, total_size) - 1;
+        uint64_t previous_offset=0;
+        uint64_t current_offset=0;
 
-        file.seekg(start_offset, ios::beg);
+        file.seekg(current_offset, ios::beg);
         char read_buffer[chunk_size];
         string upload_id;
         string response;
         string error;
 
-        while (true) {
-            streamsize chunk = file.readsome(read_buffer, chunk_size);
-            if (chunk < 1)
-                break;
+        while (!file.eof()) {
+            file.read(read_buffer, chunk_size);
+            streamsize chunk = file.gcount();
+            current_offset += chunk;
             chunk_index++;
             mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
             if (check_md5)
                 md5sum.addData(read_buffer, chunk);
 
             ostringstream headers;
-            headers << "Content-Range: bytes " << start_offset << "-" << end_offset << "/" << total_size;
+            headers << "Content-Range: bytes " << previous_offset << "-" << current_offset - 1 << "/" << total_size;
 
             std::vector<std::string> extraHeaders =
                     {
@@ -650,7 +650,7 @@ void nudgis_upload_file(const char *filename, bool check_md5)
                     nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id),
                     extraHeaders);
 
-            mlog(LOG_INFO, "upload response: %s", response.c_str());
+            mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
 
             //~ if progress_callback:
             //~ pdata = progress_data or dict()
@@ -663,8 +663,8 @@ void nudgis_upload_file(const char *filename, bool check_md5)
                     obs_data_release(response_obs_data);
                 }
             }
-            start_offset += chunk_size;
-            end_offset = min<uint64_t>(end_offset + chunk_size, (size_t)total_size - 1);
+
+            previous_offset = current_offset;
         }
 
         //~ bandwidth = total_size * 8 / ((time.time() - begin) * 1000000)
