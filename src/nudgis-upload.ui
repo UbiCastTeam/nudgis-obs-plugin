@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NudgisUpload</class>
+ <widget class="QWidget" name="NudgisUpload">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>428</width>
+    <height>358</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Nudgis Upload</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QWidget" name="widget_AskUploadFile" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_AskUploadFile">
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_AskUploadFile">
+        <property name="text">
+         <string>Do you want to upload the recorded file to my.ubicast.tv ?</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayou_pushButton_UploadFile">
+        <item>
+         <widget class="QPushButton" name="pushButton_Yes_UploadFile">
+          <property name="text">
+           <string>yes</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_No_UploadFile">
+          <property name="text">
+           <string>no</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QWidget" name="widget_UploadFileProgress" native="true">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_UploadFileProgress">
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_UploadFileProgress">
+        <property name="text">
+         <string>Uploading to my.ubicast.tv</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="progressBar_UploadFile">
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_Cancel">
+        <property name="text">
+         <string>cancel</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QWidget" name="widget_UploadFileDone" native="true">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_UploadFileDone">
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_FileUploadedTo">
+        <property name="text">
+         <string>File uploaded to</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_FileUploadedUrl">
+        <property name="text">
+         <string>&lt;a href=&quot;$$NUDGIS_URL$$/permalink/$$OID$$/&quot;&gt;$$NUDGIS_URL$$/permalink/$$OID$$/&lt;/a&gt;</string>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_Done">
+        <property name="text">
+         <string>done</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QWidget" name="widget_AskRemoveFile" native="true">
+     <property name="visible">
+      <bool>false</bool>
+     </property>        
+     <layout class="QVBoxLayout" name="verticalLayout_AskRemoveFile">
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_AskRemoveFile">
+        <property name="text">
+         <string>Do you want to remove the recorded file from hard disk ?</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_pushButton_RemoveFile">
+        <item>
+         <widget class="QPushButton" name="pushButton_Yes_RemoveFile">
+          <property name="text">
+           <string>yes</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_No_RemoveFile">
+          <property name="text">
+           <string>no</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
