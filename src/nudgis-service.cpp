@@ -596,7 +596,7 @@ struct obs_service_info nudgis_service_info =
                       //int *audio_bitrate);
 };
 
-void nudgis_upload_file(const char *filename, bool check_md5)
+void nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
 {
     string file_basename = QFileInfo(filename).fileName().toStdString();
     mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", filename, file_basename.c_str());
@@ -652,6 +652,8 @@ void nudgis_upload_file(const char *filename, bool check_md5)
 
             mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
 
+            if (nudgis_upload_progress_cb != NULL)
+                (*nudgis_upload_progress_cb)(cb_args,90.0 * current_offset / total_size);
             //~ if progress_callback:
             //~ pdata = progress_data or dict()
             //~ progress_callback(0.9 * end_offset / total_size, **pdata)
@@ -676,6 +678,8 @@ void nudgis_upload_file(const char *filename, bool check_md5)
         if (nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum)))
             response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id), NULL);
 
+        if (nudgis_upload_progress_cb != NULL)
+            (*nudgis_upload_progress_cb)(cb_args,100);
         //~ if progress_callback:
         //~ pdata = progress_data or dict()
         //~ progress_callback(1., **pdata)
