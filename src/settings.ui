@@ -10,7 +10,7 @@
     <height>340</height>
    </rect>
   </property>
-  <property name="WindowTitle" stdset="0">
+  <property name="windowTitle">
    <string>NudgisPlugin.settings.WindowTitle</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_settings">
