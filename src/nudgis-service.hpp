@@ -76,6 +76,16 @@ class NudgisUploadFileResult
         obs_data_t * media_add_response = NULL;
 };
 
-NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL, bool check_md5 = true);
+class NudgisUpload
+{
+
+    public:
+        NudgisUpload(const char *filename);
+        ~NudgisUpload();
+        NudgisUploadFileResult *run(NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL, bool check_md5 = true);
+
+    private:
+        const char * filename = NULL;
+};
 
 #endif

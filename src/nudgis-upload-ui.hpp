@@ -13,11 +13,11 @@ class NudgisUploadThead : public QThread {
     Q_OBJECT
 
     public:
-        NudgisUploadThead(const char * fileName);
+        NudgisUploadThead(NudgisUpload * nudgis_upload);
         void cancel();
 
     private:
-        const char * fileName;
+        NudgisUpload * nudgis_upload;
         bool canceled;
 
         void run();
@@ -49,6 +49,7 @@ private:
 
     Ui_NudgisUpload *ui;
     NudgisUploadThead *nudgis_upload_thead;
+    NudgisUpload nudgis_upload;
     const char *fileName;
     const NudgisConfig *nudgis_config;
     enum NUDGIS_UPLOAD_UI_STATE currentState = NUDGIS_UPLOAD_UI_UNKNOW;

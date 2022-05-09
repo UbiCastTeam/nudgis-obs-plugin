@@ -11,12 +11,11 @@ static void NudgisUploadProgress(void *cb_args,int percent)
     emit nudgis_upload_thead->progressUpload(percent);
 }
 
-NudgisUploadThead::NudgisUploadThead(const char * fileName):
+NudgisUploadThead::NudgisUploadThead(NudgisUpload * nudgis_upload):
     QThread()
 {
     this->canceled = false;
-    //this->fileName = fileName;
-    this->fileName = "/home/pagou/Vidéos/test.mkv";
+    this->nudgis_upload = nudgis_upload;
 }
 
 void NudgisUploadThead::cancel()
@@ -27,16 +26,16 @@ void NudgisUploadThead::cancel()
 void NudgisUploadThead::run()
 {
     emit this->startUpload();
-    NudgisUploadFileResult *result = nudgis_upload_file(this->fileName, NudgisUploadProgress, this);
+    NudgisUploadFileResult *result = this->nudgis_upload->run(NudgisUploadProgress, this);
     emit this->endUpload(!this->canceled, result);
 }
 
 NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
-        : QDialog(parent), ui(new Ui_NudgisUpload)
+        : QDialog(parent), ui(new Ui_NudgisUpload), nudgis_upload(fileName)
 {
     this->nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     this->fileName = fileName;
-    this->nudgis_upload_thead = new NudgisUploadThead(this->fileName);
+    this->nudgis_upload_thead = new NudgisUploadThead(&this->nudgis_upload);
     connect(this->nudgis_upload_thead, SIGNAL(startUpload()), this, SLOT(on_startUpload()));
     connect(this->nudgis_upload_thead, SIGNAL(endUpload(bool, NudgisUploadFileResult*)), this, SLOT(on_endUpload(bool, NudgisUploadFileResult*)));
     connect(this->nudgis_upload_thead, SIGNAL(progressUpload(int)), this, SLOT(on_progressUpload(int)));

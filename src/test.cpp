@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     std::cout << "start with " << std::endl
               << "  filename: " << filename << std::endl;
 
-    nudgis_upload_file(filename);
+    NudgisUpload nudgis_upload(filename);
+    nudgis_upload.run();
     return 0;
 }

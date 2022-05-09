@@ -633,14 +633,24 @@ NudgisUploadFileResult::~NudgisUploadFileResult()
 
 //#define DISABLE_UPLOAD 1
 
-NudgisUploadFileResult *nudgis_upload_file(const char *filename,NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
+NudgisUpload::NudgisUpload(const char *filename)
+{
+    this->filename = strdup(filename);
+}
+
+NudgisUpload::~NudgisUpload()
+{
+    delete this->filename;
+}
+
+NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
 {
     NudgisUploadFileResult * result = new NudgisUploadFileResult();
-    string file_basename = QFileInfo(filename).fileName().toStdString();
-    mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", filename, file_basename.c_str());
+    string file_basename = QFileInfo(this->filename).fileName().toStdString();
+    mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", this->filename, file_basename.c_str());
     NudgisData nudgis_data;
     QCryptographicHash md5sum(QCryptographicHash::Md5);
-    ifstream file(filename, ifstream::ate | ifstream::binary);
+    ifstream file(this->filename, ifstream::ate | ifstream::binary);
     if (file.is_open()) {
         streampos total_size = file.tellg();
         uint64_t chunk_size = nudgis_data.GetUploadChunkSize();
