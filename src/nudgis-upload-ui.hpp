@@ -10,12 +10,12 @@
 class NudgisUploadThead : public QThread {
     Q_OBJECT
 
-    public:
-        NudgisUploadThead(NudgisUpload * nudgis_upload);
+public:
+    NudgisUploadThead(NudgisUpload *nudgis_upload);
 
-    private:
-        NudgisUpload * nudgis_upload;
-        void run();
+private:
+    NudgisUpload *nudgis_upload;
+    void run();
 };
 
 class Ui_NudgisUpload;
@@ -28,8 +28,7 @@ public:
     ~NudgisUploadUi();
 
 private:
-    enum NUDGIS_UPLOAD_UI_STATE
-    {
+    enum NUDGIS_UPLOAD_UI_STATE {
         NUDGIS_UPLOAD_UI_ASK_UPLOAD_FILE,
         NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS,
         NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE,

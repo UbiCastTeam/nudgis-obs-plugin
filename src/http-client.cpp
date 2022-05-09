@@ -6,29 +6,28 @@
 
 static size_t curl_write_function(char *buffer, size_t size, size_t nitems, string *response);
 
-static const char * HTTP_CLIENT_METHOD_STR[]=
-{
-    [HttpClient::HTTP_CLIENT_METHOD_POST] = "POST",
-    [HttpClient::HTTP_CLIENT_METHOD_GET] = "GET",
+static const char *HTTP_CLIENT_METHOD_STR[] =
+        {
+                [HttpClient::HTTP_CLIENT_METHOD_POST] = "POST",
+                [HttpClient::HTTP_CLIENT_METHOD_GET] = "GET",
 };
 
-static const char * HTTP_CLIENT_BOOL_ITEM_STR[]=
-{
-    [HttpClient::HTTP_CLIENT_BOOL_ITEM_UNDEF] = "UNDEF",
-    [HttpClient::HTTP_CLIENT_BOOL_ITEM_TRUE] = "TRUE",
-    [HttpClient::HTTP_CLIENT_BOOL_ITEM_FALSE] = "FALSE",
+static const char *HTTP_CLIENT_BOOL_ITEM_STR[] =
+        {
+                [HttpClient::HTTP_CLIENT_BOOL_ITEM_UNDEF] = "UNDEF",
+                [HttpClient::HTTP_CLIENT_BOOL_ITEM_TRUE] = "TRUE",
+                [HttpClient::HTTP_CLIENT_BOOL_ITEM_FALSE] = "FALSE",
 };
 
 HttpClient::HttpClient()
 {
-     reset();
-     this->response_obs_data = NULL;
+    reset();
+    this->response_obs_data = NULL;
 }
 
 HttpClient::~HttpClient()
 {
-    if (this->response_obs_data != NULL)
-    {
+    if (this->response_obs_data != NULL) {
         obs_data_release(this->response_obs_data);
         this->response_obs_data = NULL;
     }
@@ -48,23 +47,22 @@ void HttpClient::setMethod(HTTP_CLIENT_METHOD method)
     this->method = method;
 }
 
-void HttpClient::setUrl(const string & url)
+void HttpClient::setUrl(const string &url)
 {
     this->url = url;
 }
 
-void HttpClient::setParameters(const string & parameters)
+void HttpClient::setParameters(const string &parameters)
 {
     this->parameters = parameters;
 }
 
-
-void HttpClient::setHeaders(const vector<string> & headers)
+void HttpClient::setHeaders(const vector<string> &headers)
 {
     this->headers = headers;
 }
 
-void HttpClient::setFormFields(const list<HttpClientFormField> & form_fields)
+void HttpClient::setFormFields(const list<HttpClientFormField> &form_fields)
 {
     this->form_fields = form_fields;
 }
@@ -92,15 +90,13 @@ bool HttpClient::send()
     this->response = {};
     this->error_json_item = {};
     this->success_json_item = HTTP_CLIENT_BOOL_ITEM_UNDEF;
-    if (this->response_obs_data != NULL)
-    {
+    if (this->response_obs_data != NULL) {
         obs_data_release(this->response_obs_data);
         this->response_obs_data = NULL;
     }
 
     curl = curl_easy_init();
-    if (curl)
-    {
+    if (curl) {
         this->error.url = this->url;
         string url = this->url;
         error_buffer[0] = '\0';
@@ -113,8 +109,7 @@ bool HttpClient::send()
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_function);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &this->response);
 
-        if (this->method == HTTP_CLIENT_METHOD_POST)
-        {
+        if (this->method == HTTP_CLIENT_METHOD_POST) {
             curl_easy_setopt(curl, CURLOPT_POST, 1);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, this->parameters.c_str());
         }
@@ -128,8 +123,7 @@ bool HttpClient::send()
         if (this->form_fields.size() > 0)
             form = curl_mime_init(curl);
 
-        for (HttpClientFormField &form_field : this->form_fields)
-        {
+        for (HttpClientFormField &form_field : this->form_fields) {
             field = curl_mime_addpart(form);
             curl_mime_name(field, form_field.name.c_str());
             if (form_field.filename.length() > 0)
@@ -150,13 +144,11 @@ bool HttpClient::send()
 
         mlog(LOG_DEBUG, "  response            : %s", response.c_str());
 
-        if (this->error.curl_code == CURLE_OK)
-        {
+        if (this->error.curl_code == CURLE_OK) {
             this->response_obs_data = obs_data_create_from_json(this->response.c_str());
             mlog(LOG_DEBUG, "  response is         : %s", this->response_obs_data ? "json" : "not json");
 
-            if (this->response_obs_data)
-            {
+            if (this->response_obs_data) {
                 bool has_success_item = obs_data_has_user_value(this->response_obs_data, "success");
                 mlog(LOG_DEBUG, "  has_success_item    : %s", has_success_item ? "yes" : "no");
                 if (has_success_item)
@@ -195,17 +187,17 @@ bool HttpClient::send()
     return this->send_success;
 }
 
-const HttpClientError & HttpClient::getError() const
+const HttpClientError &HttpClient::getError() const
 {
     return this->error;
 }
 
-string & HttpClient::getResponse()
+string &HttpClient::getResponse()
 {
     return this->response;
 }
 
-obs_data_t * HttpClient::getResponseObsData() const
+obs_data_t *HttpClient::getResponseObsData() const
 {
     return this->response_obs_data;
 }

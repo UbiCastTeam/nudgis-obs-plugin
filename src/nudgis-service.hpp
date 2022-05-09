@@ -19,92 +19,89 @@ using namespace std;
 
 extern struct obs_service_info nudgis_service_info;
 
-class NudgisData
-{
-    public:
-        string server_uri = DEF_SERVER_URI;
-        string stream_id = DEF_STREAM_ID;
-        string oid = DEF_OID;
-        string oid_personal_channel = OID_PERSONAL_CHANNEL_UNDEF;
-        NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
+class NudgisData {
+public:
+    string server_uri = DEF_SERVER_URI;
+    string stream_id = DEF_STREAM_ID;
+    string oid = DEF_OID;
+    string oid_personal_channel = OID_PERSONAL_CHANNEL_UNDEF;
+    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
 
-        NudgisData();
-        NudgisData(obs_data_t *settings);
-        ~NudgisData();
+    NudgisData();
+    NudgisData(obs_data_t *settings);
+    ~NudgisData();
 
-        HttpClient& GetHttpClient();
-        const string &GetUrlPrefix();
-        const string &GetData(const string &url, const string &getData, bool *result);
-        const string &PostData(const string &url, const string &postData, bool *result);
-        bool PostData(const string &url, const string &postData);
-        bool InitFromPrepareResponse(const string &prepare_response);
-        const QVersionNumber *GetServerVersion();
-        const string &GetStreamChannel();
-        const string &GetPrepareUrl();
-        const string &GetPreparePostdata(obs_output_t *output);
-        const string &GetStartUrl();
-        const string &GetStartPostdata();
-        const string &GetStopUrl();
-        const string &GetStopPostdata();
-        const string &GetApiBaseUrl();
-        const string &GetApiBaseGetdata();
-        const string &GetUploadUrl();
-        list<HttpClientFormField> &GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id);
-        const string &GetUploadCompleteUrl();
-        const string &GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum);
-        const string &GetMediasAddUrl();
-        const string &GetMediasAddPostdata(string &upload_id, string &title);
-        const string &GetChannelsPersonalUrl();
-        const string &GetChannelsPersonalGetdata();
-        uint64_t GetUploadChunkSize();
+    HttpClient &GetHttpClient();
+    const string &GetUrlPrefix();
+    const string &GetData(const string &url, const string &getData, bool *result);
+    const string &PostData(const string &url, const string &postData, bool *result);
+    bool PostData(const string &url, const string &postData);
+    bool InitFromPrepareResponse(const string &prepare_response);
+    const QVersionNumber *GetServerVersion();
+    const string &GetStreamChannel();
+    const string &GetPrepareUrl();
+    const string &GetPreparePostdata(obs_output_t *output);
+    const string &GetStartUrl();
+    const string &GetStartPostdata();
+    const string &GetStopUrl();
+    const string &GetStopPostdata();
+    const string &GetApiBaseUrl();
+    const string &GetApiBaseGetdata();
+    const string &GetUploadUrl();
+    list<HttpClientFormField> &GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id);
+    const string &GetUploadCompleteUrl();
+    const string &GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum);
+    const string &GetMediasAddUrl();
+    const string &GetMediasAddPostdata(string &upload_id, string &title);
+    const string &GetChannelsPersonalUrl();
+    const string &GetChannelsPersonalGetdata();
+    uint64_t GetUploadChunkSize();
 
-    private:
-        obs_data_t *settings = NULL;
-        QVersionNumber *server_version = NULL;
-        string *url_prefix = NULL;
-        HttpClient http_client;
+private:
+    obs_data_t *settings = NULL;
+    QVersionNumber *server_version = NULL;
+    string *url_prefix = NULL;
+    HttpClient http_client;
 
-        bool GetResponseSuccess(obs_data_t *obs_data);
-        bool GetResponseSuccess(const string &response);
-        const string &GetJsonStreams(obs_output_t *output);
+    bool GetResponseSuccess(obs_data_t *obs_data);
+    bool GetResponseSuccess(const string &response);
+    const string &GetJsonStreams(obs_output_t *output);
 };
 
-class NudgisUpload: public QObject
-{
+class NudgisUpload : public QObject {
     Q_OBJECT;
 
-    public:
-        enum NUDGIS_UPLOAD_STATE
-        {
-            NUDGIS_UPLOAD_STATE_IDLE,
-            NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS,
-            NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL,
-            NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL,
-            NUDGIS_UPLOAD_STATE_UPLOAD_FAILED,
-        };
-        NudgisUpload(const char *filename);
-        ~NudgisUpload();
-        void run();
-        void cancel();
-        void setCheckMd5(bool enabled);
-        const char * GetFileUploadedUrlHtml();
-        string &GetFileUploadedUrl();
-        string &GetFileUploadedOid();
-        NUDGIS_UPLOAD_STATE GetState();
-        const HttpClientError *GetHttpClientError();
+public:
+    enum NUDGIS_UPLOAD_STATE {
+        NUDGIS_UPLOAD_STATE_IDLE,
+        NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS,
+        NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL,
+        NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL,
+        NUDGIS_UPLOAD_STATE_UPLOAD_FAILED,
+    };
+    NudgisUpload(const char *filename);
+    ~NudgisUpload();
+    void run();
+    void cancel();
+    void setCheckMd5(bool enabled);
+    const char *GetFileUploadedUrlHtml();
+    string &GetFileUploadedUrl();
+    string &GetFileUploadedOid();
+    NUDGIS_UPLOAD_STATE GetState();
+    const HttpClientError *GetHttpClientError();
 
-    private:
-        NUDGIS_UPLOAD_STATE state = NUDGIS_UPLOAD_STATE_IDLE;
-        bool check_md5 = true;
-        bool canceled = false;
-        const char * filename = NULL;
-        NudgisData nudgis_data;
-        const HttpClientError *http_client_error = NULL;
-        string file_uploaded_oid = {};
+private:
+    NUDGIS_UPLOAD_STATE state = NUDGIS_UPLOAD_STATE_IDLE;
+    bool check_md5 = true;
+    bool canceled = false;
+    const char *filename = NULL;
+    NudgisData nudgis_data;
+    const HttpClientError *http_client_error = NULL;
+    string file_uploaded_oid = {};
 
-    signals:
-        void progressUpload(int percent);
-        void endUpload();
+signals:
+    void progressUpload(int percent);
+    void endUpload();
 };
 
 #endif

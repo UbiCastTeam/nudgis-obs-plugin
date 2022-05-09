@@ -38,16 +38,16 @@
 
 #define FILENAME_STREAMENCODER "streamEncoder.json"
 
-static const char * NUDGIS_UPLOAD_STATE_STR[] =
-{
-    [NudgisUpload::NUDGIS_UPLOAD_STATE_IDLE] = "IDLE",
-    [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS] = "UPLOAD_IN_PROGRESS",
-    [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL] = "UPLOAD_SUCESSFULL",
-    [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL] = "UPLOAD_CANCEL",
-    [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED] = "UPLOAD_FAILED",
+static const char *NUDGIS_UPLOAD_STATE_STR[] =
+        {
+                [NudgisUpload::NUDGIS_UPLOAD_STATE_IDLE] = "IDLE",
+                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS] = "UPLOAD_IN_PROGRESS",
+                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL] = "UPLOAD_SUCESSFULL",
+                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL] = "UPLOAD_CANCEL",
+                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED] = "UPLOAD_FAILED",
 };
 
-HttpClient& NudgisData::GetHttpClient()
+HttpClient &NudgisData::GetHttpClient()
 {
     return this->http_client;
 }
@@ -247,10 +247,8 @@ const string &NudgisData::GetStreamChannel()
 {
     static string result;
 
-    if (this->nudgis_config->stream_channel == DEF_STREAM_CHANNEL)
-    {
-        if (this->oid_personal_channel == OID_PERSONAL_CHANNEL_UNDEF)
-        {
+    if (this->nudgis_config->stream_channel == DEF_STREAM_CHANNEL) {
+        if (this->oid_personal_channel == OID_PERSONAL_CHANNEL_UNDEF) {
             bool getdata_result;
             string getdata_response = this->GetData(this->GetChannelsPersonalUrl(), this->GetChannelsPersonalGetdata(), &getdata_result);
             if (getdata_result) {
@@ -262,8 +260,7 @@ const string &NudgisData::GetStreamChannel()
             }
         }
         result = this->oid_personal_channel;
-    }
-    else
+    } else
         result = this->nudgis_config->stream_channel;
 
     return result;
@@ -658,10 +655,10 @@ void NudgisUpload::run()
         uint64_t chunk_size = this->nudgis_data.GetUploadChunkSize();
         uint64_t chunks_count = ceil(total_size * 1.0 / chunk_size);
         uint64_t chunk_index = 0;
-        uint64_t previous_offset=0;
-        uint64_t current_offset=0;
+        uint64_t previous_offset = 0;
+        uint64_t current_offset = 0;
 
-        HttpClient * http_client = &this->nudgis_data.GetHttpClient();
+        HttpClient *http_client = &this->nudgis_data.GetHttpClient();
         this->http_client_error = &http_client->getError();
         http_client->reset();
 
@@ -670,8 +667,7 @@ void NudgisUpload::run()
         string upload_id;
         string upload_url = this->nudgis_data.GetUploadUrl();
 
-        if (http_client->getSendSuccess())
-        {
+        if (http_client->getSendSuccess()) {
             http_client->setUrl(upload_url.c_str());
             http_client->setMethod(HttpClient::HTTP_CLIENT_METHOD_POST);
 
@@ -698,8 +694,7 @@ void NudgisUpload::run()
                 http_client->setFormFields(this->nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id));
 
                 http_client->send();
-                if (http_client->getSendSuccess())
-                {
+                if (http_client->getSendSuccess()) {
                     mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
                     emit this->progressUpload(90.0 * current_offset / total_size);
                     if (upload_id.length() < 1 && obs_data_has_user_value(http_client->getResponseObsData(), "upload_id"))
@@ -708,13 +703,10 @@ void NudgisUpload::run()
                 }
             }
 
-            if (!this->canceled && http_client->getSendSuccess())
-            {
+            if (!this->canceled && http_client->getSendSuccess()) {
                 http_client->reset();
-                if (this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum)) && !this->canceled)
-                {
-                    if (this->nudgis_data.PostData(this->nudgis_data.GetMediasAddUrl(), this->nudgis_data.GetMediasAddPostdata(upload_id, file_basename)))
-                    {
+                if (this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum)) && !this->canceled) {
+                    if (this->nudgis_data.PostData(this->nudgis_data.GetMediasAddUrl(), this->nudgis_data.GetMediasAddPostdata(upload_id, file_basename))) {
                         if (obs_data_has_user_value(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid"))
                             this->file_uploaded_oid = obs_data_get_string(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid");
                         this->state = NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL;
@@ -749,7 +741,7 @@ void NudgisUpload::setCheckMd5(bool enabled)
     this->check_md5 = enabled;
 }
 
-const char * NudgisUpload::GetFileUploadedUrlHtml()
+const char *NudgisUpload::GetFileUploadedUrlHtml()
 {
     static string result;
     ostringstream file_uploaded_url_html;

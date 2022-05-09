@@ -154,8 +154,7 @@ static void obs_event(enum obs_frontend_event event, void *private_data)
         if (recording_output != NULL) {
             obs_data_t *settings = obs_output_get_settings(recording_output);
             if (settings != NULL) {
-                if (NudgisConfig::GetCurrentNudgisConfig()->publish_recording_automatically->type != AutoState::AUTOSTATE_NEVER)
-                {
+                if (NudgisConfig::GetCurrentNudgisConfig()->publish_recording_automatically->type != AutoState::AUTOSTATE_NEVER) {
                     const char *path = obs_data_get_string(settings, "path");
                     mlog(LOG_INFO, "path: %s", path);
                     //nudgis_upload_file(path);

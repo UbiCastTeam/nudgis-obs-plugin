@@ -17,14 +17,12 @@ const char *obs_frontend_get_current_profile_path(const char *filename)
     static string result;
 
     char *path = obs_frontend_get_current_profile_path();
-    if (path != NULL)
-    {
+    if (path != NULL) {
         ostringstream current_profile_filename;
         current_profile_filename << path << PATH_SEPARATOR << filename;
         result = current_profile_filename.str();
         bfree(path);
-    }
-    else
+    } else
         result = filename;
     return result.c_str();
 }

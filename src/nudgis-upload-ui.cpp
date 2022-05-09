@@ -4,8 +4,8 @@
 
 #include <obs-module.h>
 
-NudgisUploadThead::NudgisUploadThead(NudgisUpload * nudgis_upload):
-    QThread()
+NudgisUploadThead::NudgisUploadThead(NudgisUpload *nudgis_upload)
+        : QThread()
 {
     this->nudgis_upload = nudgis_upload;
 }
@@ -49,17 +49,13 @@ void NudgisUploadUi::updateError()
 void NudgisUploadUi::on_endUpload()
 {
     this->nudgis_upload_thead->wait();
-    if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL)
-    {
+    if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL) {
         this->updateFileUploadedUrl();
         this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE);
-    }
-    else if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED)
-    {
+    } else if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED) {
         this->updateError();
         this->updateState(NUDGIS_UPLOAD_UI_ERROR);
-    }
-    else
+    } else
         this->on_pushButton_Done_clicked();
 }
 
@@ -106,30 +102,22 @@ void NudgisUploadUi::on_pushButton_Error_Done_clicked()
 
 void NudgisUploadUi::manageUploadFile(AutoState::Types auto_state)
 {
-    if (auto_state == AutoState::AUTOSTATE_ASK)
-    {
+    if (auto_state == AutoState::AUTOSTATE_ASK) {
         this->updateState(NUDGIS_UPLOAD_UI_ASK_UPLOAD_FILE);
-    }
-    else
-    {
-        if (auto_state == AutoState::AUTOSTATE_YES)
-        {
+    } else {
+        if (auto_state == AutoState::AUTOSTATE_YES) {
             this->nudgis_upload_thead->start();
             this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS);
-        }
-        else
+        } else
             this->on_pushButton_Done_clicked();
     }
 }
 
 void NudgisUploadUi::manageDeleteUploadedFile(AutoState::Types auto_state)
 {
-    if (auto_state == AutoState::AUTOSTATE_ASK)
-    {
+    if (auto_state == AutoState::AUTOSTATE_ASK) {
         this->updateState(NUDGIS_UPLOAD_UI_ASK_REMOVE_FILE);
-    }
-    else
-    {
+    } else {
         if (auto_state == AutoState::AUTOSTATE_YES)
             QFile(this->fileName).remove();
         this->close();
@@ -138,47 +126,40 @@ void NudgisUploadUi::manageDeleteUploadedFile(AutoState::Types auto_state)
 
 void NudgisUploadUi::updateLabelsTemplate()
 {
-    QLabel *updated_labels[] = { ui->label_AskUploadFile,
-                                    ui->label_UploadFileProgress, };
+    QLabel *updated_labels[] = {
+            ui->label_AskUploadFile,
+            ui->label_UploadFileProgress,
+    };
 
-    for (QLabel *updated_label: updated_labels)
-    {
+    for (QLabel *updated_label : updated_labels) {
         updated_label->setText(updated_label->text().replace("$$NUDGIS_URL$$", this->nudgis_config->url.c_str()));
     }
 }
 
 void NudgisUploadUi::updateState(NUDGIS_UPLOAD_UI_STATE state)
 {
-    QWidget * visible_widget = NULL;
-    QWidget * widgets[] = { ui->widget_AskUploadFile, 
-                            ui->widget_UploadFileProgress, 
-                            ui->widget_UploadFileDone, 
-                            ui->widget_AskRemoveFile,
-                            ui->widget_Error, };
+    QWidget *visible_widget = NULL;
+    QWidget *widgets[] = {
+            ui->widget_AskUploadFile,
+            ui->widget_UploadFileProgress,
+            ui->widget_UploadFileDone,
+            ui->widget_AskRemoveFile,
+            ui->widget_Error,
+    };
 
-    if (state == NUDGIS_UPLOAD_UI_ASK_UPLOAD_FILE)
-    {
+    if (state == NUDGIS_UPLOAD_UI_ASK_UPLOAD_FILE) {
         visible_widget = ui->widget_AskUploadFile;
-    }
-    else if (state == NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS)
-    {
+    } else if (state == NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS) {
         visible_widget = ui->widget_UploadFileProgress;
-    }
-    else if (state == NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE)
-    {
+    } else if (state == NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE) {
         visible_widget = ui->widget_UploadFileDone;
-    }
-    else if (state == NUDGIS_UPLOAD_UI_ASK_REMOVE_FILE)
-    {
+    } else if (state == NUDGIS_UPLOAD_UI_ASK_REMOVE_FILE) {
         visible_widget = ui->widget_AskRemoveFile;
-    }
-    else if (state == NUDGIS_UPLOAD_UI_ERROR)
-    {
+    } else if (state == NUDGIS_UPLOAD_UI_ERROR) {
         visible_widget = ui->widget_Error;
     }
 
-    if (visible_widget != NULL)
-    {
+    if (visible_widget != NULL) {
         for (QWidget *widget : widgets)
             widget->setVisible(widget == visible_widget);
     }
