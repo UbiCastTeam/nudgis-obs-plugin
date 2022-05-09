@@ -671,7 +671,6 @@ void NudgisUpload::run()
         char read_buffer[chunk_size];
         string upload_id;
         string upload_url = this->nudgis_data.GetUploadUrl();
-        string response;
 
         if (http_client->getSendSuccess())
         {
@@ -697,27 +696,19 @@ void NudgisUpload::run()
                                 "Accept-Language: en",
                         };
 
-                response.clear();
-
                 http_client->setHeaders(extraHeaders);
                 http_client->setFormFields(this->nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id));
 
 #ifndef DISABLE_UPLOAD
                 http_client->send();
-                response = http_client->getResponse();
 #endif
                 if (http_client->getSendSuccess())
                 {
                     mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
                     emit this->progressUpload(90.0 * current_offset / total_size);
 #ifndef DISABLE_UPLOAD
-                    if (upload_id.length() < 1) {
-                        obs_data_t *response_obs_data = obs_data_create_from_json(response.c_str());
-                        if (response_obs_data != NULL) {
-                            upload_id = obs_data_get_string(response_obs_data, "upload_id");
-                            obs_data_release(response_obs_data);
-                        }
-                    }
+                    if (upload_id.length() < 1 && obs_data_has_user_value(http_client->getResponseObsData(), "upload_id"))
+                        upload_id = obs_data_get_string(http_client->getResponseObsData(), "upload_id");
 #endif
                     previous_offset = current_offset;
                 }
@@ -733,19 +724,14 @@ void NudgisUpload::run()
 
                 http_client->reset();
 #ifndef DISABLE_UPLOAD
-                bool upload_complete_result;
-                response = this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum), &upload_complete_result);
-                if (upload_complete_result)
+                if (this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum)) && !this->canceled)
                 {
-                    response = this->nudgis_data.PostData(this->nudgis_data.GetMediasAddUrl(), this->nudgis_data.GetMediasAddPostdata(upload_id, file_basename), NULL);
-                    obs_data_t * media_add_response = obs_data_create_from_json(response.c_str());
-                    if (media_add_response != NULL)
+                    if (this->nudgis_data.PostData(this->nudgis_data.GetMediasAddUrl(), this->nudgis_data.GetMediasAddPostdata(upload_id, file_basename)))
                     {
-                        if (obs_data_has_user_value(media_add_response, "oid"))
-                            this->file_uploaded_oid = obs_data_get_string(media_add_response, "oid");
-                        obs_data_release(media_add_response);
+                        if (obs_data_has_user_value(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid"))
+                            this->file_uploaded_oid = obs_data_get_string(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid");
+                        this->state = NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL;
                     }
-                    this->state = NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL;
                 }
 #endif
 
