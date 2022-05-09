@@ -68,14 +68,6 @@ class NudgisData
 
 typedef void (*NudgisUploadProgressCb)(void *cb_args,int percent);
 
-class NudgisUploadFileResult
-{
-    public:
-        ~NudgisUploadFileResult();
-        obs_data_t * upload_complete_response = NULL;
-        obs_data_t * media_add_response = NULL;
-};
-
 class NudgisUpload
 {
 
@@ -89,9 +81,12 @@ class NudgisUpload
         };
         NudgisUpload(const char *filename);
         ~NudgisUpload();
-        NudgisUploadFileResult *run(NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL);
+        void run(NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL);
         void cancel();
         void setCheckMd5(bool enabled);
+        const char * GetFileUploadedUrlHtml();
+        string &GetFileUploadedUrl();
+        string &GetFileUploadedOid();
         NUDGIS_UPLOAD_STATE GetState();
 
     private:
@@ -99,6 +94,8 @@ class NudgisUpload
         bool check_md5 = true;
         bool canceled = false;
         const char * filename = NULL;
+        NudgisData nudgis_data;
+        string file_uploaded_oid = {};
 };
 
 #endif

@@ -21,7 +21,7 @@ class NudgisUploadThead : public QThread {
         
     signals:
         void startUpload();
-        void endUpload(NudgisUploadFileResult *result);
+        void endUpload();
         void progressUpload(int percent);
 };
 
@@ -55,6 +55,7 @@ private:
     void manageUploadFile(AutoState::Types auto_state);
     void manageDeleteUploadedFile(AutoState::Types auto_state);
     void updateLabelsTemplate();
+    void updateFileUploadedUrl();
 
 private slots:
     void on_pushButton_Yes_UploadFile_clicked();
@@ -65,7 +66,7 @@ private slots:
     void on_pushButton_Done_clicked();
 
     void on_startUpload();
-    void on_endUpload(NudgisUploadFileResult *result);
+    void on_endUpload();
     void on_progressUpload(int percent);
 };
 

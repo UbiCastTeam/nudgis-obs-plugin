@@ -20,8 +20,8 @@ NudgisUploadThead::NudgisUploadThead(NudgisUpload * nudgis_upload):
 void NudgisUploadThead::run()
 {
     emit this->startUpload();
-    NudgisUploadFileResult *result = this->nudgis_upload->run(NudgisUploadProgress, this);
-    emit this->endUpload(result);
+    this->nudgis_upload->run(NudgisUploadProgress, this);
+    emit this->endUpload();
 }
 
 NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
@@ -31,7 +31,7 @@ NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
     this->fileName = fileName;
     this->nudgis_upload_thead = new NudgisUploadThead(&this->nudgis_upload);
     connect(this->nudgis_upload_thead, SIGNAL(startUpload()), this, SLOT(on_startUpload()));
-    connect(this->nudgis_upload_thead, SIGNAL(endUpload(NudgisUploadFileResult*)), this, SLOT(on_endUpload(NudgisUploadFileResult*)));
+    connect(this->nudgis_upload_thead, SIGNAL(endUpload()), this, SLOT(on_endUpload()));
     connect(this->nudgis_upload_thead, SIGNAL(progressUpload(int)), this, SLOT(on_progressUpload(int)));
     ui->setupUi(this);
     this->updateLabelsTemplate();
@@ -43,23 +43,26 @@ NudgisUploadUi::~NudgisUploadUi()
     delete this->nudgis_upload_thead;
 }
 
+void NudgisUploadUi::updateFileUploadedUrl()
+{
+    this->ui->label_FileUploadedUrl->setText(this->nudgis_upload.GetFileUploadedUrlHtml());
+}
+
 void NudgisUploadUi::on_startUpload()
 {
     this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS);
 }
 
-void NudgisUploadUi::on_endUpload(NudgisUploadFileResult *result)
+void NudgisUploadUi::on_endUpload()
 {
     this->nudgis_upload_thead->wait();
     if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL)
     {
-        this->ui->label_FileUploadedUrl->setText(this->ui->label_FileUploadedUrl->text().replace("$$OID$$", obs_data_get_string(result->media_add_response, "oid")));
+        this->updateFileUploadedUrl();
         this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE);
     }
     else
         this->on_pushButton_Done_clicked();
-
-    delete result;
 }
 
 void NudgisUploadUi::on_progressUpload(int percent)
@@ -132,8 +135,7 @@ void NudgisUploadUi::manageDeleteUploadedFile(AutoState::Types auto_state)
 void NudgisUploadUi::updateLabelsTemplate()
 {
     QLabel *updated_labels[] = { ui->label_AskUploadFile,
-                                    ui->label_UploadFileProgress,
-                                    ui->label_FileUploadedUrl, };
+                                    ui->label_UploadFileProgress, };
 
     for (QLabel *updated_label: updated_labels)
     {

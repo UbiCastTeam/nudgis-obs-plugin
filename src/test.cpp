@@ -15,5 +15,7 @@ int main(int argc, char *argv[])
 
     NudgisUpload nudgis_upload(filename);
     nudgis_upload.run();
+
+    std:cout << "FileUploadedUrl: " << nudgis_upload.GetFileUploadedUrl() << std::endl;
     return 0;
 }
