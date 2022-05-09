@@ -643,7 +643,7 @@ NudgisUpload::~NudgisUpload()
     delete this->filename;
 }
 
-void NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args)
+void NudgisUpload::run()
 {
     this->state = NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS;
     string file_basename = QFileInfo(this->filename).fileName().toStdString();
@@ -701,12 +701,7 @@ void NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *c
 #endif
 
             mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
-
-            if (nudgis_upload_progress_cb != NULL)
-                (*nudgis_upload_progress_cb)(cb_args,90.0 * current_offset / total_size);
-            //~ if progress_callback:
-            //~ pdata = progress_data or dict()
-            //~ progress_callback(0.9 * end_offset / total_size, **pdata)
+            emit this->progressUpload(90.0 * current_offset / total_size);
 
 #ifndef DISABLE_UPLOAD
             if (upload_id.length() < 1) {
@@ -746,12 +741,7 @@ void NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *c
             }
 #endif
 
-            if (nudgis_upload_progress_cb != NULL)
-                (*nudgis_upload_progress_cb)(cb_args,100);
-            //~ if progress_callback:
-            //~ pdata = progress_data or dict()
-            //~ progress_callback(1., **pdata)
-            //~ return data['upload_id']
+            emit this->progressUpload(100);
         }
 
         file.close();
@@ -761,6 +751,8 @@ void NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *c
         this->state = NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL;
 
     mlog(LOG_DEBUG, "  NudgisUpload state: %s", NUDGIS_UPLOAD_STATE_STR[this->state]);
+
+    emit this->endUpload();
 }
 
 void NudgisUpload::cancel()

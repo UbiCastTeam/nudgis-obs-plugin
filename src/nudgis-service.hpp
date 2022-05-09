@@ -66,10 +66,9 @@ class NudgisData
         const string &GetJsonStreams(obs_output_t *output);
 };
 
-typedef void (*NudgisUploadProgressCb)(void *cb_args,int percent);
-
-class NudgisUpload
+class NudgisUpload: public QObject
 {
+    Q_OBJECT;
 
     public:
         enum NUDGIS_UPLOAD_STATE
@@ -81,7 +80,7 @@ class NudgisUpload
         };
         NudgisUpload(const char *filename);
         ~NudgisUpload();
-        void run(NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL);
+        void run();
         void cancel();
         void setCheckMd5(bool enabled);
         const char * GetFileUploadedUrlHtml();
@@ -96,6 +95,10 @@ class NudgisUpload
         const char * filename = NULL;
         NudgisData nudgis_data;
         string file_uploaded_oid = {};
+
+    signals:
+        void progressUpload(int percent);
+        void endUpload();
 };
 
 #endif

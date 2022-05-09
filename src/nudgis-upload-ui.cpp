@@ -4,13 +4,6 @@
 
 #include <obs-module.h>
 
-static void NudgisUploadProgress(void *cb_args,int percent)
-{
-    NudgisUploadThead *nudgis_upload_thead = (NudgisUploadThead *)cb_args;
-    mlog(LOG_INFO,"percent: %d",percent);
-    emit nudgis_upload_thead->progressUpload(percent);
-}
-
 NudgisUploadThead::NudgisUploadThead(NudgisUpload * nudgis_upload):
     QThread()
 {
@@ -19,9 +12,7 @@ NudgisUploadThead::NudgisUploadThead(NudgisUpload * nudgis_upload):
 
 void NudgisUploadThead::run()
 {
-    emit this->startUpload();
-    this->nudgis_upload->run(NudgisUploadProgress, this);
-    emit this->endUpload();
+    this->nudgis_upload->run();
 }
 
 NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
@@ -30,9 +21,8 @@ NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
     this->nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     this->fileName = fileName;
     this->nudgis_upload_thead = new NudgisUploadThead(&this->nudgis_upload);
-    connect(this->nudgis_upload_thead, SIGNAL(startUpload()), this, SLOT(on_startUpload()));
-    connect(this->nudgis_upload_thead, SIGNAL(endUpload()), this, SLOT(on_endUpload()));
-    connect(this->nudgis_upload_thead, SIGNAL(progressUpload(int)), this, SLOT(on_progressUpload(int)));
+    connect(&this->nudgis_upload, SIGNAL(progressUpload(int)), this, SLOT(on_progressUpload(int)));
+    connect(&this->nudgis_upload, SIGNAL(endUpload()), this, SLOT(on_endUpload()));
     ui->setupUi(this);
     this->updateLabelsTemplate();
     this->manageUploadFile(this->nudgis_config->publish_recording_automatically->type);
@@ -46,11 +36,6 @@ NudgisUploadUi::~NudgisUploadUi()
 void NudgisUploadUi::updateFileUploadedUrl()
 {
     this->ui->label_FileUploadedUrl->setText(this->nudgis_upload.GetFileUploadedUrlHtml());
-}
-
-void NudgisUploadUi::on_startUpload()
-{
-    this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS);
 }
 
 void NudgisUploadUi::on_endUpload()
@@ -112,6 +97,7 @@ void NudgisUploadUi::manageUploadFile(AutoState::Types auto_state)
         if (auto_state == AutoState::AUTOSTATE_YES)
         {
             this->nudgis_upload_thead->start();
+            this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS);
         }
         else
             this->on_pushButton_Done_clicked();

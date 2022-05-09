@@ -18,11 +18,6 @@ class NudgisUploadThead : public QThread {
     private:
         NudgisUpload * nudgis_upload;
         void run();
-        
-    signals:
-        void startUpload();
-        void endUpload();
-        void progressUpload(int percent);
 };
 
 class Ui_NudgisUpload;
@@ -65,7 +60,6 @@ private slots:
     void on_pushButton_Cancel_clicked();
     void on_pushButton_Done_clicked();
 
-    void on_startUpload();
     void on_endUpload();
     void on_progressUpload(int percent);
 };
