@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>428</width>
-    <height>358</height>
+    <width>394</width>
+    <height>90</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,18 +25,21 @@
         <property name="text">
          <string>NudgisPlugin.upload.AskUploadFile</string>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayou_pushButton_UploadFile">
-        <item>
+        <item alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="pushButton_Yes_UploadFile">
           <property name="text">
            <string>NudgisPlugin.upload.Yes</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="pushButton_No_UploadFile">
           <property name="text">
            <string>NudgisPlugin.upload.No</string>
@@ -68,7 +71,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item alignment="Qt::AlignHCenter">
        <widget class="QPushButton" name="pushButton_Cancel">
         <property name="text">
          <string>NudgisPlugin.upload.Cancel</string>
@@ -247,7 +250,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item alignment="Qt::AlignHCenter">
        <widget class="QPushButton" name="pushButton_Done">
         <property name="text">
          <string>NudgisPlugin.upload.Done</string>
@@ -268,18 +271,21 @@
         <property name="text">
          <string>NudgisPlugin.upload.AskRemoveFile</string>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_pushButton_RemoveFile">
-        <item>
+        <item alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="pushButton_Yes_RemoveFile">
           <property name="text">
            <string>NudgisPlugin.upload.Yes</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="pushButton_No_RemoveFile">
           <property name="text">
            <string>NudgisPlugin.upload.No</string>
