@@ -46,16 +46,9 @@ static const char * NUDGIS_UPLOAD_STATE_STR[] =
     [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL] = "UPLOAD_CANCEL",
 };
 
-static const string &GetRemoteFile(const string &url, const string &postData, bool *result = nullptr)
+HttpClient& NudgisData::GetHttpClient()
 {
-    static string response;
-    string error = {};
-    response = "";
-    bool get_remote_file = GetRemoteFile(url.c_str(), response, error, nullptr, nullptr, "", postData.length() > 0 ? postData.c_str() : nullptr);
-    if (result != NULL)
-        *result = get_remote_file;
-    mlog(LOG_DEBUG, "GetRemoteFile (%s) response: %s", get_remote_file ? "OK" : "NOK", response.c_str());
-    return response;
+    return this->http_client;
 }
 
 bool NudgisData::GetResponseSuccess(obs_data_t *obs_data)
@@ -154,19 +147,30 @@ const string &NudgisData::GetUrlPrefix()
 
 const string &NudgisData::GetData(const string &url, const string &getData, bool *result)
 {
-    return this->PostData(url + "?" + getData, "", result);
+    bool send_result;
+
+    this->http_client.setUrl(url);
+    this->http_client.setParameters(getData);
+    this->http_client.setMethod(HttpClient::HTTP_CLIENT_METHOD_GET);
+    send_result = this->http_client.send();
+    if (result != NULL)
+        *result = send_result;
+
+    return this->http_client.getResponse();
 }
 
 const string &NudgisData::PostData(const string &url, const string &postData, bool *result)
 {
-    bool get_remote_file;
-    const string &response = GetRemoteFile(url, postData, &get_remote_file);
-    if (result != NULL) {
-        *result = false;
-        if (get_remote_file)
-            *result = this->GetResponseSuccess(response);
-    }
-    return response;
+    bool send_result;
+
+    this->http_client.setUrl(url);
+    this->http_client.setParameters(postData);
+    this->http_client.setMethod(HttpClient::HTTP_CLIENT_METHOD_POST);
+    send_result = this->http_client.send();
+    if (result != NULL)
+        *result = send_result;
+
+    return this->http_client.getResponse();
 }
 
 bool NudgisData::PostData(const string &url, const string &postData)
@@ -372,9 +376,9 @@ const string &NudgisData::GetUploadUrl()
     return result;
 }
 
-list<FormField> &NudgisData::GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
+list<HttpClientFormField> &NudgisData::GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
 {
-    static list<FormField> result;
+    static list<HttpClientFormField> result;
 
     result = {
             {"api_key", "", this->nudgis_config->api_key.c_str(), 0},
@@ -658,11 +662,17 @@ void NudgisUpload::run()
         uint64_t previous_offset=0;
         uint64_t current_offset=0;
 
+        HttpClient * http_client = &this->nudgis_data.GetHttpClient();
+        http_client->reset();
+
         file.seekg(current_offset, ios::beg);
         char read_buffer[chunk_size];
         string upload_id;
+        string upload_url = this->nudgis_data.GetUploadUrl();
         string response;
-        string error;
+
+        http_client->setUrl(upload_url.c_str());
+        http_client->setMethod(HttpClient::HTTP_CLIENT_METHOD_POST);
 
         while (!file.eof() && !this->canceled) {
             file.read(read_buffer, chunk_size);
@@ -684,20 +694,13 @@ void NudgisUpload::run()
                     };
 
             response.clear();
-            error.clear();
+
+            http_client->setHeaders(extraHeaders);
+            http_client->setFormFields(this->nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id));
 
 #ifndef DISABLE_UPLOAD
-            GetRemoteFile(
-                    this->nudgis_data.GetUploadUrl().c_str(),
-                    response,
-                    error,
-                    nullptr,
-                    nullptr,
-                    "",
-                    nullptr,
-                    true,
-                    this->nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id),
-                    extraHeaders);
+            http_client->send();
+            response = http_client->getResponse();
 #endif
 
             mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
@@ -724,6 +727,7 @@ void NudgisUpload::run()
             //~ if remote_path:
             //~ data['path'] = remote_path
 
+            http_client->reset();
 #ifndef DISABLE_UPLOAD
             bool upload_complete_result;
             response = this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum), &upload_complete_result);

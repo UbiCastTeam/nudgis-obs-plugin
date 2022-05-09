@@ -13,6 +13,7 @@ target_sources(test
 		src/nudgis-service.cpp
 		src/nudgis-config.cpp
 		src/nudgis-upload-ui.cpp
+		src/http-client.cpp
 		src/obs/obs-utils.cpp
 		src/test.cpp)
 
@@ -35,6 +36,7 @@ target_sources(${CMAKE_PROJECT_NAME}
 		src/nudgis-service.cpp
 		src/nudgis-config.cpp
 		src/nudgis-upload-ui.cpp
+		src/http-client.cpp
 		src/obs/obs-utils.cpp)
 
 # /!\ TAKE NOTE: No need to edit things past this point /!\

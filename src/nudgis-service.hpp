@@ -3,6 +3,7 @@
 
 #include "nudgis-config.hpp"
 #include "obs-utils.hpp"
+#include "http-client.hpp"
 
 #include <QtCore>
 #include <cstddef>
@@ -31,6 +32,7 @@ class NudgisData
         NudgisData(obs_data_t *settings);
         ~NudgisData();
 
+        HttpClient& GetHttpClient();
         const string &GetUrlPrefix();
         const string &GetData(const string &url, const string &getData, bool *result);
         const string &PostData(const string &url, const string &postData, bool *result);
@@ -47,7 +49,7 @@ class NudgisData
         const string &GetApiBaseUrl();
         const string &GetApiBaseGetdata();
         const string &GetUploadUrl();
-        list<FormField> &GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id);
+        list<HttpClientFormField> &GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id);
         const string &GetUploadCompleteUrl();
         const string &GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum);
         const string &GetMediasAddUrl();
@@ -60,6 +62,7 @@ class NudgisData
         obs_data_t *settings = NULL;
         QVersionNumber *server_version = NULL;
         string *url_prefix = NULL;
+        HttpClient http_client;
 
         bool GetResponseSuccess(obs_data_t *obs_data);
         bool GetResponseSuccess(const string &response);
