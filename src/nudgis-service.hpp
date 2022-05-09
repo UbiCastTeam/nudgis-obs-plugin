@@ -89,12 +89,14 @@ class NudgisUpload
         };
         NudgisUpload(const char *filename);
         ~NudgisUpload();
-        NudgisUploadFileResult *run(NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL, bool check_md5 = true);
+        NudgisUploadFileResult *run(NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL);
         void cancel();
+        void setCheckMd5(bool enabled);
         NUDGIS_UPLOAD_STATE GetState();
 
     private:
         NUDGIS_UPLOAD_STATE state = NUDGIS_UPLOAD_STATE_IDLE;
+        bool check_md5 = true;
         bool canceled = false;
         const char * filename = NULL;
 };

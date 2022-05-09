@@ -651,7 +651,7 @@ NudgisUpload::~NudgisUpload()
     delete this->filename;
 }
 
-NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
+NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args)
 {
     this->state = NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS;
     NudgisUploadFileResult * result = new NudgisUploadFileResult();
@@ -680,7 +680,7 @@ NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_p
             current_offset += chunk;
             chunk_index++;
             mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
-            if (check_md5)
+            if (this->check_md5)
                 md5sum.addData(read_buffer, chunk);
 
             ostringstream headers;
@@ -741,7 +741,7 @@ NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_p
 
 #ifndef DISABLE_UPLOAD
             bool upload_complete_result;
-            response = nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum), &upload_complete_result);
+            response = nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum), &upload_complete_result);
             result->upload_complete_response = obs_data_create_from_json(response.c_str());
             if (upload_complete_result)
             {
@@ -773,6 +773,11 @@ NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_p
 void NudgisUpload::cancel()
 {
     this->canceled = true;
+}
+
+void NudgisUpload::setCheckMd5(bool enabled)
+{
+    this->check_md5 = enabled;
 }
 
 NudgisUpload::NUDGIS_UPLOAD_STATE NudgisUpload::GetState()
