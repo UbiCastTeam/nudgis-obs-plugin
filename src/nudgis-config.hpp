@@ -35,7 +35,7 @@ public:
     NudgisConfig();
     void load(const char *filename = DEF_FILE_NAME);
     void save(const char *filename = DEF_FILE_NAME);
-    static NudgisConfig *GetCurrentNudgisConfig();
+    static NudgisConfig *GetCurrentNudgisConfig(const char *filename = DEF_FILE_NAME);
 };
 
 #endif

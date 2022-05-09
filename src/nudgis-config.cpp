@@ -99,11 +99,11 @@ void NudgisConfig::save(const char *filename)
     obs_data_release(data);
 }
 
-NudgisConfig *NudgisConfig::GetCurrentNudgisConfig()
+NudgisConfig *NudgisConfig::GetCurrentNudgisConfig(const char *filename)
 {
     static bool first_call = true;
     if (first_call) {
-        currentNudgisConfig.load();
+        currentNudgisConfig.load(filename);
         first_call = false;
     }
     return &currentNudgisConfig;

@@ -1,7 +1,7 @@
 #include "obs-utils.hpp"
 
 #include <sstream>
-#include <memory>
+#include <string>
 #include <obs-frontend-api.h>
 
 #if defined(WIN32) || defined(_WIN32)
@@ -16,10 +16,15 @@ const char *obs_frontend_get_current_profile_path(const char *filename)
 {
     static string result;
 
-    ostringstream current_profile_filename;
     char *path = obs_frontend_get_current_profile_path();
-    current_profile_filename << path << PATH_SEPARATOR << filename;
-    bfree(path);
-    result = current_profile_filename.str();
+    if (path != NULL)
+    {
+        ostringstream current_profile_filename;
+        current_profile_filename << path << PATH_SEPARATOR << filename;
+        result = current_profile_filename.str();
+        bfree(path);
+    }
+    else
+        result = filename;
     return result.c_str();
 }
