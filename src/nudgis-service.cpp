@@ -636,8 +636,6 @@ struct obs_service_info nudgis_service_info =
                       //int *audio_bitrate);
 };
 
-//#define DISABLE_UPLOAD 1
-
 NudgisUpload::NudgisUpload(const char *filename)
 {
     this->filename = strdup(filename);
@@ -699,31 +697,20 @@ void NudgisUpload::run()
                 http_client->setHeaders(extraHeaders);
                 http_client->setFormFields(this->nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id));
 
-#ifndef DISABLE_UPLOAD
                 http_client->send();
-#endif
                 if (http_client->getSendSuccess())
                 {
                     mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
                     emit this->progressUpload(90.0 * current_offset / total_size);
-#ifndef DISABLE_UPLOAD
                     if (upload_id.length() < 1 && obs_data_has_user_value(http_client->getResponseObsData(), "upload_id"))
                         upload_id = obs_data_get_string(http_client->getResponseObsData(), "upload_id");
-#endif
                     previous_offset = current_offset;
                 }
             }
 
             if (!this->canceled && http_client->getSendSuccess())
             {
-                //~ bandwidth = total_size * 8 / ((time.time() - begin) * 1000000)
-                //~ logger.debug('Upload finished, average bandwidth: %.2f Mbits/s', bandwidth)
-
-                //~ if remote_path:
-                //~ data['path'] = remote_path
-
                 http_client->reset();
-#ifndef DISABLE_UPLOAD
                 if (this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum)) && !this->canceled)
                 {
                     if (this->nudgis_data.PostData(this->nudgis_data.GetMediasAddUrl(), this->nudgis_data.GetMediasAddPostdata(upload_id, file_basename)))
@@ -733,7 +720,6 @@ void NudgisUpload::run()
                         this->state = NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL;
                     }
                 }
-#endif
 
                 emit this->progressUpload(100);
             }

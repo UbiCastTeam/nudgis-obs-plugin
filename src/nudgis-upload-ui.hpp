@@ -7,8 +7,6 @@
 #include "nudgis-service.hpp"
 #include "nudgis-config.hpp"
 
-class NudgisUploadUi;
-
 class NudgisUploadThead : public QThread {
     Q_OBJECT
 
