@@ -50,415 +50,415 @@ static const string &GetRemoteFile(const string &url, const string &postData, bo
     return response;
 }
 
-    bool NudgisData::GetResponseSuccess(obs_data_t *obs_data)
-    {
-        bool result = false;
-        if (obs_data != NULL) {
-            obs_data_set_default_bool(obs_data, "success", false);
-            result = obs_data_get_string(obs_data, "success");
-            mlog(LOG_DEBUG, "success: %s", result ? "TRUE" : "FALSE");
+bool NudgisData::GetResponseSuccess(obs_data_t *obs_data)
+{
+    bool result = false;
+    if (obs_data != NULL) {
+        obs_data_set_default_bool(obs_data, "success", false);
+        result = obs_data_get_string(obs_data, "success");
+        mlog(LOG_DEBUG, "success: %s", result ? "TRUE" : "FALSE");
+    }
+    return result;
+}
+
+bool NudgisData::GetResponseSuccess(const string &response)
+{
+    bool result = false;
+    obs_data_t *obs_data = obs_data_create_from_json(response.c_str());
+    if (obs_data != NULL) {
+        result = this->GetResponseSuccess(obs_data);
+        obs_data_release(obs_data);
+    }
+    return result;
+}
+
+const string &NudgisData::GetJsonStreams(obs_output_t *output)
+{
+    static string result;
+
+    int width;
+    int height;
+    int video_bitrate;
+    int audio_bitrate;
+    int framerate;
+
+    obs_encoder_t *venc = obs_output_get_video_encoder(output);
+    obs_encoder_t *aenc = obs_output_get_audio_encoder(output, 0);
+    obs_data_t *vsettings = obs_encoder_get_settings(venc);
+    obs_data_t *asettings = obs_encoder_get_settings(aenc);
+
+    video_bitrate = obs_data_get_int(vsettings, "bitrate") * 1000;
+    audio_bitrate = obs_data_get_int(asettings, "bitrate") * 1000;
+
+    obs_data_release(vsettings);
+    obs_data_release(asettings);
+
+    const struct video_output_info *output_video_info = video_output_get_info(obs_output_video(output));
+    width = output_video_info->width;
+    height = output_video_info->height;
+    framerate = output_video_info->fps_num;
+
+    json_t *streams = json_array();
+    if (streams != NULL) {
+        json_t *stream = json_object();
+        if (stream != NULL) {
+            json_object_set(stream, "width", json_integer(width));
+            json_object_set(stream, "height", json_integer(height));
+            json_object_set(stream, "video_bitrate", json_integer(video_bitrate));
+            json_object_set(stream, "audio_bitrate", json_integer(audio_bitrate));
+            json_object_set(stream, "framerate", json_integer(framerate));
+
+            json_array_append_new(streams, stream);
         }
-        return result;
+
+        result = json_dumps(streams, 0);
+        json_decref(streams);
     }
 
-    bool NudgisData::GetResponseSuccess(const string &response)
-    {
-        bool result = false;
-        obs_data_t *obs_data = obs_data_create_from_json(response.c_str());
-        if (obs_data != NULL) {
-            result = this->GetResponseSuccess(obs_data);
-            obs_data_release(obs_data);
-        }
-        return result;
+    return result;
+}
+
+NudgisData::NudgisData()
+{
+    this->settings = NULL;
+}
+
+NudgisData::NudgisData(obs_data_t *settings)
+{
+    this->settings = settings;
+}
+
+NudgisData::~NudgisData()
+{
+    if (server_version != NULL)
+        delete server_version;
+    if (url_prefix != NULL)
+        delete url_prefix;
+}
+
+const string &NudgisData::GetUrlPrefix()
+{
+    if (this->url_prefix == NULL) {
+        this->url_prefix = new string(*this->GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "");
     }
+    return *this->url_prefix;
+}
 
-    const string &NudgisData::GetJsonStreams(obs_output_t *output)
-    {
-        static string result;
+const string &NudgisData::GetData(const string &url, const string &getData, bool *result)
+{
+    return this->PostData(url + "?" + getData, "", result);
+}
 
-        int width;
-        int height;
-        int video_bitrate;
-        int audio_bitrate;
-        int framerate;
+const string &NudgisData::PostData(const string &url, const string &postData, bool *result)
+{
+    bool get_remote_file;
+    const string &response = GetRemoteFile(url, postData, &get_remote_file);
+    if (result != NULL) {
+        *result = false;
+        if (get_remote_file)
+            *result = this->GetResponseSuccess(response);
+    }
+    return response;
+}
 
-        obs_encoder_t *venc = obs_output_get_video_encoder(output);
-        obs_encoder_t *aenc = obs_output_get_audio_encoder(output, 0);
-        obs_data_t *vsettings = obs_encoder_get_settings(venc);
-        obs_data_t *asettings = obs_encoder_get_settings(aenc);
+bool NudgisData::PostData(const string &url, const string &postData)
+{
+    bool result;
+    this->PostData(url, postData, &result);
+    return result;
+}
 
-        video_bitrate = obs_data_get_int(vsettings, "bitrate") * 1000;
-        audio_bitrate = obs_data_get_int(asettings, "bitrate") * 1000;
-
-        obs_data_release(vsettings);
-        obs_data_release(asettings);
-
-        const struct video_output_info *output_video_info = video_output_get_info(obs_output_video(output));
-        width = output_video_info->width;
-        height = output_video_info->height;
-        framerate = output_video_info->fps_num;
-
-        json_t *streams = json_array();
+bool NudgisData::InitFromPrepareResponse(const string &prepare_response)
+{
+    mlog(LOG_DEBUG, "Enter in %s", __func__);
+    bool result = false;
+    obs_data_t *obs_data = obs_data_create_from_json(prepare_response.c_str());
+    if (obs_data != NULL) {
+        obs_data_array_t *streams = obs_data_get_array(obs_data, "streams");
         if (streams != NULL) {
-            json_t *stream = json_object();
+            obs_data_t *stream = obs_data_array_item(streams, 0);
             if (stream != NULL) {
-                json_object_set(stream, "width", json_integer(width));
-                json_object_set(stream, "height", json_integer(height));
-                json_object_set(stream, "video_bitrate", json_integer(video_bitrate));
-                json_object_set(stream, "audio_bitrate", json_integer(audio_bitrate));
-                json_object_set(stream, "framerate", json_integer(framerate));
+                obs_data_set_default_string(stream, "server_uri", DEF_SERVER_URI);
+                this->server_uri = obs_data_get_string(stream, "server_uri");
 
-                json_array_append_new(streams, stream);
+                obs_data_set_default_string(stream, "stream_id", DEF_STREAM_ID);
+                this->stream_id = obs_data_get_string(stream, "stream_id");
+
+                obs_data_set_string(settings, "key", this->stream_id.c_str());
+                obs_frontend_save_streaming_service();
+
+                obs_data_release(stream);
             }
-
-            result = json_dumps(streams, 0);
-            json_decref(streams);
+            obs_data_array_release(streams);
         }
 
-        return result;
+        obs_data_set_default_string(obs_data, "oid", DEF_OID);
+        this->oid = obs_data_get_string(obs_data, "oid");
+
+        obs_data_set_default_bool(obs_data, "success", false);
+        result = this->GetResponseSuccess(obs_data);
+
+        obs_data_release(obs_data);
     }
 
-    NudgisData::NudgisData()
-    {
-        this->settings = NULL;
-    }
+    mlog(LOG_INFO, "success   : %s", result ? "TRUE" : "FALSE");
+    mlog(LOG_INFO, "server_uri: %s", this->server_uri.c_str());
+    mlog(LOG_INFO, "stream_id : %s", this->stream_id.c_str());
+    mlog(LOG_INFO, "oid       : %s", this->oid.c_str());
 
-    NudgisData::NudgisData(obs_data_t *settings)
-    {
-        this->settings = settings;
-    }
+    return result;
+}
 
-    NudgisData::~NudgisData()
-    {
-        if (server_version != NULL)
-            delete server_version;
-        if (url_prefix != NULL)
-            delete url_prefix;
-    }
-
-    const string &NudgisData::GetUrlPrefix()
-    {
-        if (this->url_prefix == NULL) {
-            this->url_prefix = new string(*this->GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "");
-        }
-        return *this->url_prefix;
-    }
-
-    const string &NudgisData::GetData(const string &url, const string &getData, bool *result)
-    {
-        return this->PostData(url + "?" + getData, "", result);
-    }
-
-    const string &NudgisData::PostData(const string &url, const string &postData, bool *result)
-    {
-        bool get_remote_file;
-        const string &response = GetRemoteFile(url, postData, &get_remote_file);
-        if (result != NULL) {
-            *result = false;
-            if (get_remote_file)
-                *result = this->GetResponseSuccess(response);
-        }
-        return response;
-    }
-
-    bool NudgisData::PostData(const string &url, const string &postData)
-    {
-        bool result;
-        this->PostData(url, postData, &result);
-        return result;
-    }
-
-    bool NudgisData::InitFromPrepareResponse(const string &prepare_response)
-    {
-        mlog(LOG_DEBUG, "Enter in %s", __func__);
-        bool result = false;
-        obs_data_t *obs_data = obs_data_create_from_json(prepare_response.c_str());
-        if (obs_data != NULL) {
-            obs_data_array_t *streams = obs_data_get_array(obs_data, "streams");
-            if (streams != NULL) {
-                obs_data_t *stream = obs_data_array_item(streams, 0);
-                if (stream != NULL) {
-                    obs_data_set_default_string(stream, "server_uri", DEF_SERVER_URI);
-                    this->server_uri = obs_data_get_string(stream, "server_uri");
-
-                    obs_data_set_default_string(stream, "stream_id", DEF_STREAM_ID);
-                    this->stream_id = obs_data_get_string(stream, "stream_id");
-
-                    obs_data_set_string(settings, "key", this->stream_id.c_str());
-                    obs_frontend_save_streaming_service();
-
-                    obs_data_release(stream);
-                }
-                obs_data_array_release(streams);
+const QVersionNumber *NudgisData::GetServerVersion()
+{
+    QVersionNumber **result = &this->server_version;
+    if (*result == NULL) {
+        QVersionNumber version_number = QVersionNumber::fromString(DEF_VERSION_NUMBER);
+        bool getdata_result;
+        string getdata_response = this->GetData(this->GetApiBaseUrl(), this->GetApiBaseGetdata(), &getdata_result);
+        if (getdata_result) {
+            obs_data_t *obs_data = obs_data_create_from_json(getdata_response.c_str());
+            if (obs_data != NULL) {
+                const char *mediaserver = obs_data_get_string(obs_data, "mediaserver");
+                if (mediaserver != NULL && strlen(mediaserver) > 0)
+                    version_number = QVersionNumber::fromString(mediaserver);
+                obs_data_release(obs_data);
             }
-
-            obs_data_set_default_string(obs_data, "oid", DEF_OID);
-            this->oid = obs_data_get_string(obs_data, "oid");
-
-            obs_data_set_default_bool(obs_data, "success", false);
-            result = this->GetResponseSuccess(obs_data);
-
-            obs_data_release(obs_data);
         }
-
-        mlog(LOG_INFO, "success   : %s", result ? "TRUE" : "FALSE");
-        mlog(LOG_INFO, "server_uri: %s", this->server_uri.c_str());
-        mlog(LOG_INFO, "stream_id : %s", this->stream_id.c_str());
-        mlog(LOG_INFO, "oid       : %s", this->oid.c_str());
-
-        return result;
+        *result = new QVersionNumber(version_number);
     }
+    return *result;
+}
 
-    const QVersionNumber *NudgisData::GetServerVersion()
+const string &NudgisData::GetStreamChannel()
+{
+    static string result;
+
+    if (this->nudgis_config->stream_channel == DEF_STREAM_CHANNEL)
     {
-        QVersionNumber **result = &this->server_version;
-        if (*result == NULL) {
-            QVersionNumber version_number = QVersionNumber::fromString(DEF_VERSION_NUMBER);
+        if (this->oid_personal_channel == OID_PERSONAL_CHANNEL_UNDEF)
+        {
             bool getdata_result;
-            string getdata_response = this->GetData(this->GetApiBaseUrl(), this->GetApiBaseGetdata(), &getdata_result);
+            string getdata_response = this->GetData(this->GetChannelsPersonalUrl(), this->GetChannelsPersonalGetdata(), &getdata_result);
             if (getdata_result) {
                 obs_data_t *obs_data = obs_data_create_from_json(getdata_response.c_str());
                 if (obs_data != NULL) {
-                    const char *mediaserver = obs_data_get_string(obs_data, "mediaserver");
-                    if (mediaserver != NULL && strlen(mediaserver) > 0)
-                        version_number = QVersionNumber::fromString(mediaserver);
+                    this->oid_personal_channel = obs_data_get_string(obs_data, "oid");
                     obs_data_release(obs_data);
                 }
             }
-            *result = new QVersionNumber(version_number);
         }
-        return *result;
+        result = this->oid_personal_channel;
     }
+    else
+        result = this->nudgis_config->stream_channel;
 
-    const string &NudgisData::GetStreamChannel()
-    {
-        static string result;
+    return result;
+}
 
-        if (this->nudgis_config->stream_channel == DEF_STREAM_CHANNEL)
-        {
-            if (this->oid_personal_channel == OID_PERSONAL_CHANNEL_UNDEF)
-            {
-                bool getdata_result;
-                string getdata_response = this->GetData(this->GetChannelsPersonalUrl(), this->GetChannelsPersonalGetdata(), &getdata_result);
-                if (getdata_result) {
-                    obs_data_t *obs_data = obs_data_create_from_json(getdata_response.c_str());
-                    if (obs_data != NULL) {
-                        this->oid_personal_channel = obs_data_get_string(obs_data, "oid");
-                        obs_data_release(obs_data);
-                    }
-                }
-            }
-            result = this->oid_personal_channel;
-        }
-        else
-            result = this->nudgis_config->stream_channel;
+const string &NudgisData::GetPrepareUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream prepare_url;
+    prepare_url << this->nudgis_config->url << PATH_PREPARE_URL;
+    result = prepare_url.str();
+    mlog(LOG_DEBUG, "prepare_url: %s", result.c_str());
 
-    const string &NudgisData::GetPrepareUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream prepare_url;
-        prepare_url << this->nudgis_config->url << PATH_PREPARE_URL;
-        result = prepare_url.str();
-        mlog(LOG_DEBUG, "prepare_url: %s", result.c_str());
+const string &NudgisData::GetPreparePostdata(obs_output_t *output)
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream prepare_postdata;
+    prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << GetJsonStreams(output) << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
+    result = prepare_postdata.str();
+    mlog(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
 
-    const string &NudgisData::GetPreparePostdata(obs_output_t *output)
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream prepare_postdata;
-        prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << GetJsonStreams(output) << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
-        result = prepare_postdata.str();
-        mlog(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
+const string &NudgisData::GetStartUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream start_url;
+    start_url << this->nudgis_config->url << PATH_START_URL;
+    result = start_url.str();
+    mlog(LOG_DEBUG, "start_url: %s", result.c_str());
 
-    const string &NudgisData::GetStartUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream start_url;
-        start_url << this->nudgis_config->url << PATH_START_URL;
-        result = start_url.str();
-        mlog(LOG_DEBUG, "start_url: %s", result.c_str());
+const string &NudgisData::GetStartPostdata()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream start_postdata;
+    start_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid;
+    result = start_postdata.str();
+    mlog(LOG_DEBUG, "start_postdata: %s", result.c_str());
 
-    const string &NudgisData::GetStartPostdata()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream start_postdata;
-        start_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid;
-        result = start_postdata.str();
-        mlog(LOG_DEBUG, "start_postdata: %s", result.c_str());
+const string &NudgisData::GetStopUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream stop_url;
+    stop_url << this->nudgis_config->url << PATH_STOP_URL;
+    result = stop_url.str();
+    mlog(LOG_DEBUG, "stop_url: %s", result.c_str());
 
-    const string &NudgisData::GetStopUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream stop_url;
-        stop_url << this->nudgis_config->url << PATH_STOP_URL;
-        result = stop_url.str();
-        mlog(LOG_DEBUG, "stop_url: %s", result.c_str());
+const string &NudgisData::GetStopPostdata()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream stop_postdata;
+    stop_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid;
+    result = stop_postdata.str();
+    mlog(LOG_DEBUG, "stop_postdata: %s", result.c_str());
 
-    const string &NudgisData::GetStopPostdata()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream stop_postdata;
-        stop_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid;
-        result = stop_postdata.str();
-        mlog(LOG_DEBUG, "stop_postdata: %s", result.c_str());
+const string &NudgisData::GetApiBaseUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream apibase_url;
+    apibase_url << this->nudgis_config->url << PATH_API_BASE_URL;
+    result = apibase_url.str();
+    mlog(LOG_DEBUG, "api_base_url: %s", result.c_str());
 
-    const string &NudgisData::GetApiBaseUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream apibase_url;
-        apibase_url << this->nudgis_config->url << PATH_API_BASE_URL;
-        result = apibase_url.str();
-        mlog(LOG_DEBUG, "api_base_url: %s", result.c_str());
+const string &NudgisData::GetApiBaseGetdata()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream apibaseurl_getdata;
+    apibaseurl_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
+    result = apibaseurl_getdata.str();
+    mlog(LOG_DEBUG, "apibaseurl_getdata: %s", result.c_str());
 
-    const string &NudgisData::GetApiBaseGetdata()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream apibaseurl_getdata;
-        apibaseurl_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
-        result = apibaseurl_getdata.str();
-        mlog(LOG_DEBUG, "apibaseurl_getdata: %s", result.c_str());
+const string &NudgisData::GetUploadUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream upload_url;
+    upload_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOAD_URL;
+    result = upload_url.str();
+    mlog(LOG_DEBUG, "upload_url: %s", result.c_str());
 
-    const string &NudgisData::GetUploadUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream upload_url;
-        upload_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOAD_URL;
-        result = upload_url.str();
-        mlog(LOG_DEBUG, "upload_url: %s", result.c_str());
+list<FormField> &NudgisData::GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
+{
+    static list<FormField> result;
 
-        return result;
-    }
+    result = {
+            {"api_key", "", this->nudgis_config->api_key.c_str(), 0},
+            {"file", file_basename, read_buffer, chunk},
+    };
 
-    list<FormField> &NudgisData::GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
-    {
-        static list<FormField> result;
+    if (upload_id.length() > 0)
+        result.push_front({"upload_id", "", upload_id.c_str(), 0});
 
-        result = {
-                {"api_key", "", this->nudgis_config->api_key.c_str(), 0},
-                {"file", file_basename, read_buffer, chunk},
-        };
+    return result;
+}
 
-        if (upload_id.length() > 0)
-            result.push_front({"upload_id", "", upload_id.c_str(), 0});
+const string &NudgisData::GetUploadCompleteUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream uploadcomplete_url;
+    uploadcomplete_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOADCOMPLETE_URL;
+    result = uploadcomplete_url.str();
+    mlog(LOG_DEBUG, "uploadcomplete_url: %s", result.c_str());
 
-    const string &NudgisData::GetUploadCompleteUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream uploadcomplete_url;
-        uploadcomplete_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOADCOMPLETE_URL;
-        result = uploadcomplete_url.str();
-        mlog(LOG_DEBUG, "uploadcomplete_url: %s", result.c_str());
+const string &NudgisData::GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum)
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream uploadcomplete_postdata;
+    uploadcomplete_postdata << PARAM_UPLOAD_ID << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&";
+    if (check_md5)
+        uploadcomplete_postdata << PARAM_MD5 << md5sum.result().toHex().toStdString();
+    else
+        uploadcomplete_postdata << PARAM_NO_MD5 << "yes";
+    result = uploadcomplete_postdata.str();
+    mlog(LOG_DEBUG, "uploadcomplete_postdata: %s", result.c_str());
 
-    const string &NudgisData::GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum)
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream uploadcomplete_postdata;
-        uploadcomplete_postdata << PARAM_UPLOAD_ID << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&";
-        if (check_md5)
-            uploadcomplete_postdata << PARAM_MD5 << md5sum.result().toHex().toStdString();
-        else
-            uploadcomplete_postdata << PARAM_NO_MD5 << "yes";
-        result = uploadcomplete_postdata.str();
-        mlog(LOG_DEBUG, "uploadcomplete_postdata: %s", result.c_str());
+const string &NudgisData::GetMediasAddUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream mediasadd_url;
+    mediasadd_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_MEDIASADD_URL;
+    result = mediasadd_url.str();
+    mlog(LOG_DEBUG, "mediasadd_url: %s", result.c_str());
 
-    const string &NudgisData::GetMediasAddUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream mediasadd_url;
-        mediasadd_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_MEDIASADD_URL;
-        result = mediasadd_url.str();
-        mlog(LOG_DEBUG, "mediasadd_url: %s", result.c_str());
+const string &NudgisData::GetMediasAddPostdata(string &upload_id, string &title)
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream mediasadd_postdata;
+    mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
+    result = mediasadd_postdata.str();
+    mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
 
-    const string &NudgisData::GetMediasAddPostdata(string &upload_id, string &title)
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream mediasadd_postdata;
-        mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
-        result = mediasadd_postdata.str();
-        mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
+const string &NudgisData::GetChannelsPersonalUrl()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream channelspersonal_url;
+    channelspersonal_url << this->nudgis_config->url << PATH_CHANNELS_PERSONAL_URL;
+    result = channelspersonal_url.str();
+    mlog(LOG_DEBUG, "channelspersonal_url: %s", result.c_str());
 
-    const string &NudgisData::GetChannelsPersonalUrl()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream channelspersonal_url;
-        channelspersonal_url << this->nudgis_config->url << PATH_CHANNELS_PERSONAL_URL;
-        result = channelspersonal_url.str();
-        mlog(LOG_DEBUG, "channelspersonal_url: %s", result.c_str());
+const string &NudgisData::GetChannelsPersonalGetdata()
+{
+    static string result;
 
-        return result;
-    }
+    ostringstream channelspersonal_getdata;
+    channelspersonal_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
+    result = channelspersonal_getdata.str();
+    mlog(LOG_DEBUG, "channelspersonal_getdata: %s", result.c_str());
 
-    const string &NudgisData::GetChannelsPersonalGetdata()
-    {
-        static string result;
+    return result;
+}
 
-        ostringstream channelspersonal_getdata;
-        channelspersonal_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
-        result = channelspersonal_getdata.str();
-        mlog(LOG_DEBUG, "channelspersonal_getdata: %s", result.c_str());
-
-        return result;
-    }
-
-    uint64_t NudgisData::GetUploadChunkSize()
-    {
-        return this->nudgis_config->upload_chunk_size;
-    }
+uint64_t NudgisData::GetUploadChunkSize()
+{
+    return this->nudgis_config->upload_chunk_size;
+}
 
 static void update_video_keyint_sec(int new_value, obs_output_t *output)
 {
