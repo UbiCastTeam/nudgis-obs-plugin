@@ -80,6 +80,7 @@ class NudgisUpload: public QObject
             NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS,
             NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL,
             NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL,
+            NUDGIS_UPLOAD_STATE_UPLOAD_FAILED,
         };
         NudgisUpload(const char *filename);
         ~NudgisUpload();
@@ -90,6 +91,7 @@ class NudgisUpload: public QObject
         string &GetFileUploadedUrl();
         string &GetFileUploadedOid();
         NUDGIS_UPLOAD_STATE GetState();
+        const HttpClientError *GetHttpClientError();
 
     private:
         NUDGIS_UPLOAD_STATE state = NUDGIS_UPLOAD_STATE_IDLE;
@@ -97,6 +99,7 @@ class NudgisUpload: public QObject
         bool canceled = false;
         const char * filename = NULL;
         NudgisData nudgis_data;
+        const HttpClientError *http_client_error = NULL;
         string file_uploaded_oid = {};
 
     signals:
