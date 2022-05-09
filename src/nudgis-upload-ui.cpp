@@ -14,20 +14,14 @@ static void NudgisUploadProgress(void *cb_args,int percent)
 NudgisUploadThead::NudgisUploadThead(NudgisUpload * nudgis_upload):
     QThread()
 {
-    this->canceled = false;
     this->nudgis_upload = nudgis_upload;
-}
-
-void NudgisUploadThead::cancel()
-{
-    this->canceled = true;
 }
 
 void NudgisUploadThead::run()
 {
     emit this->startUpload();
     NudgisUploadFileResult *result = this->nudgis_upload->run(NudgisUploadProgress, this);
-    emit this->endUpload(!this->canceled, result);
+    emit this->endUpload(result);
 }
 
 NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
@@ -37,7 +31,7 @@ NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
     this->fileName = fileName;
     this->nudgis_upload_thead = new NudgisUploadThead(&this->nudgis_upload);
     connect(this->nudgis_upload_thead, SIGNAL(startUpload()), this, SLOT(on_startUpload()));
-    connect(this->nudgis_upload_thead, SIGNAL(endUpload(bool, NudgisUploadFileResult*)), this, SLOT(on_endUpload(bool, NudgisUploadFileResult*)));
+    connect(this->nudgis_upload_thead, SIGNAL(endUpload(NudgisUploadFileResult*)), this, SLOT(on_endUpload(NudgisUploadFileResult*)));
     connect(this->nudgis_upload_thead, SIGNAL(progressUpload(int)), this, SLOT(on_progressUpload(int)));
     ui->setupUi(this);
     this->updateLabelsTemplate();
@@ -54,10 +48,10 @@ void NudgisUploadUi::on_startUpload()
     this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS);
 }
 
-void NudgisUploadUi::on_endUpload(bool is_done, NudgisUploadFileResult *result)
+void NudgisUploadUi::on_endUpload(NudgisUploadFileResult *result)
 {
     this->nudgis_upload_thead->wait();
-    if (is_done)
+    if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL)
     {
         this->ui->label_FileUploadedUrl->setText(this->ui->label_FileUploadedUrl->text().replace("$$OID$$", obs_data_get_string(result->media_add_response, "oid")));
         this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE);
@@ -95,7 +89,8 @@ void NudgisUploadUi::on_pushButton_No_RemoveFile_clicked()
 
 void NudgisUploadUi::on_pushButton_Cancel_clicked()
 {
-    this->nudgis_upload_thead->cancel();
+    this->ui->pushButton_Cancel->setEnabled(false);
+    this->nudgis_upload.cancel();
 }
 
 void NudgisUploadUi::on_pushButton_Done_clicked()

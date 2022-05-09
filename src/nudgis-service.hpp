@@ -80,11 +80,22 @@ class NudgisUpload
 {
 
     public:
+        enum NUDGIS_UPLOAD_STATE
+        {
+            NUDGIS_UPLOAD_STATE_IDLE,
+            NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS,
+            NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL,
+            NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL,
+        };
         NudgisUpload(const char *filename);
         ~NudgisUpload();
         NudgisUploadFileResult *run(NudgisUploadProgressCb nudgis_upload_progress_cb = NULL, void *cb_args = NULL, bool check_md5 = true);
+        void cancel();
+        NUDGIS_UPLOAD_STATE GetState();
 
     private:
+        NUDGIS_UPLOAD_STATE state = NUDGIS_UPLOAD_STATE_IDLE;
+        bool canceled = false;
         const char * filename = NULL;
 };
 

@@ -38,6 +38,14 @@
 
 #define FILENAME_STREAMENCODER "streamEncoder.json"
 
+static const char * NUDGIS_UPLOAD_STATE_STR[] =
+{
+    [NudgisUpload::NUDGIS_UPLOAD_STATE_IDLE] = "IDLE",
+    [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS] = "UPLOAD_IN_PROGRESS",
+    [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL] = "UPLOAD_SUCESSFULL",
+    [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL] = "UPLOAD_CANCEL",
+};
+
 static const string &GetRemoteFile(const string &url, const string &postData, bool *result = nullptr)
 {
     static string response;
@@ -645,6 +653,7 @@ NudgisUpload::~NudgisUpload()
 
 NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_progress_cb, void *cb_args, bool check_md5)
 {
+    this->state = NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS;
     NudgisUploadFileResult * result = new NudgisUploadFileResult();
     string file_basename = QFileInfo(this->filename).fileName().toStdString();
     mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", this->filename, file_basename.c_str());
@@ -665,7 +674,7 @@ NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_p
         string response;
         string error;
 
-        while (!file.eof()) {
+        while (!file.eof() && !this->canceled) {
             file.read(read_buffer, chunk_size);
             streamsize chunk = file.gcount();
             current_offset += chunk;
@@ -722,31 +731,51 @@ NudgisUploadFileResult *NudgisUpload::run(NudgisUploadProgressCb nudgis_upload_p
             previous_offset = current_offset;
         }
 
-        //~ bandwidth = total_size * 8 / ((time.time() - begin) * 1000000)
-        //~ logger.debug('Upload finished, average bandwidth: %.2f Mbits/s', bandwidth)
+        if (!this->canceled)
+        {
+            //~ bandwidth = total_size * 8 / ((time.time() - begin) * 1000000)
+            //~ logger.debug('Upload finished, average bandwidth: %.2f Mbits/s', bandwidth)
 
-        //~ if remote_path:
-        //~ data['path'] = remote_path
+            //~ if remote_path:
+            //~ data['path'] = remote_path
 
 #ifndef DISABLE_UPLOAD
-        bool upload_complete_result;
-        response = nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum), &upload_complete_result);
-        result->upload_complete_response = obs_data_create_from_json(response.c_str());
-        if (upload_complete_result)
-        {
-            response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id, file_basename), NULL);
-            result->media_add_response = obs_data_create_from_json(response.c_str());
-        }
+            bool upload_complete_result;
+            response = nudgis_data.PostData(nudgis_data.GetUploadCompleteUrl(), nudgis_data.GetUploadCompletePostdata(upload_id, check_md5, md5sum), &upload_complete_result);
+            result->upload_complete_response = obs_data_create_from_json(response.c_str());
+            if (upload_complete_result)
+            {
+                response = nudgis_data.PostData(nudgis_data.GetMediasAddUrl(), nudgis_data.GetMediasAddPostdata(upload_id, file_basename), NULL);
+                result->media_add_response = obs_data_create_from_json(response.c_str());
+                this->state = NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL;
+            }
 #endif
 
-        if (nudgis_upload_progress_cb != NULL)
-            (*nudgis_upload_progress_cb)(cb_args,100);
-        //~ if progress_callback:
-        //~ pdata = progress_data or dict()
-        //~ progress_callback(1., **pdata)
-        //~ return data['upload_id']
+            if (nudgis_upload_progress_cb != NULL)
+                (*nudgis_upload_progress_cb)(cb_args,100);
+            //~ if progress_callback:
+            //~ pdata = progress_data or dict()
+            //~ progress_callback(1., **pdata)
+            //~ return data['upload_id']
+        }
 
         file.close();
     }
+
+    if (this->canceled)
+        this->state = NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL;
+
+    mlog(LOG_DEBUG, "  NudgisUpload state: %s", NUDGIS_UPLOAD_STATE_STR[this->state]);
+
     return result;
+}
+
+void NudgisUpload::cancel()
+{
+    this->canceled = true;
+}
+
+NudgisUpload::NUDGIS_UPLOAD_STATE NudgisUpload::GetState()
+{
+    return this->state;
 }
