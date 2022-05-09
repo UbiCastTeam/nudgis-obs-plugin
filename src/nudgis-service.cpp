@@ -1,31 +1,19 @@
 #include "nudgis-service.hpp"
-#include "nudgis-config.hpp"
 #include "plugin-macros.generated.h"
-#include "obs-utils.hpp"
 
 #include <sstream>
 #include <obs-module.h>
 #include <jansson.h>
 #include <obs-frontend-api.h>
-#include <QVersionNumber>
-#include <QFileInfo>
-#include <QCryptographicHash>
 #include <fstream>
 #include <cmath>
-
-using namespace std;
 
 #define NUDGIS_NAME "Nudgis"
 #define ORIGIN "nudgis-obs-plugin"
 
-#define DEF_SERVER_URI "rtmp"
-#define DEF_STREAM_ID "stream_id"
-#define DEF_OID "oid"
 #define DEF_MULTI_STREAMS "no"
 #define DEF_KEYINT_SEC 3
 #define DEF_VERSION_NUMBER "6.5.4"
-
-#define OID_PERSONAL_CHANNEL_UNDEF "undef"
 
 #define PATH_PREPARE_URL "/api/v2/lives/prepare/"
 #define PATH_START_URL "/api/v2/lives/start/"
@@ -62,15 +50,7 @@ static const string &GetRemoteFile(const string &url, const string &postData, bo
     return response;
 }
 
-class NudgisData {
-private:
-    obs_data_t *settings = NULL;
-    QVersionNumber *server_version = NULL;
-    string *url_prefix = NULL;
-
-    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
-
-    bool GetResponseSuccess(obs_data_t *obs_data)
+    bool NudgisData::GetResponseSuccess(obs_data_t *obs_data)
     {
         bool result = false;
         if (obs_data != NULL) {
@@ -81,7 +61,7 @@ private:
         return result;
     }
 
-    bool GetResponseSuccess(const string &response)
+    bool NudgisData::GetResponseSuccess(const string &response)
     {
         bool result = false;
         obs_data_t *obs_data = obs_data_create_from_json(response.c_str());
@@ -92,7 +72,7 @@ private:
         return result;
     }
 
-    const string &GetJsonStreams(obs_output_t *output)
+    const string &NudgisData::GetJsonStreams(obs_output_t *output)
     {
         static string result;
 
@@ -138,23 +118,17 @@ private:
         return result;
     }
 
-public:
-    string server_uri = DEF_SERVER_URI;
-    string stream_id = DEF_STREAM_ID;
-    string oid = DEF_OID;
-    string oid_personal_channel = OID_PERSONAL_CHANNEL_UNDEF;
-
-    NudgisData()
+    NudgisData::NudgisData()
     {
         this->settings = NULL;
     }
 
-    NudgisData(obs_data_t *settings)
+    NudgisData::NudgisData(obs_data_t *settings)
     {
         this->settings = settings;
     }
 
-    ~NudgisData()
+    NudgisData::~NudgisData()
     {
         if (server_version != NULL)
             delete server_version;
@@ -162,7 +136,7 @@ public:
             delete url_prefix;
     }
 
-    const string &GetUrlPrefix()
+    const string &NudgisData::GetUrlPrefix()
     {
         if (this->url_prefix == NULL) {
             this->url_prefix = new string(*this->GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "");
@@ -170,12 +144,12 @@ public:
         return *this->url_prefix;
     }
 
-    const string &GetData(const string &url, const string &getData, bool *result)
+    const string &NudgisData::GetData(const string &url, const string &getData, bool *result)
     {
         return this->PostData(url + "?" + getData, "", result);
     }
 
-    const string &PostData(const string &url, const string &postData, bool *result)
+    const string &NudgisData::PostData(const string &url, const string &postData, bool *result)
     {
         bool get_remote_file;
         const string &response = GetRemoteFile(url, postData, &get_remote_file);
@@ -187,14 +161,14 @@ public:
         return response;
     }
 
-    bool PostData(const string &url, const string &postData)
+    bool NudgisData::PostData(const string &url, const string &postData)
     {
         bool result;
         this->PostData(url, postData, &result);
         return result;
     }
 
-    bool InitFromPrepareResponse(const string &prepare_response)
+    bool NudgisData::InitFromPrepareResponse(const string &prepare_response)
     {
         mlog(LOG_DEBUG, "Enter in %s", __func__);
         bool result = false;
@@ -235,7 +209,7 @@ public:
         return result;
     }
 
-    const QVersionNumber *GetServerVersion()
+    const QVersionNumber *NudgisData::GetServerVersion()
     {
         QVersionNumber **result = &this->server_version;
         if (*result == NULL) {
@@ -256,7 +230,7 @@ public:
         return *result;
     }
 
-    const string &GetStreamChannel()
+    const string &NudgisData::GetStreamChannel()
     {
         static string result;
 
@@ -282,7 +256,7 @@ public:
         return result;
     }
 
-    const string &GetPrepareUrl()
+    const string &NudgisData::GetPrepareUrl()
     {
         static string result;
 
@@ -294,7 +268,7 @@ public:
         return result;
     }
 
-    const string &GetPreparePostdata(obs_output_t *output)
+    const string &NudgisData::GetPreparePostdata(obs_output_t *output)
     {
         static string result;
 
@@ -306,7 +280,7 @@ public:
         return result;
     }
 
-    const string &GetStartUrl()
+    const string &NudgisData::GetStartUrl()
     {
         static string result;
 
@@ -318,7 +292,7 @@ public:
         return result;
     }
 
-    const string &GetStartPostdata()
+    const string &NudgisData::GetStartPostdata()
     {
         static string result;
 
@@ -330,7 +304,7 @@ public:
         return result;
     }
 
-    const string &GetStopUrl()
+    const string &NudgisData::GetStopUrl()
     {
         static string result;
 
@@ -342,7 +316,7 @@ public:
         return result;
     }
 
-    const string &GetStopPostdata()
+    const string &NudgisData::GetStopPostdata()
     {
         static string result;
 
@@ -354,7 +328,7 @@ public:
         return result;
     }
 
-    const string &GetApiBaseUrl()
+    const string &NudgisData::GetApiBaseUrl()
     {
         static string result;
 
@@ -366,7 +340,7 @@ public:
         return result;
     }
 
-    const string &GetApiBaseGetdata()
+    const string &NudgisData::GetApiBaseGetdata()
     {
         static string result;
 
@@ -378,7 +352,7 @@ public:
         return result;
     }
 
-    const string &GetUploadUrl()
+    const string &NudgisData::GetUploadUrl()
     {
         static string result;
 
@@ -390,7 +364,7 @@ public:
         return result;
     }
 
-    list<FormField> &GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
+    list<FormField> &NudgisData::GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
     {
         static list<FormField> result;
 
@@ -405,7 +379,7 @@ public:
         return result;
     }
 
-    const string &GetUploadCompleteUrl()
+    const string &NudgisData::GetUploadCompleteUrl()
     {
         static string result;
 
@@ -417,7 +391,7 @@ public:
         return result;
     }
 
-    const string &GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum)
+    const string &NudgisData::GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum)
     {
         static string result;
 
@@ -433,7 +407,7 @@ public:
         return result;
     }
 
-    const string &GetMediasAddUrl()
+    const string &NudgisData::GetMediasAddUrl()
     {
         static string result;
 
@@ -445,7 +419,7 @@ public:
         return result;
     }
 
-    const string &GetMediasAddPostdata(string &upload_id, string &title)
+    const string &NudgisData::GetMediasAddPostdata(string &upload_id, string &title)
     {
         static string result;
 
@@ -457,7 +431,7 @@ public:
         return result;
     }
 
-    const string &GetChannelsPersonalUrl()
+    const string &NudgisData::GetChannelsPersonalUrl()
     {
         static string result;
 
@@ -469,7 +443,7 @@ public:
         return result;
     }
 
-    const string &GetChannelsPersonalGetdata()
+    const string &NudgisData::GetChannelsPersonalGetdata()
     {
         static string result;
 
@@ -481,11 +455,10 @@ public:
         return result;
     }
 
-    uint64_t GetUploadChunkSize()
+    uint64_t NudgisData::GetUploadChunkSize()
     {
         return this->nudgis_config->upload_chunk_size;
     }
-};
 
 static void update_video_keyint_sec(int new_value, obs_output_t *output)
 {
