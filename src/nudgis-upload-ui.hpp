@@ -36,6 +36,7 @@ private:
         NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS,
         NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE,
         NUDGIS_UPLOAD_UI_ASK_REMOVE_FILE,
+        NUDGIS_UPLOAD_UI_ERROR,
         NUDGIS_UPLOAD_UI_UNKNOW,
     };
 
@@ -51,6 +52,7 @@ private:
     void manageDeleteUploadedFile(AutoState::Types auto_state);
     void updateLabelsTemplate();
     void updateFileUploadedUrl();
+    void updateError();
 
 private slots:
     void on_pushButton_Yes_UploadFile_clicked();
@@ -59,6 +61,7 @@ private slots:
     void on_pushButton_No_RemoveFile_clicked();
     void on_pushButton_Cancel_clicked();
     void on_pushButton_Done_clicked();
+    void on_pushButton_Error_Done_clicked();
 
     void on_endUpload();
     void on_progressUpload(int percent);

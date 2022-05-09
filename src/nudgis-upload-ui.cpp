@@ -38,6 +38,14 @@ void NudgisUploadUi::updateFileUploadedUrl()
     this->ui->label_FileUploadedUrl->setText(this->nudgis_upload.GetFileUploadedUrlHtml());
 }
 
+void NudgisUploadUi::updateError()
+{
+    this->ui->value_Error_Code->setText(QString::number(this->nudgis_upload.GetHttpClientError()->curl_code));
+    this->ui->value_Error_HttpCode->setText(QString::number(this->nudgis_upload.GetHttpClientError()->http_code));
+    this->ui->value_Error_Url->setText(this->nudgis_upload.GetHttpClientError()->url.c_str());
+    this->ui->value_Error_Message->setText(this->nudgis_upload.GetHttpClientError()->error.c_str());
+}
+
 void NudgisUploadUi::on_endUpload()
 {
     this->nudgis_upload_thead->wait();
@@ -45,6 +53,11 @@ void NudgisUploadUi::on_endUpload()
     {
         this->updateFileUploadedUrl();
         this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE);
+    }
+    else if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED)
+    {
+        this->updateError();
+        this->updateState(NUDGIS_UPLOAD_UI_ERROR);
     }
     else
         this->on_pushButton_Done_clicked();
@@ -84,6 +97,11 @@ void NudgisUploadUi::on_pushButton_Cancel_clicked()
 void NudgisUploadUi::on_pushButton_Done_clicked()
 {
     this->manageDeleteUploadedFile(this->nudgis_config->auto_delete_uploaded_file->type);
+}
+
+void NudgisUploadUi::on_pushButton_Error_Done_clicked()
+{
+    this->on_pushButton_Done_clicked();
 }
 
 void NudgisUploadUi::manageUploadFile(AutoState::Types auto_state)
@@ -135,7 +153,8 @@ void NudgisUploadUi::updateState(NUDGIS_UPLOAD_UI_STATE state)
     QWidget * widgets[] = { ui->widget_AskUploadFile, 
                             ui->widget_UploadFileProgress, 
                             ui->widget_UploadFileDone, 
-                            ui->widget_AskRemoveFile, };
+                            ui->widget_AskRemoveFile,
+                            ui->widget_Error, };
 
     if (state == NUDGIS_UPLOAD_UI_ASK_UPLOAD_FILE)
     {
@@ -152,6 +171,10 @@ void NudgisUploadUi::updateState(NUDGIS_UPLOAD_UI_STATE state)
     else if (state == NUDGIS_UPLOAD_UI_ASK_REMOVE_FILE)
     {
         visible_widget = ui->widget_AskRemoveFile;
+    }
+    else if (state == NUDGIS_UPLOAD_UI_ERROR)
+    {
+        visible_widget = ui->widget_Error;
     }
 
     if (visible_widget != NULL)
