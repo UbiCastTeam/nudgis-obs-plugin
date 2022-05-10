@@ -14,6 +14,7 @@ typedef long http_code_t;
 
 class HttpClientFormField {
 public:
+    HttpClientFormField(std::string name, std::string filename, const char *data, size_t datasize);
     std::string name = {};
     std::string filename = {};
     const char *data = NULL;

@@ -19,6 +19,14 @@ static const char *HTTP_CLIENT_BOOL_ITEM_STR[] =
                 "FALSE", // [HttpClient::HTTP_CLIENT_BOOL_ITEM_FALSE]
 };
 
+HttpClientFormField::HttpClientFormField(std::string name, std::string filename, const char *data, size_t datasize)
+{
+    this->name = name;
+    this->filename = filename;
+    this->data = data;
+    this->datasize = datasize;
+}
+
 HttpClient::HttpClient()
 {
     reset();
