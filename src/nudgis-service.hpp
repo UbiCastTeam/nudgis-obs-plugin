@@ -15,16 +15,14 @@
 
 #define OID_PERSONAL_CHANNEL_UNDEF "undef"
 
-using namespace std;
-
 extern struct obs_service_info nudgis_service_info;
 
 class NudgisData {
 public:
-    string server_uri = DEF_SERVER_URI;
-    string stream_id = DEF_STREAM_ID;
-    string oid = DEF_OID;
-    string oid_personal_channel = OID_PERSONAL_CHANNEL_UNDEF;
+    std::string server_uri = DEF_SERVER_URI;
+    std::string stream_id = DEF_STREAM_ID;
+    std::string oid = DEF_OID;
+    std::string oid_personal_channel = OID_PERSONAL_CHANNEL_UNDEF;
     NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
 
     NudgisData();
@@ -32,40 +30,40 @@ public:
     ~NudgisData();
 
     HttpClient &GetHttpClient();
-    const string &GetUrlPrefix();
-    const string &GetData(const string &url, const string &getData, bool *result);
-    const string &PostData(const string &url, const string &postData, bool *result);
-    bool PostData(const string &url, const string &postData);
-    bool InitFromPrepareResponse(const string &prepare_response);
+    const std::string &GetUrlPrefix();
+    const std::string &GetData(const std::string &url, const std::string &getData, bool *result);
+    const std::string &PostData(const std::string &url, const std::string &postData, bool *result);
+    bool PostData(const std::string &url, const std::string &postData);
+    bool InitFromPrepareResponse(const std::string &prepare_response);
     const QVersionNumber *GetServerVersion();
-    const string &GetStreamChannel();
-    const string &GetPrepareUrl();
-    const string &GetPreparePostdata(obs_output_t *output);
-    const string &GetStartUrl();
-    const string &GetStartPostdata();
-    const string &GetStopUrl();
-    const string &GetStopPostdata();
-    const string &GetApiBaseUrl();
-    const string &GetApiBaseGetdata();
-    const string &GetUploadUrl();
-    list<HttpClientFormField> &GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id);
-    const string &GetUploadCompleteUrl();
-    const string &GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum);
-    const string &GetMediasAddUrl();
-    const string &GetMediasAddPostdata(string &upload_id, string &title);
-    const string &GetChannelsPersonalUrl();
-    const string &GetChannelsPersonalGetdata();
+    const std::string &GetStreamChannel();
+    const std::string &GetPrepareUrl();
+    const std::string &GetPreparePostdata(obs_output_t *output);
+    const std::string &GetStartUrl();
+    const std::string &GetStartPostdata();
+    const std::string &GetStopUrl();
+    const std::string &GetStopPostdata();
+    const std::string &GetApiBaseUrl();
+    const std::string &GetApiBaseGetdata();
+    const std::string &GetUploadUrl();
+    std::list<HttpClientFormField> &GetUploadFormFields(std::string &file_basename, const char *read_buffer, size_t chunk, std::string &upload_id);
+    const std::string &GetUploadCompleteUrl();
+    const std::string &GetUploadCompletePostdata(std::string &upload_id, bool check_md5, QCryptographicHash &md5sum);
+    const std::string &GetMediasAddUrl();
+    const std::string &GetMediasAddPostdata(std::string &upload_id, std::string &title);
+    const std::string &GetChannelsPersonalUrl();
+    const std::string &GetChannelsPersonalGetdata();
     uint64_t GetUploadChunkSize();
 
 private:
     obs_data_t *settings = NULL;
     QVersionNumber *server_version = NULL;
-    string *url_prefix = NULL;
+    std::string *url_prefix = NULL;
     HttpClient http_client;
 
     bool GetResponseSuccess(obs_data_t *obs_data);
-    bool GetResponseSuccess(const string &response);
-    const string &GetJsonStreams(obs_output_t *output);
+    bool GetResponseSuccess(const std::string &response);
+    const std::string &GetJsonStreams(obs_output_t *output);
 };
 
 class NudgisUpload : public QObject {
@@ -85,8 +83,8 @@ public:
     void cancel();
     void setCheckMd5(bool enabled);
     const char *GetFileUploadedUrlHtml();
-    string &GetFileUploadedUrl();
-    string &GetFileUploadedOid();
+    std::string &GetFileUploadedUrl();
+    std::string &GetFileUploadedOid();
     NUDGIS_UPLOAD_STATE GetState();
     const HttpClientError *GetHttpClientError();
 
@@ -97,7 +95,7 @@ private:
     const char *filename = NULL;
     NudgisData nudgis_data;
     const HttpClientError *http_client_error = NULL;
-    string file_uploaded_oid = {};
+    std::string file_uploaded_oid = {};
 
 signals:
     void progressUpload(int percent);

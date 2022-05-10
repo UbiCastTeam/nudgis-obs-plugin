@@ -63,7 +63,7 @@ bool NudgisData::GetResponseSuccess(obs_data_t *obs_data)
     return result;
 }
 
-bool NudgisData::GetResponseSuccess(const string &response)
+bool NudgisData::GetResponseSuccess(const std::string &response)
 {
     bool result = false;
     obs_data_t *obs_data = obs_data_create_from_json(response.c_str());
@@ -74,9 +74,9 @@ bool NudgisData::GetResponseSuccess(const string &response)
     return result;
 }
 
-const string &NudgisData::GetJsonStreams(obs_output_t *output)
+const std::string &NudgisData::GetJsonStreams(obs_output_t *output)
 {
-    static string result;
+    static std::string result;
 
     int width;
     int height;
@@ -138,15 +138,15 @@ NudgisData::~NudgisData()
         delete url_prefix;
 }
 
-const string &NudgisData::GetUrlPrefix()
+const std::string &NudgisData::GetUrlPrefix()
 {
     if (this->url_prefix == NULL) {
-        this->url_prefix = new string(*this->GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "");
+        this->url_prefix = new std::string(*this->GetServerVersion() < QVersionNumber(8, 2) ? "medias/resource/" : "");
     }
     return *this->url_prefix;
 }
 
-const string &NudgisData::GetData(const string &url, const string &getData, bool *result)
+const std::string &NudgisData::GetData(const std::string &url, const std::string &getData, bool *result)
 {
     bool send_result;
 
@@ -160,7 +160,7 @@ const string &NudgisData::GetData(const string &url, const string &getData, bool
     return this->http_client.getResponse();
 }
 
-const string &NudgisData::PostData(const string &url, const string &postData, bool *result)
+const std::string &NudgisData::PostData(const std::string &url, const std::string &postData, bool *result)
 {
     bool send_result;
 
@@ -174,14 +174,14 @@ const string &NudgisData::PostData(const string &url, const string &postData, bo
     return this->http_client.getResponse();
 }
 
-bool NudgisData::PostData(const string &url, const string &postData)
+bool NudgisData::PostData(const std::string &url, const std::string &postData)
 {
     bool result;
     this->PostData(url, postData, &result);
     return result;
 }
 
-bool NudgisData::InitFromPrepareResponse(const string &prepare_response)
+bool NudgisData::InitFromPrepareResponse(const std::string &prepare_response)
 {
     mlog(LOG_DEBUG, "Enter in %s", __func__);
     bool result = false;
@@ -228,7 +228,7 @@ const QVersionNumber *NudgisData::GetServerVersion()
     if (*result == NULL) {
         QVersionNumber version_number = QVersionNumber::fromString(DEF_VERSION_NUMBER);
         bool getdata_result;
-        string getdata_response = this->GetData(this->GetApiBaseUrl(), this->GetApiBaseGetdata(), &getdata_result);
+        std::string getdata_response = this->GetData(this->GetApiBaseUrl(), this->GetApiBaseGetdata(), &getdata_result);
         if (getdata_result) {
             obs_data_t *obs_data = obs_data_create_from_json(getdata_response.c_str());
             if (obs_data != NULL) {
@@ -243,14 +243,14 @@ const QVersionNumber *NudgisData::GetServerVersion()
     return *result;
 }
 
-const string &NudgisData::GetStreamChannel()
+const std::string &NudgisData::GetStreamChannel()
 {
-    static string result;
+    static std::string result;
 
     if (this->nudgis_config->stream_channel == DEF_STREAM_CHANNEL) {
         if (this->oid_personal_channel == OID_PERSONAL_CHANNEL_UNDEF) {
             bool getdata_result;
-            string getdata_response = this->GetData(this->GetChannelsPersonalUrl(), this->GetChannelsPersonalGetdata(), &getdata_result);
+            std::string getdata_response = this->GetData(this->GetChannelsPersonalUrl(), this->GetChannelsPersonalGetdata(), &getdata_result);
             if (getdata_result) {
                 obs_data_t *obs_data = obs_data_create_from_json(getdata_response.c_str());
                 if (obs_data != NULL) {
@@ -266,11 +266,11 @@ const string &NudgisData::GetStreamChannel()
     return result;
 }
 
-const string &NudgisData::GetPrepareUrl()
+const std::string &NudgisData::GetPrepareUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream prepare_url;
+    std::ostringstream prepare_url;
     prepare_url << this->nudgis_config->url << PATH_PREPARE_URL;
     result = prepare_url.str();
     mlog(LOG_DEBUG, "prepare_url: %s", result.c_str());
@@ -278,11 +278,11 @@ const string &NudgisData::GetPrepareUrl()
     return result;
 }
 
-const string &NudgisData::GetPreparePostdata(obs_output_t *output)
+const std::string &NudgisData::GetPreparePostdata(obs_output_t *output)
 {
-    static string result;
+    static std::string result;
 
-    ostringstream prepare_postdata;
+    std::ostringstream prepare_postdata;
     prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << GetJsonStreams(output) << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
     result = prepare_postdata.str();
     mlog(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
@@ -290,11 +290,11 @@ const string &NudgisData::GetPreparePostdata(obs_output_t *output)
     return result;
 }
 
-const string &NudgisData::GetStartUrl()
+const std::string &NudgisData::GetStartUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream start_url;
+    std::ostringstream start_url;
     start_url << this->nudgis_config->url << PATH_START_URL;
     result = start_url.str();
     mlog(LOG_DEBUG, "start_url: %s", result.c_str());
@@ -302,11 +302,11 @@ const string &NudgisData::GetStartUrl()
     return result;
 }
 
-const string &NudgisData::GetStartPostdata()
+const std::string &NudgisData::GetStartPostdata()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream start_postdata;
+    std::ostringstream start_postdata;
     start_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid;
     result = start_postdata.str();
     mlog(LOG_DEBUG, "start_postdata: %s", result.c_str());
@@ -314,11 +314,11 @@ const string &NudgisData::GetStartPostdata()
     return result;
 }
 
-const string &NudgisData::GetStopUrl()
+const std::string &NudgisData::GetStopUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream stop_url;
+    std::ostringstream stop_url;
     stop_url << this->nudgis_config->url << PATH_STOP_URL;
     result = stop_url.str();
     mlog(LOG_DEBUG, "stop_url: %s", result.c_str());
@@ -326,11 +326,11 @@ const string &NudgisData::GetStopUrl()
     return result;
 }
 
-const string &NudgisData::GetStopPostdata()
+const std::string &NudgisData::GetStopPostdata()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream stop_postdata;
+    std::ostringstream stop_postdata;
     stop_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid;
     result = stop_postdata.str();
     mlog(LOG_DEBUG, "stop_postdata: %s", result.c_str());
@@ -338,11 +338,11 @@ const string &NudgisData::GetStopPostdata()
     return result;
 }
 
-const string &NudgisData::GetApiBaseUrl()
+const std::string &NudgisData::GetApiBaseUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream apibase_url;
+    std::ostringstream apibase_url;
     apibase_url << this->nudgis_config->url << PATH_API_BASE_URL;
     result = apibase_url.str();
     mlog(LOG_DEBUG, "api_base_url: %s", result.c_str());
@@ -350,11 +350,11 @@ const string &NudgisData::GetApiBaseUrl()
     return result;
 }
 
-const string &NudgisData::GetApiBaseGetdata()
+const std::string &NudgisData::GetApiBaseGetdata()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream apibaseurl_getdata;
+    std::ostringstream apibaseurl_getdata;
     apibaseurl_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
     result = apibaseurl_getdata.str();
     mlog(LOG_DEBUG, "apibaseurl_getdata: %s", result.c_str());
@@ -362,11 +362,11 @@ const string &NudgisData::GetApiBaseGetdata()
     return result;
 }
 
-const string &NudgisData::GetUploadUrl()
+const std::string &NudgisData::GetUploadUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream upload_url;
+    std::ostringstream upload_url;
     upload_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOAD_URL;
     result = upload_url.str();
     mlog(LOG_DEBUG, "upload_url: %s", result.c_str());
@@ -374,9 +374,9 @@ const string &NudgisData::GetUploadUrl()
     return result;
 }
 
-list<HttpClientFormField> &NudgisData::GetUploadFormFields(string &file_basename, const char *read_buffer, size_t chunk, string &upload_id)
+std::list<HttpClientFormField> &NudgisData::GetUploadFormFields(std::string &file_basename, const char *read_buffer, size_t chunk, std::string &upload_id)
 {
-    static list<HttpClientFormField> result;
+    static std::list<HttpClientFormField> result;
 
     result = {
             {"api_key", "", this->nudgis_config->api_key.c_str(), 0},
@@ -389,11 +389,11 @@ list<HttpClientFormField> &NudgisData::GetUploadFormFields(string &file_basename
     return result;
 }
 
-const string &NudgisData::GetUploadCompleteUrl()
+const std::string &NudgisData::GetUploadCompleteUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream uploadcomplete_url;
+    std::ostringstream uploadcomplete_url;
     uploadcomplete_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_UPLOADCOMPLETE_URL;
     result = uploadcomplete_url.str();
     mlog(LOG_DEBUG, "uploadcomplete_url: %s", result.c_str());
@@ -401,11 +401,11 @@ const string &NudgisData::GetUploadCompleteUrl()
     return result;
 }
 
-const string &NudgisData::GetUploadCompletePostdata(string &upload_id, bool check_md5, QCryptographicHash &md5sum)
+const std::string &NudgisData::GetUploadCompletePostdata(std::string &upload_id, bool check_md5, QCryptographicHash &md5sum)
 {
-    static string result;
+    static std::string result;
 
-    ostringstream uploadcomplete_postdata;
+    std::ostringstream uploadcomplete_postdata;
     uploadcomplete_postdata << PARAM_UPLOAD_ID << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&";
     if (check_md5)
         uploadcomplete_postdata << PARAM_MD5 << md5sum.result().toHex().toStdString();
@@ -417,11 +417,11 @@ const string &NudgisData::GetUploadCompletePostdata(string &upload_id, bool chec
     return result;
 }
 
-const string &NudgisData::GetMediasAddUrl()
+const std::string &NudgisData::GetMediasAddUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream mediasadd_url;
+    std::ostringstream mediasadd_url;
     mediasadd_url << this->GetApiBaseUrl() << this->GetUrlPrefix() << PATH_MEDIASADD_URL;
     result = mediasadd_url.str();
     mlog(LOG_DEBUG, "mediasadd_url: %s", result.c_str());
@@ -429,11 +429,11 @@ const string &NudgisData::GetMediasAddUrl()
     return result;
 }
 
-const string &NudgisData::GetMediasAddPostdata(string &upload_id, string &title)
+const std::string &NudgisData::GetMediasAddPostdata(std::string &upload_id, std::string &title)
 {
-    static string result;
+    static std::string result;
 
-    ostringstream mediasadd_postdata;
+    std::ostringstream mediasadd_postdata;
     mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
     result = mediasadd_postdata.str();
     mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
@@ -441,11 +441,11 @@ const string &NudgisData::GetMediasAddPostdata(string &upload_id, string &title)
     return result;
 }
 
-const string &NudgisData::GetChannelsPersonalUrl()
+const std::string &NudgisData::GetChannelsPersonalUrl()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream channelspersonal_url;
+    std::ostringstream channelspersonal_url;
     channelspersonal_url << this->nudgis_config->url << PATH_CHANNELS_PERSONAL_URL;
     result = channelspersonal_url.str();
     mlog(LOG_DEBUG, "channelspersonal_url: %s", result.c_str());
@@ -453,11 +453,11 @@ const string &NudgisData::GetChannelsPersonalUrl()
     return result;
 }
 
-const string &NudgisData::GetChannelsPersonalGetdata()
+const std::string &NudgisData::GetChannelsPersonalGetdata()
 {
-    static string result;
+    static std::string result;
 
-    ostringstream channelspersonal_getdata;
+    std::ostringstream channelspersonal_getdata;
     channelspersonal_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
     result = channelspersonal_getdata.str();
     mlog(LOG_DEBUG, "channelspersonal_getdata: %s", result.c_str());
@@ -526,7 +526,7 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
 
     update_video_keyint_sec(DEF_KEYINT_SEC, output);
 
-    string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(), nudgis_data->GetPreparePostdata(output), &result);
+    std::string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(), nudgis_data->GetPreparePostdata(output), &result);
     if (result) {
         nudgis_data->InitFromPrepareResponse(prepare_response);
         result = nudgis_data->PostData(nudgis_data->GetStartUrl(), nudgis_data->GetStartPostdata());
@@ -646,12 +646,12 @@ NudgisUpload::~NudgisUpload()
 void NudgisUpload::run()
 {
     this->state = NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS;
-    string file_basename = QFileInfo(this->filename).fileName().toStdString();
+    std::string file_basename = QFileInfo(this->filename).fileName().toStdString();
     mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)", this->filename, file_basename.c_str());
     QCryptographicHash md5sum(QCryptographicHash::Md5);
-    ifstream file(this->filename, ifstream::ate | ifstream::binary);
+    std::ifstream file(this->filename, std::ifstream::ate | std::ifstream::binary);
     if (file.is_open()) {
-        streampos total_size = file.tellg();
+        std::streampos total_size = file.tellg();
         uint64_t chunk_size = this->nudgis_data.GetUploadChunkSize();
         uint64_t chunks_count = ceil(total_size * 1.0 / chunk_size);
         uint64_t chunk_index = 0;
@@ -662,12 +662,12 @@ void NudgisUpload::run()
         this->http_client_error = &http_client->getError();
         http_client->reset();
 
-        file.seekg(current_offset, ios::beg);
+        file.seekg(current_offset, std::ios::beg);
         char * read_buffer = new char [chunk_size];
         if (read_buffer != NULL)
         {
-            string upload_id;
-            string upload_url = this->nudgis_data.GetUploadUrl();
+            std::string upload_id;
+            std::string upload_url = this->nudgis_data.GetUploadUrl();
 
             if (http_client->getSendSuccess()) {
                 http_client->setUrl(upload_url.c_str());
@@ -675,14 +675,14 @@ void NudgisUpload::run()
 
                 while (!file.eof() && !this->canceled && http_client->getSendSuccess()) {
                     file.read(read_buffer, chunk_size);
-                    streamsize chunk = file.gcount();
+                    std::streamsize chunk = file.gcount();
                     current_offset += chunk;
                     chunk_index++;
                     mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
                     if (this->check_md5)
                         md5sum.addData(read_buffer, chunk);
 
-                    ostringstream headers;
+                    std::ostringstream headers;
                     headers << "Content-Range: bytes " << previous_offset << "-" << current_offset - 1 << "/" << total_size;
 
                     std::vector<std::string> extraHeaders =
@@ -747,20 +747,20 @@ void NudgisUpload::setCheckMd5(bool enabled)
 
 const char *NudgisUpload::GetFileUploadedUrlHtml()
 {
-    static string result;
-    ostringstream file_uploaded_url_html;
+    static std::string result;
+    std::ostringstream file_uploaded_url_html;
 
-    string file_uploaded_url = this->GetFileUploadedUrl();
+    std::string file_uploaded_url = this->GetFileUploadedUrl();
     file_uploaded_url_html << "<a href=\"" << file_uploaded_url << "\">" << file_uploaded_url << "</a>";
     result = file_uploaded_url_html.str();
 
     return result.c_str();
 }
 
-string &NudgisUpload::GetFileUploadedUrl()
+std::string &NudgisUpload::GetFileUploadedUrl()
 {
-    static string result;
-    ostringstream file_uploaded_url;
+    static std::string result;
+    std::ostringstream file_uploaded_url;
 
     file_uploaded_url << this->nudgis_data.nudgis_config->url << "/permalink/" << this->GetFileUploadedOid() << "/";
     result = file_uploaded_url.str();
@@ -768,7 +768,7 @@ string &NudgisUpload::GetFileUploadedUrl()
     return result;
 }
 
-string &NudgisUpload::GetFileUploadedOid()
+std::string &NudgisUpload::GetFileUploadedOid()
 {
     return this->file_uploaded_oid;
 }

@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-using namespace std;
 
 #define DEF_FILE_NAME "nudgis_config.json"
 #define DEF_STREAM_CHANNEL "Personal channel"
@@ -16,19 +15,19 @@ public:
         AUTOSTATE_YES,
     };
 
-    string name;
+    std::string name;
     Types type;
 
-    static const vector<AutoState> &GetAll();
+    static const std::vector<AutoState> &GetAll();
     static const AutoState &Find(const char *str);
 };
 
 class NudgisConfig {
 public:
-    string url;
-    string api_key;
-    string stream_title;
-    string stream_channel;
+    std::string url;
+    std::string api_key;
+    std::string stream_title;
+    std::string stream_channel;
     const AutoState *auto_delete_uploaded_file;
     const AutoState *publish_recording_automatically;
     uint64_t upload_chunk_size;

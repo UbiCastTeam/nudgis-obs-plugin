@@ -7,8 +7,6 @@
 #include <curl/curl.h>
 #include <obs-data.h>
 
-using namespace std;
-
 typedef long http_code_t;
 
 #define HTTP_CODE_UNDEF ((http_code_t)-1)
@@ -16,16 +14,16 @@ typedef long http_code_t;
 
 class HttpClientFormField {
 public:
-    string name = {};
-    string filename = {};
+    std::string name = {};
+    std::string filename = {};
     const char *data = NULL;
     size_t datasize = 0;
 };
 
 class HttpClientError {
 public:
-    string url = {};
-    string error = {};
+    std::string url = {};
+    std::string error = {};
     http_code_t http_code = HTTP_CODE_UNDEF;
     CURLcode curl_code = CURL_CODE_UNDEF;
 };
@@ -50,27 +48,27 @@ public:
     bool send();
 
     void setMethod(HTTP_CLIENT_METHOD method);
-    void setUrl(const string &url);
-    void setParameters(const string &parameters);
-    void setHeaders(const vector<string> &headers);
-    void setFormFields(const list<HttpClientFormField> &form_fields);
+    void setUrl(const std::string &url);
+    void setParameters(const std::string &parameters);
+    void setHeaders(const std::vector<std::string> &headers);
+    void setFormFields(const std::list<HttpClientFormField> &form_fields);
 
     const HttpClientError &getError() const;
-    string &getResponse();
+    std::string &getResponse();
     obs_data_t *getResponseObsData() const;
     bool getSendSuccess() const;
 
 private:
     HTTP_CLIENT_METHOD method;
     HttpClientError error;
-    string url;
-    string response;
+    std::string url;
+    std::string response;
     obs_data_t *response_obs_data;
-    string parameters;
-    list<HttpClientFormField> form_fields;
-    vector<string> headers;
+    std::string parameters;
+    std::list<HttpClientFormField> form_fields;
+    std::vector<std::string> headers;
     HTTP_CLIENT_BOOL_ITEM success_json_item;
-    string error_json_item;
+    std::string error_json_item;
     bool send_success;
 };
 

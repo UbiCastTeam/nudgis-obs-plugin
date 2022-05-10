@@ -15,7 +15,7 @@
 #define DEF_PUBLISH_RECORDING_AUTOMATICALLY DEF_AUTOSTATES
 #define DEF_UPLOAD_CHUNK_SIZE 5242880
 
-static const vector<AutoState> auto_states{
+static const std::vector<AutoState> auto_states{
         {"NudgisPlugin.settings.Ask", AutoState::AUTOSTATE_ASK},
         {"NudgisPlugin.settings.Never", AutoState::AUTOSTATE_NEVER},
         {"NudgisPlugin.settings.Yes", AutoState::AUTOSTATE_YES},
@@ -23,7 +23,7 @@ static const vector<AutoState> auto_states{
 
 static NudgisConfig currentNudgisConfig;
 
-const vector<AutoState> &AutoState::GetAll()
+const std::vector<AutoState> &AutoState::GetAll()
 {
     return auto_states;
 }

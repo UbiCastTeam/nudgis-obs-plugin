@@ -4,7 +4,7 @@
 
 #include <obs-module.h>
 
-static size_t curl_write_function(char *buffer, size_t size, size_t nitems, string *response);
+static size_t curl_write_function(char *buffer, size_t size, size_t nitems, std::string *response);
 
 static const char *HTTP_CLIENT_METHOD_STR[] =
         {
@@ -47,27 +47,27 @@ void HttpClient::setMethod(HTTP_CLIENT_METHOD method)
     this->method = method;
 }
 
-void HttpClient::setUrl(const string &url)
+void HttpClient::setUrl(const std::string &url)
 {
     this->url = url;
 }
 
-void HttpClient::setParameters(const string &parameters)
+void HttpClient::setParameters(const std::string &parameters)
 {
     this->parameters = parameters;
 }
 
-void HttpClient::setHeaders(const vector<string> &headers)
+void HttpClient::setHeaders(const std::vector<std::string> &headers)
 {
     this->headers = headers;
 }
 
-void HttpClient::setFormFields(const list<HttpClientFormField> &form_fields)
+void HttpClient::setFormFields(const std::list<HttpClientFormField> &form_fields)
 {
     this->form_fields = form_fields;
 }
 
-size_t curl_write_function(char *buffer, size_t size, size_t nitems, string *response)
+size_t curl_write_function(char *buffer, size_t size, size_t nitems, std::string *response)
 {
     size_t result = size * nitems;
 
@@ -98,7 +98,7 @@ bool HttpClient::send()
     curl = curl_easy_init();
     if (curl) {
         this->error.url = this->url;
-        string url = this->url;
+        std::string url = this->url;
         error_buffer[0] = '\0';
 
         if (this->method == HTTP_CLIENT_METHOD_GET && !this->parameters.empty())
@@ -192,7 +192,7 @@ const HttpClientError &HttpClient::getError() const
     return this->error;
 }
 
-string &HttpClient::getResponse()
+std::string &HttpClient::getResponse()
 {
     return this->response;
 }
