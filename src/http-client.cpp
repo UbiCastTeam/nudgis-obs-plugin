@@ -8,15 +8,15 @@ static size_t curl_write_function(char *buffer, size_t size, size_t nitems, stri
 
 static const char *HTTP_CLIENT_METHOD_STR[] =
         {
-                [HttpClient::HTTP_CLIENT_METHOD_POST] = "POST",
-                [HttpClient::HTTP_CLIENT_METHOD_GET] = "GET",
+                "POST", // [HttpClient::HTTP_CLIENT_METHOD_POST]
+                "GET", // [HttpClient::HTTP_CLIENT_METHOD_GET]
 };
 
 static const char *HTTP_CLIENT_BOOL_ITEM_STR[] =
         {
-                [HttpClient::HTTP_CLIENT_BOOL_ITEM_UNDEF] = "UNDEF",
-                [HttpClient::HTTP_CLIENT_BOOL_ITEM_TRUE] = "TRUE",
-                [HttpClient::HTTP_CLIENT_BOOL_ITEM_FALSE] = "FALSE",
+                "UNDEF", // [HttpClient::HTTP_CLIENT_BOOL_ITEM_UNDEF]
+                "TRUE", // [HttpClient::HTTP_CLIENT_BOOL_ITEM_TRUE]
+                "FALSE", // [HttpClient::HTTP_CLIENT_BOOL_ITEM_FALSE]
 };
 
 HttpClient::HttpClient()

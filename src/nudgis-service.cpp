@@ -40,11 +40,11 @@
 
 static const char *NUDGIS_UPLOAD_STATE_STR[] =
         {
-                [NudgisUpload::NUDGIS_UPLOAD_STATE_IDLE] = "IDLE",
-                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS] = "UPLOAD_IN_PROGRESS",
-                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL] = "UPLOAD_SUCESSFULL",
-                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL] = "UPLOAD_CANCEL",
-                [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED] = "UPLOAD_FAILED",
+                "IDLE", // [NudgisUpload::NUDGIS_UPLOAD_STATE_IDLE]
+                "UPLOAD_IN_PROGRESS", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS]
+                "UPLOAD_SUCESSFULL", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL]
+                "UPLOAD_CANCEL", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL]
+                "UPLOAD_FAILED", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED]
 };
 
 HttpClient &NudgisData::GetHttpClient()
