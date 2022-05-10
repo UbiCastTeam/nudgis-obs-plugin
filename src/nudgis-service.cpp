@@ -40,11 +40,11 @@
 
 static const char *NUDGIS_UPLOAD_STATE_STR[] =
         {
-                "IDLE", // [NudgisUpload::NUDGIS_UPLOAD_STATE_IDLE]
+                "IDLE",               // [NudgisUpload::NUDGIS_UPLOAD_STATE_IDLE]
                 "UPLOAD_IN_PROGRESS", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS]
-                "UPLOAD_SUCESSFULL", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL]
-                "UPLOAD_CANCEL", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL]
-                "UPLOAD_FAILED", // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED]
+                "UPLOAD_SUCESSFULL",  // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL]
+                "UPLOAD_CANCEL",      // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL]
+                "UPLOAD_FAILED",      // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED]
 };
 
 HttpClient &NudgisData::GetHttpClient()
@@ -663,9 +663,8 @@ void NudgisUpload::run()
         http_client->reset();
 
         file.seekg(current_offset, std::ios::beg);
-        char * read_buffer = new char [chunk_size];
-        if (read_buffer != NULL)
-        {
+        char *read_buffer = new char[chunk_size];
+        if (read_buffer != NULL) {
             std::string upload_id;
             std::string upload_url = this->nudgis_data.GetUploadUrl();
 

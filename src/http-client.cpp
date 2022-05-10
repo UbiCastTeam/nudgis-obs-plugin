@@ -9,13 +9,13 @@ static size_t curl_write_function(char *buffer, size_t size, size_t nitems, std:
 static const char *HTTP_CLIENT_METHOD_STR[] =
         {
                 "POST", // [HttpClient::HTTP_CLIENT_METHOD_POST]
-                "GET", // [HttpClient::HTTP_CLIENT_METHOD_GET]
+                "GET",  // [HttpClient::HTTP_CLIENT_METHOD_GET]
 };
 
 static const char *HTTP_CLIENT_BOOL_ITEM_STR[] =
         {
                 "UNDEF", // [HttpClient::HTTP_CLIENT_BOOL_ITEM_UNDEF]
-                "TRUE", // [HttpClient::HTTP_CLIENT_BOOL_ITEM_TRUE]
+                "TRUE",  // [HttpClient::HTTP_CLIENT_BOOL_ITEM_TRUE]
                 "FALSE", // [HttpClient::HTTP_CLIENT_BOOL_ITEM_FALSE]
 };
 
