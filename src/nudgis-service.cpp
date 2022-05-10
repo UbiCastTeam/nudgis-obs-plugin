@@ -663,62 +663,66 @@ void NudgisUpload::run()
         http_client->reset();
 
         file.seekg(current_offset, ios::beg);
-        char read_buffer[chunk_size];
-        string upload_id;
-        string upload_url = this->nudgis_data.GetUploadUrl();
+        char * read_buffer = new char [chunk_size];
+        if (read_buffer != NULL)
+        {
+            string upload_id;
+            string upload_url = this->nudgis_data.GetUploadUrl();
 
-        if (http_client->getSendSuccess()) {
-            http_client->setUrl(upload_url.c_str());
-            http_client->setMethod(HttpClient::HTTP_CLIENT_METHOD_POST);
+            if (http_client->getSendSuccess()) {
+                http_client->setUrl(upload_url.c_str());
+                http_client->setMethod(HttpClient::HTTP_CLIENT_METHOD_POST);
 
-            while (!file.eof() && !this->canceled && http_client->getSendSuccess()) {
-                file.read(read_buffer, chunk_size);
-                streamsize chunk = file.gcount();
-                current_offset += chunk;
-                chunk_index++;
-                mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
-                if (this->check_md5)
-                    md5sum.addData(read_buffer, chunk);
+                while (!file.eof() && !this->canceled && http_client->getSendSuccess()) {
+                    file.read(read_buffer, chunk_size);
+                    streamsize chunk = file.gcount();
+                    current_offset += chunk;
+                    chunk_index++;
+                    mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
+                    if (this->check_md5)
+                        md5sum.addData(read_buffer, chunk);
 
-                ostringstream headers;
-                headers << "Content-Range: bytes " << previous_offset << "-" << current_offset - 1 << "/" << total_size;
+                    ostringstream headers;
+                    headers << "Content-Range: bytes " << previous_offset << "-" << current_offset - 1 << "/" << total_size;
 
-                std::vector<std::string> extraHeaders =
-                        {
-                                headers.str(),
-                                "Expect:",
-                                "Accept-Language: en",
-                        };
+                    std::vector<std::string> extraHeaders =
+                            {
+                                    headers.str(),
+                                    "Expect:",
+                                    "Accept-Language: en",
+                            };
 
-                http_client->setHeaders(extraHeaders);
-                http_client->setFormFields(this->nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id));
+                    http_client->setHeaders(extraHeaders);
+                    http_client->setFormFields(this->nudgis_data.GetUploadFormFields(file_basename, read_buffer, chunk, upload_id));
 
-                http_client->send();
-                if (http_client->getSendSuccess()) {
-                    mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
-                    emit this->progressUpload(90.0 * current_offset / total_size);
-                    if (upload_id.length() < 1 && obs_data_has_user_value(http_client->getResponseObsData(), "upload_id"))
-                        upload_id = obs_data_get_string(http_client->getResponseObsData(), "upload_id");
-                    previous_offset = current_offset;
-                }
-            }
-
-            if (!this->canceled && http_client->getSendSuccess()) {
-                http_client->reset();
-                if (this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum)) && !this->canceled) {
-                    if (this->nudgis_data.PostData(this->nudgis_data.GetMediasAddUrl(), this->nudgis_data.GetMediasAddPostdata(upload_id, file_basename))) {
-                        if (obs_data_has_user_value(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid"))
-                            this->file_uploaded_oid = obs_data_get_string(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid");
-                        this->state = NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL;
+                    http_client->send();
+                    if (http_client->getSendSuccess()) {
+                        mlog(LOG_INFO, "90.0 * current_offset / total_size: %f", 90.0 * current_offset / total_size);
+                        emit this->progressUpload(90.0 * current_offset / total_size);
+                        if (upload_id.length() < 1 && obs_data_has_user_value(http_client->getResponseObsData(), "upload_id"))
+                            upload_id = obs_data_get_string(http_client->getResponseObsData(), "upload_id");
+                        previous_offset = current_offset;
                     }
                 }
 
-                emit this->progressUpload(100);
-            }
-        }
+                if (!this->canceled && http_client->getSendSuccess()) {
+                    http_client->reset();
+                    if (this->nudgis_data.PostData(this->nudgis_data.GetUploadCompleteUrl(), this->nudgis_data.GetUploadCompletePostdata(upload_id, this->check_md5, md5sum)) && !this->canceled) {
+                        if (this->nudgis_data.PostData(this->nudgis_data.GetMediasAddUrl(), this->nudgis_data.GetMediasAddPostdata(upload_id, file_basename))) {
+                            if (obs_data_has_user_value(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid"))
+                                this->file_uploaded_oid = obs_data_get_string(this->nudgis_data.GetHttpClient().getResponseObsData(), "oid");
+                            this->state = NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL;
+                        }
+                    }
 
-        if (!http_client->getSendSuccess())
-            this->state = NUDGIS_UPLOAD_STATE_UPLOAD_FAILED;
+                    emit this->progressUpload(100);
+                }
+            }
+
+            if (!http_client->getSendSuccess())
+                this->state = NUDGIS_UPLOAD_STATE_UPLOAD_FAILED;
+            delete[] read_buffer;
+        }
 
         file.close();
     }
