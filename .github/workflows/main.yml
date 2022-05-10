@@ -10,7 +10,7 @@ on:
     branches: [master]
 
 env:
-  OBS_VERSION: '27.2.0'
+  OBS_VERSION: '27.2.4'
   PRODUCT_NAME: 'nudgis-obs-plugin'
   PRODUCT_VERSION: '1.0.0'
   QT_VERSION_MAC: '5.15.2'
