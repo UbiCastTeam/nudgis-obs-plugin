@@ -36,6 +36,8 @@ public:
     bool PostData(const std::string &url, const std::string &postData);
     bool InitFromPrepareResponse(const std::string &prepare_response);
     const QVersionNumber *GetServerVersion();
+    const std::string &GetChannel(std::string &config_channel);
+    const std::string &GetUploadChannel();
     const std::string &GetStreamChannel();
     const std::string &GetPrepareUrl();
     const std::string &GetPreparePostdata(obs_output_t *output);

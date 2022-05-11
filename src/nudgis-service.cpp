@@ -243,11 +243,11 @@ const QVersionNumber *NudgisData::GetServerVersion()
     return *result;
 }
 
-const std::string &NudgisData::GetStreamChannel()
+const std::string &NudgisData::GetChannel(std::string &config_channel)
 {
     static std::string result;
 
-    if (this->nudgis_config->stream_channel == DEF_STREAM_CHANNEL) {
+    if (config_channel == DEF_CHANNEL) {
         if (this->oid_personal_channel == OID_PERSONAL_CHANNEL_UNDEF) {
             bool getdata_result;
             std::string getdata_response = this->GetData(this->GetChannelsPersonalUrl(), this->GetChannelsPersonalGetdata(), &getdata_result);
@@ -261,9 +261,19 @@ const std::string &NudgisData::GetStreamChannel()
         }
         result = this->oid_personal_channel;
     } else
-        result = this->nudgis_config->stream_channel;
+        result = config_channel;
 
     return result;
+}
+
+const std::string &NudgisData::GetUploadChannel()
+{
+    return this->GetChannel(this->nudgis_config->upload_channel);
+}
+
+const std::string &NudgisData::GetStreamChannel()
+{
+    return this->GetChannel(this->nudgis_config->stream_channel);
 }
 
 const std::string &NudgisData::GetPrepareUrl()
@@ -434,7 +444,7 @@ const std::string &NudgisData::GetMediasAddPostdata(std::string &upload_id, std:
     static std::string result;
 
     std::ostringstream mediasadd_postdata;
-    mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
+    mediasadd_postdata << PARAM_ORIGIN << ORIGIN << "&" << PARAM_CODE << upload_id << "&" << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_TITLE << title << "&" << PARAM_CHANNEL << this->GetUploadChannel();
     result = mediasadd_postdata.str();
     mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
 

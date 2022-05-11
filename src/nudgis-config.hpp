@@ -5,7 +5,9 @@
 #include <vector>
 
 #define DEF_FILE_NAME "nudgis_config.json"
-#define DEF_STREAM_CHANNEL "Personal channel"
+#define DEF_CHANNEL "Personal channel"
+#define DEF_STREAM_CHANNEL DEF_CHANNEL
+#define DEF_UPLOAD_CHANNEL DEF_CHANNEL
 
 class AutoState {
 public:
@@ -28,6 +30,7 @@ public:
     std::string api_key;
     std::string stream_title;
     std::string stream_channel;
+    std::string upload_channel;
     const AutoState *auto_delete_uploaded_file;
     const AutoState *publish_recording_automatically;
     uint64_t upload_chunk_size;

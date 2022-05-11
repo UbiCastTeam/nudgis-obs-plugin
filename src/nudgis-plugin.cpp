@@ -49,6 +49,7 @@ void NudgisSettings::loadSettings(const NudgisConfig *nudgis_config)
     ui->api_key->setText(QString(nudgis_config->api_key.c_str()));
     ui->stream_title->setText(QString(nudgis_config->stream_title.c_str()));
     ui->stream_channel->setText(QString(nudgis_config->stream_channel.c_str()));
+    ui->upload_channel->setText(QString(nudgis_config->upload_channel.c_str()));
     ui->auto_delete_uploaded_file->setCurrentIndex(ui->auto_delete_uploaded_file->findData(QVariant::fromValue(nudgis_config->auto_delete_uploaded_file)));
     ui->publish_recording_automatically->setCurrentIndex(ui->publish_recording_automatically->findData(QVariant::fromValue(nudgis_config->publish_recording_automatically)));
 }
@@ -71,6 +72,7 @@ void NudgisSettings::on_btn_saveSettings_clicked()
     nudgis_config->api_key = ui->api_key->text().toStdString();
     nudgis_config->stream_title = ui->stream_title->text().toStdString();
     nudgis_config->stream_channel = ui->stream_channel->text().toStdString();
+    nudgis_config->upload_channel = ui->upload_channel->text().toStdString();
     nudgis_config->auto_delete_uploaded_file = ui->auto_delete_uploaded_file->currentData().value<const AutoState *>();
     nudgis_config->publish_recording_automatically = ui->publish_recording_automatically->currentData().value<const AutoState *>();
     nudgis_config->save();

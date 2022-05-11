@@ -42,6 +42,7 @@ NudgisConfig::NudgisConfig()
     this->api_key = DEF_API_KEY;
     this->stream_title = DEF_STREAM_TITLE;
     this->stream_channel = DEF_STREAM_CHANNEL;
+    this->upload_channel = DEF_UPLOAD_CHANNEL;
     this->auto_delete_uploaded_file = DEF_AUTO_DELETE_UPLOADED_FILE;
     this->publish_recording_automatically = DEF_PUBLISH_RECORDING_AUTOMATICALLY;
     this->upload_chunk_size = DEF_UPLOAD_CHUNK_SIZE;
@@ -66,6 +67,9 @@ void NudgisConfig::load(const char *filename)
         obs_data_set_default_string(data, "stream_channel", DEF_STREAM_CHANNEL);
         this->stream_channel = obs_data_get_string(data, "stream_channel");
 
+        obs_data_set_default_string(data, "upload_channel", DEF_UPLOAD_CHANNEL);
+        this->upload_channel = obs_data_get_string(data, "upload_channel");
+
         obs_data_set_default_string(data, "auto_delete_uploaded_file", DEF_AUTO_DELETE_UPLOADED_FILE->name.c_str());
         this->auto_delete_uploaded_file = &AutoState::Find(obs_data_get_string(data, "auto_delete_uploaded_file"));
 
@@ -89,6 +93,7 @@ void NudgisConfig::save(const char *filename)
     obs_data_set_string(data, "api_key", this->api_key.c_str());
     obs_data_set_string(data, "stream_title", this->stream_title.c_str());
     obs_data_set_string(data, "stream_channel", this->stream_channel.c_str());
+    obs_data_set_string(data, "upload_channel", this->upload_channel.c_str());
     obs_data_set_string(data, "auto_delete_uploaded_file", this->auto_delete_uploaded_file->name.c_str());
     obs_data_set_string(data, "publish_recording_automatically", this->publish_recording_automatically->name.c_str());
     obs_data_set_int(data, "upload_chunk_size", this->upload_chunk_size);
