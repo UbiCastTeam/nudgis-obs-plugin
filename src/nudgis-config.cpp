@@ -9,7 +9,7 @@
 
 #define DEF_URL "https://my.ubicast.tv"
 #define DEF_API_KEY ""
-#define DEF_STREAM_TITLE "Title"
+#define DEF_STREAM_TITLE ""
 #define DEF_AUTOSTATES (&auto_states[0])
 #define DEF_AUTO_DELETE_UPLOADED_FILE DEF_AUTOSTATES
 #define DEF_PUBLISH_RECORDING_AUTOMATICALLY DEF_AUTOSTATES
