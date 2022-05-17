@@ -15,6 +15,7 @@ class NudgisSettings : public QWidget {
 
 public:
     NudgisSettings();
+    ~NudgisSettings();
 
 private:
     void loadSettings();

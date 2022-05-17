@@ -36,6 +36,11 @@ NudgisSettings::NudgisSettings()
     }
 }
 
+NudgisSettings::~NudgisSettings()
+{
+    delete this->ui;
+}
+
 void NudgisSettings::showEvent(QShowEvent *event)
 {
     this->loadSettings();

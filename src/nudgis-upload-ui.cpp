@@ -31,6 +31,7 @@ NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
 NudgisUploadUi::~NudgisUploadUi()
 {
     delete this->nudgis_upload_thead;
+    delete this->ui;
 }
 
 void NudgisUploadUi::updateFileUploadedUrl()
