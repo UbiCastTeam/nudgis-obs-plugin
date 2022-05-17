@@ -17,16 +17,42 @@
 
 extern struct obs_service_info nudgis_service_info;
 
+class NudgisTestParamsData {
+public:
+    enum NUDGISDATA_LIVE_TEST_RESULT {
+        NUDGISDATA_LIVE_TEST_RESULT_SUCESS,
+        NUDGISDATA_LIVE_TEST_RESULT_FAILED,
+    };
+
+    enum NUDGISDATA_LIVE_TEST_RESULT result;
+    const HttpClientError *http_client_error;
+};
+
+class NudgisStreams {
+public:
+    NudgisStreams();
+    NudgisStreams(int width, int height, int video_bitrate, int audio_bitrate, int framerate);
+    NudgisStreams(obs_output_t *output);
+
+    int width;
+    int height;
+    int video_bitrate;
+    int audio_bitrate;
+    int framerate;
+
+    const std::string &GetJson() const;
+};
+
 class NudgisData {
 public:
     std::string server_uri = DEF_SERVER_URI;
     std::string stream_id = DEF_STREAM_ID;
     std::string oid = DEF_OID;
     std::string oid_personal_channel = OID_PERSONAL_CHANNEL_UNDEF;
-    NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
+    NudgisConfig *nudgis_config = NULL;
 
-    NudgisData();
-    NudgisData(obs_data_t *settings);
+    NudgisData(NudgisConfig *nudgis_config = NULL);
+    NudgisData(obs_data_t *settings, NudgisConfig *nudgis_config = NULL);
     ~NudgisData();
 
     HttpClient &GetHttpClient();
@@ -40,7 +66,7 @@ public:
     const std::string &GetUploadChannel();
     const std::string &GetStreamChannel();
     const std::string &GetPrepareUrl();
-    const std::string &GetPreparePostdata(obs_output_t *output);
+    const std::string &GetPreparePostdata(const NudgisStreams *nudgis_streams);
     const std::string &GetStartUrl();
     const std::string &GetStartPostdata();
     const std::string &GetStopUrl();
@@ -56,6 +82,10 @@ public:
     const std::string &GetChannelsPersonalUrl();
     const std::string &GetChannelsPersonalGetdata();
     uint64_t GetUploadChunkSize();
+    const std::string &GetMediasDeleteUrl();
+    const std::string &GetMediasDeletePostdata(bool delete_metadata = false, bool delete_resources = false);
+
+    enum NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT TestLive();
 
 private:
     obs_data_t *settings = NULL;
@@ -65,7 +95,6 @@ private:
 
     bool GetResponseSuccess(obs_data_t *obs_data);
     bool GetResponseSuccess(const std::string &response);
-    const std::string &GetJsonStreams(obs_output_t *output);
 };
 
 class NudgisUpload : public QObject {

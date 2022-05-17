@@ -70,16 +70,24 @@ void NudgisSettings::on_btn_DefaultReset_clicked()
     this->loadSettings(&defaultNudgisConfig);
 }
 
+NudgisConfig &NudgisSettings::to_NudgisConfig()
+{
+    static NudgisConfig nudgis_config;
+    nudgis_config = *NudgisConfig::GetCurrentNudgisConfig();
+    nudgis_config.url = ui->url->text().toStdString();
+    nudgis_config.api_key = ui->api_key->text().toStdString();
+    nudgis_config.stream_title = ui->stream_title->text().toStdString();
+    nudgis_config.stream_channel = ui->stream_channel->text().toStdString();
+    nudgis_config.upload_channel = ui->upload_channel->text().toStdString();
+    nudgis_config.auto_delete_uploaded_file = ui->auto_delete_uploaded_file->currentData().value<const AutoState *>();
+    nudgis_config.publish_recording_automatically = ui->publish_recording_automatically->currentData().value<const AutoState *>();
+    return nudgis_config;
+}
+
 void NudgisSettings::on_btn_saveSettings_clicked()
 {
     NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
-    nudgis_config->url = ui->url->text().toStdString();
-    nudgis_config->api_key = ui->api_key->text().toStdString();
-    nudgis_config->stream_title = ui->stream_title->text().toStdString();
-    nudgis_config->stream_channel = ui->stream_channel->text().toStdString();
-    nudgis_config->upload_channel = ui->upload_channel->text().toStdString();
-    nudgis_config->auto_delete_uploaded_file = ui->auto_delete_uploaded_file->currentData().value<const AutoState *>();
-    nudgis_config->publish_recording_automatically = ui->publish_recording_automatically->currentData().value<const AutoState *>();
+    *nudgis_config = this->to_NudgisConfig();
     nudgis_config->save();
     obs_frontend_set_streaming_service(nudgis_service);
     obs_frontend_save_streaming_service();
@@ -100,6 +108,24 @@ void NudgisSettings::Set_sw_EchoMode(QLineEdit::EchoMode mode)
         ui->api_key->setEchoMode(QLineEdit::Normal);
         ui->btn_sw_EchoMode->setText(QTStr("Hide"));
     }
+}
+
+void NudgisSettings::on_btn_test_clicked()
+{
+    this->ui->btn_test->setEnabled(false);
+
+    NudgisTestParamsData nudgis_test_params_data{};
+
+    NudgisData nudgis_data{&this->to_NudgisConfig()};
+    nudgis_test_params_data.result = nudgis_data.TestLive();
+    nudgis_test_params_data.http_client_error = &nudgis_data.GetHttpClient().getError();
+
+    obs_frontend_push_ui_translation(obs_module_get_string);
+    NudgisTestParamsUi nudgis_test_params_ui{this, &nudgis_test_params_data, obs_module_text("NudgisPlugin.upload.TestParams.WindowTitle")};
+    obs_frontend_pop_ui_translation();
+    nudgis_test_params_ui.exec();
+
+    this->ui->btn_test->setEnabled(true);
 }
 
 /*LOAD AND UNLOAD OF THE PLUGIN*/

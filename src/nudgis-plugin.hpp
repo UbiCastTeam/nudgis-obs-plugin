@@ -21,6 +21,7 @@ private:
     void loadSettings();
     void loadSettings(const NudgisConfig *nudgis_config);
     void Set_sw_EchoMode(QLineEdit::EchoMode mode);
+    NudgisConfig &to_NudgisConfig();
 
 protected:
     void showEvent(QShowEvent *event);
@@ -29,6 +30,7 @@ private slots:
     void on_btn_DefaultReset_clicked();
     void on_btn_saveSettings_clicked();
     void on_btn_sw_EchoMode_clicked();
+    void on_btn_test_clicked();
 };
 
 #endif // NUDGISSETTINGS_H

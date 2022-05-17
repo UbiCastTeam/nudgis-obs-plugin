@@ -23,6 +23,7 @@
 #define PATH_UPLOADCOMPLETE_URL "upload/complete/"
 #define PATH_MEDIASADD_URL "medias/add/"
 #define PATH_CHANNELS_PERSONAL_URL "/api/v2/channels/personal/"
+#define PATH_MEDIAS_DELETE_URL "/api/v2/medias/delete/"
 
 #define PARAM_API_KEY "api_key="
 #define PARAM_TITLE "title="
@@ -35,8 +36,12 @@
 #define PARAM_NO_MD5 "no_md5="
 #define PARAM_ORIGIN "origin="
 #define PARAM_CODE "code="
+#define PARAM_DELETE_METADATA "delete_metadata="
+#define PARAM_DELETE_RESOURCES "delete_resources="
 
 #define FILENAME_STREAMENCODER "streamEncoder.json"
+
+#define PREFIX_TEST_STREAM_TITLE "Test Live - "
 
 static const char *NUDGIS_UPLOAD_STATE_STR[] =
         {
@@ -46,6 +51,77 @@ static const char *NUDGIS_UPLOAD_STATE_STR[] =
                 "UPLOAD_CANCEL",      // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL]
                 "UPLOAD_FAILED",      // [NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED]
 };
+
+static const char *NUDGISDATA_LIVE_TEST_RESULT_STR[] =
+        {
+                "SUCESS", // [NudgisData::NUDGISDATA_LIVE_TEST_RESULT_SUCESS]
+                "FAILED", // [NudgisData::NUDGISDATA_LIVE_TEST_RESULT_FAILED]
+};
+
+#define DEF_WIDTH 800
+#define DEF_HEIGHT 600
+#define DEF_VIDEO_BITRATE 1500
+#define DEF_AUDIO_BITRATE 64
+#define DEF_FRAMERATE 30
+
+NudgisStreams::NudgisStreams()
+        : NudgisStreams(DEF_WIDTH, DEF_HEIGHT, DEF_VIDEO_BITRATE, DEF_AUDIO_BITRATE, DEF_FRAMERATE)
+{
+}
+
+NudgisStreams::NudgisStreams(int width, int height, int video_bitrate, int audio_bitrate, int framerate)
+{
+    this->width = width;
+    this->height = height;
+    this->video_bitrate = video_bitrate;
+    this->audio_bitrate = audio_bitrate;
+    this->framerate = framerate;
+}
+
+NudgisStreams::NudgisStreams(obs_output_t *output)
+{
+    if (output != NULL) {
+        obs_encoder_t *venc = obs_output_get_video_encoder(output);
+        obs_encoder_t *aenc = obs_output_get_audio_encoder(output, 0);
+        obs_data_t *vsettings = obs_encoder_get_settings(venc);
+        obs_data_t *asettings = obs_encoder_get_settings(aenc);
+
+        this->video_bitrate = obs_data_get_int(vsettings, "bitrate") * 1000;
+        this->audio_bitrate = obs_data_get_int(asettings, "bitrate") * 1000;
+
+        obs_data_release(vsettings);
+        obs_data_release(asettings);
+
+        const struct video_output_info *output_video_info = video_output_get_info(obs_output_video(output));
+        this->width = output_video_info->width;
+        this->height = output_video_info->height;
+        this->framerate = output_video_info->fps_num;
+    }
+}
+
+const std::string &NudgisStreams::GetJson() const
+{
+    static std::string result;
+
+    json_t *streams = json_array();
+    if (streams != NULL) {
+        json_t *stream = json_object();
+        if (stream != NULL) {
+            json_object_set(stream, "width", json_integer(this->width));
+            json_object_set(stream, "height", json_integer(this->height));
+            json_object_set(stream, "video_bitrate", json_integer(this->video_bitrate));
+            json_object_set(stream, "audio_bitrate", json_integer(this->audio_bitrate));
+            json_object_set(stream, "framerate", json_integer(this->framerate));
+
+            json_array_append_new(streams, stream);
+        }
+
+        result = json_dumps(streams, 0);
+        json_decref(streams);
+    }
+
+    return result;
+}
 
 HttpClient &NudgisData::GetHttpClient()
 {
@@ -74,59 +150,16 @@ bool NudgisData::GetResponseSuccess(const std::string &response)
     return result;
 }
 
-const std::string &NudgisData::GetJsonStreams(obs_output_t *output)
+NudgisData::NudgisData(NudgisConfig *nudgis_config)
+        : NudgisData(NULL, nudgis_config) {}
+
+NudgisData::NudgisData(obs_data_t *settings, NudgisConfig *nudgis_config)
 {
-    static std::string result;
-
-    int width;
-    int height;
-    int video_bitrate;
-    int audio_bitrate;
-    int framerate;
-
-    obs_encoder_t *venc = obs_output_get_video_encoder(output);
-    obs_encoder_t *aenc = obs_output_get_audio_encoder(output, 0);
-    obs_data_t *vsettings = obs_encoder_get_settings(venc);
-    obs_data_t *asettings = obs_encoder_get_settings(aenc);
-
-    video_bitrate = obs_data_get_int(vsettings, "bitrate") * 1000;
-    audio_bitrate = obs_data_get_int(asettings, "bitrate") * 1000;
-
-    obs_data_release(vsettings);
-    obs_data_release(asettings);
-
-    const struct video_output_info *output_video_info = video_output_get_info(obs_output_video(output));
-    width = output_video_info->width;
-    height = output_video_info->height;
-    framerate = output_video_info->fps_num;
-
-    json_t *streams = json_array();
-    if (streams != NULL) {
-        json_t *stream = json_object();
-        if (stream != NULL) {
-            json_object_set(stream, "width", json_integer(width));
-            json_object_set(stream, "height", json_integer(height));
-            json_object_set(stream, "video_bitrate", json_integer(video_bitrate));
-            json_object_set(stream, "audio_bitrate", json_integer(audio_bitrate));
-            json_object_set(stream, "framerate", json_integer(framerate));
-
-            json_array_append_new(streams, stream);
-        }
-
-        result = json_dumps(streams, 0);
-        json_decref(streams);
+    this->nudgis_config = nudgis_config;
+    if (this->nudgis_config == NULL) {
+        this->nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
     }
 
-    return result;
-}
-
-NudgisData::NudgisData()
-{
-    this->settings = NULL;
-}
-
-NudgisData::NudgisData(obs_data_t *settings)
-{
     this->settings = settings;
 }
 
@@ -288,12 +321,12 @@ const std::string &NudgisData::GetPrepareUrl()
     return result;
 }
 
-const std::string &NudgisData::GetPreparePostdata(obs_output_t *output)
+const std::string &NudgisData::GetPreparePostdata(const NudgisStreams *nudgis_streams)
 {
     static std::string result;
 
     std::ostringstream prepare_postdata;
-    prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << GetJsonStreams(output) << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
+    prepare_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_MULTI_STREAMS << DEF_MULTI_STREAMS << "&" << PARAM_STREAMS << nudgis_streams->GetJson() << "&" << PARAM_TITLE << this->nudgis_config->stream_title << "&" << PARAM_CHANNEL << this->GetStreamChannel();
     result = prepare_postdata.str();
     mlog(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
 
@@ -480,6 +513,72 @@ uint64_t NudgisData::GetUploadChunkSize()
     return this->nudgis_config->upload_chunk_size;
 }
 
+const std::string &NudgisData::GetMediasDeleteUrl()
+{
+    static std::string result;
+
+    std::ostringstream medias_delete_url;
+    medias_delete_url << this->nudgis_config->url << PATH_MEDIAS_DELETE_URL;
+    result = medias_delete_url.str();
+    mlog(LOG_DEBUG, "medias_delete_url: %s", result.c_str());
+
+    return result;
+}
+
+const std::string &NudgisData::GetMediasDeletePostdata(bool delete_metadata, bool delete_resources)
+{
+    static std::string result;
+
+    std::ostringstream medias_delete_postdata;
+    medias_delete_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&" << PARAM_OID << this->oid << "&" << PARAM_DELETE_METADATA << delete_metadata << "&" << PARAM_DELETE_RESOURCES << delete_resources;
+    result = medias_delete_postdata.str();
+    mlog(LOG_DEBUG, "medias_delete_postdata: %s", result.c_str());
+
+    return result;
+}
+
+enum NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT NudgisData::TestLive()
+{
+    enum NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT result = NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT_FAILED;
+
+    std::string backup_stream_title = this->nudgis_config->stream_title;
+    std::string backup_stream_channel = this->nudgis_config->stream_channel;
+
+    std::ostringstream stream_title;
+    stream_title << PREFIX_TEST_STREAM_TITLE << QRandomGenerator::global()->bounded(10000, 99999);
+    this->nudgis_config->stream_title = stream_title.str();
+    this->nudgis_config->stream_channel = DEF_CHANNEL;
+
+    NudgisStreams nudgis_streams{};
+
+    this->PostData(this->GetPrepareUrl(), this->GetPreparePostdata(&nudgis_streams));
+    if (!this->http_client.getSendSuccess())
+        goto end;
+
+    this->InitFromPrepareResponse(this->http_client.getResponse());
+    this->PostData(this->GetStartUrl(), this->GetStartPostdata());
+    if (!this->http_client.getSendSuccess())
+        goto end;
+
+    this->PostData(this->GetStopUrl(), this->GetStopPostdata());
+    if (!this->http_client.getSendSuccess())
+        goto end;
+
+    this->PostData(this->GetMediasDeleteUrl(), this->GetMediasDeletePostdata(true, true));
+
+end:
+
+    if (this->http_client.getSendSuccess())
+        result = NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT_SUCESS;
+
+    this->nudgis_config->stream_title = backup_stream_title;
+    this->nudgis_config->stream_channel = backup_stream_channel;
+
+    mlog(LOG_DEBUG, "TestLive result: %s", NUDGISDATA_LIVE_TEST_RESULT_STR[result]);
+
+    return result;
+}
+
 static void update_video_keyint_sec(int new_value, obs_output_t *output)
 {
     obs_data_t *settings;
@@ -536,7 +635,9 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
 
     update_video_keyint_sec(DEF_KEYINT_SEC, output);
 
-    std::string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(), nudgis_data->GetPreparePostdata(output), &result);
+    NudgisStreams nudgis_streams{output};
+
+    std::string prepare_response = nudgis_data->PostData(nudgis_data->GetPrepareUrl(), nudgis_data->GetPreparePostdata(&nudgis_streams), &result);
     if (result) {
         nudgis_data->InitFromPrepareResponse(prepare_response);
         result = nudgis_data->PostData(nudgis_data->GetStartUrl(), nudgis_data->GetStartPostdata());
@@ -645,12 +746,14 @@ struct obs_service_info nudgis_service_info =
 
 NudgisUpload::NudgisUpload(const char *filename)
 {
-    this->filename = strdup(filename);
+    if (filename != NULL)
+        this->filename = strdup(filename);
 }
 
 NudgisUpload::~NudgisUpload()
 {
-    delete this->filename;
+    if (this->filename != NULL)
+        delete this->filename;
 }
 
 void NudgisUpload::run()

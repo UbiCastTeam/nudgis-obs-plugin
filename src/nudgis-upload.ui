@@ -261,6 +261,29 @@
     </widget>
    </item>
    <item alignment="Qt::AlignHCenter">
+    <widget class="QWidget" name="widget_TestParamsDone" native="true">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_TestParamsDone">
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_TestParamsDone">
+        <property name="text">
+         <string>NudgisPlugin.upload.TestParamsDone</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="pushButton_TestParamsDone">
+        <property name="text">
+         <string>NudgisPlugin.upload.Done</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignHCenter">
     <widget class="QWidget" name="widget_AskRemoveFile" native="true">
      <property name="visible">
       <bool>false</bool>

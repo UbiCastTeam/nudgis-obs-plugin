@@ -262,6 +262,16 @@
       </widget>
      </item>
      <item alignment="Qt::AlignHCenter">
+      <widget class="QPushButton" name="btn_test">
+       <property name="toolTip">
+        <string>NudgisPlugin.settings.BtnTest.toolTip</string>
+       </property>
+       <property name="text">
+        <string>NudgisPlugin.settings.TestParams</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="btn_DefaultReset">
        <property name="toolTip">
         <string>NudgisPlugin.settings.BtnDefaultReset.toolTip</string>
