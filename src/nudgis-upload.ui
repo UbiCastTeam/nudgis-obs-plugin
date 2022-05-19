@@ -6,72 +6,71 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
-    <height>90</height>
+    <width>392</width>
+    <height>626</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>NudgisPlugin.upload.WindowTitle</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QGridLayout" name="gridLayout_8">
    <property name="sizeConstraint">
     <enum>QLayout::SetFixedSize</enum>
    </property>
-   <item alignment="Qt::AlignHCenter">
+   <item row="0" column="0">
     <widget class="QWidget" name="widget_AskUploadFile" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout_AskUploadFile">
-      <item alignment="Qt::AlignHCenter">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="1" alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="pushButton_No_UploadFile">
+        <property name="text">
+         <string>NudgisPlugin.upload.No</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="pushButton_Yes_UploadFile">
+        <property name="text">
+         <string>NudgisPlugin.upload.Yes</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="label_AskUploadFile">
         <property name="text">
          <string>NudgisPlugin.upload.AskUploadFile</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayou_pushButton_UploadFile">
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QPushButton" name="pushButton_Yes_UploadFile">
-          <property name="text">
-           <string>NudgisPlugin.upload.Yes</string>
-          </property>
-         </widget>
-        </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QPushButton" name="pushButton_No_UploadFile">
-          <property name="text">
-           <string>NudgisPlugin.upload.No</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item row="1" column="0">
     <widget class="QWidget" name="widget_UploadFileProgress" native="true">
-     <property name="visible">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_UploadFileProgress">
-      <item alignment="Qt::AlignHCenter">
+     <layout class="QGridLayout" name="gridLayout_7">
+      <item row="0" column="0">
        <widget class="QLabel" name="label_UploadFileProgress">
         <property name="text">
          <string>NudgisPlugin.upload.UploadFileProgress</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0">
        <widget class="QProgressBar" name="progressBar_UploadFile">
         <property name="value">
          <number>0</number>
         </property>
        </widget>
       </item>
-      <item alignment="Qt::AlignHCenter">
+      <item row="2" column="0" alignment="Qt::AlignHCenter">
        <widget class="QPushButton" name="pushButton_Cancel">
         <property name="text">
          <string>NudgisPlugin.upload.Cancel</string>
@@ -81,176 +80,148 @@
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item row="2" column="0">
     <widget class="QWidget" name="widget_Error" native="true">
-     <property name="visible">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_Error">
-      <item>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_Error_Code">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.upload.Error.Code</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_Error_Message">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.upload.Error.Message</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="value_Error_Url">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="value_Error_Code">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="value_Error_HttpCode">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_Error_Url">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.upload.Error.Url</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_Error_HttpCode">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.upload.Error.HttpCode</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLabel" name="value_Error_Message">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QLabel" name="label_Error_Title">
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.upload.Error.Title</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0" colspan="2" alignment="Qt::AlignHCenter">
-         <widget class="QPushButton" name="pushButton_Error_Done">
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.upload.Error.Done</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="6" column="0" colspan="2" alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="pushButton_Error_Done">
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>NudgisPlugin.upload.Error.Done</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_Error_HttpCode">
+        <property name="text">
+         <string>NudgisPlugin.upload.Error.HttpCode</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_Error_Message">
+        <property name="text">
+         <string>NudgisPlugin.upload.Error.Message</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_Error_Url">
+        <property name="text">
+         <string>NudgisPlugin.upload.Error.Url</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="value_Error_Code">
+        <property name="text">
+         <string>Code</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="value_Error_Message">
+        <property name="text">
+         <string>Message</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="value_Error_Url">
+        <property name="text">
+         <string>Url</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="value_Error_HttpCode">
+        <property name="text">
+         <string>HttpCode</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_Error_Code">
+        <property name="text">
+         <string>NudgisPlugin.upload.Error.Code</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="label_Error_Title">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>NudgisPlugin.upload.Error.Title</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item row="3" column="0">
     <widget class="QWidget" name="widget_UploadFileDone" native="true">
-     <property name="visible">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_UploadFileDone">
-      <item alignment="Qt::AlignHCenter">
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="0" column="0">
        <widget class="QLabel" name="label_FileUploadedTo">
         <property name="text">
          <string>NudgisPlugin.upload.FileUploadedTo</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
-      <item alignment="Qt::AlignHCenter">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_FileUploadedUrl">
         <property name="text">
          <string>&lt;a href=&quot;$$NUDGIS_URL$$/permalink/$$OID$$/&quot;&gt;$$NUDGIS_URL$$/permalink/$$OID$$/&lt;/a&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
         <property name="openExternalLinks">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item alignment="Qt::AlignHCenter">
+      <item row="2" column="0" alignment="Qt::AlignHCenter">
        <widget class="QPushButton" name="pushButton_Done">
         <property name="text">
          <string>NudgisPlugin.upload.Done</string>
@@ -260,20 +231,20 @@
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item row="4" column="0">
     <widget class="QWidget" name="widget_TestParamsDone" native="true">
-     <property name="visible">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_TestParamsDone">
-      <item alignment="Qt::AlignHCenter">
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
        <widget class="QLabel" name="label_TestParamsDone">
         <property name="text">
          <string>NudgisPlugin.upload.TestParamsDone</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
-      <item alignment="Qt::AlignHCenter">
+      <item row="1" column="0" alignment="Qt::AlignHCenter">
        <widget class="QPushButton" name="pushButton_TestParamsDone">
         <property name="text">
          <string>NudgisPlugin.upload.Done</string>
@@ -283,39 +254,35 @@
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item row="5" column="0">
     <widget class="QWidget" name="widget_AskRemoveFile" native="true">
-     <property name="visible">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_AskRemoveFile">
-      <item alignment="Qt::AlignHCenter">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0" alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="pushButton_Yes_RemoveFile">
+        <property name="text">
+         <string>NudgisPlugin.upload.Yes</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="pushButton_No_RemoveFile">
+        <property name="text">
+         <string>NudgisPlugin.upload.No</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="label_AskRemoveFile">
         <property name="text">
          <string>NudgisPlugin.upload.AskRemoveFile</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_pushButton_RemoveFile">
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QPushButton" name="pushButton_Yes_RemoveFile">
-          <property name="text">
-           <string>NudgisPlugin.upload.Yes</string>
-          </property>
-         </widget>
-        </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QPushButton" name="pushButton_No_RemoveFile">
-          <property name="text">
-           <string>NudgisPlugin.upload.No</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </item>
      </layout>
     </widget>

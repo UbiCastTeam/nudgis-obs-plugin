@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>601</width>
-    <height>513</height>
+    <width>643</width>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,145 +25,62 @@
      <property name="title">
       <string>NudgisPlugin.settings.Configuration</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_url">
-        <item>
-         <widget class="QLabel" name="label_url">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.settings.URL</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="url">
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.URL.toolTip</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="api_key">
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.Api_Key.toolTip</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_api_key">
-        <item>
-         <widget class="QLabel" name="label_api_key">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.settings.Api_Key</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="api_key">
-          <property name="minimumSize">
-           <size>
-            <width>270</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.Api_Key.toolTip</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btn_sw_EchoMode">
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.Api_Key.BtnSwEchoMode.toolTip</string>
-          </property>
-          <property name="text">
-           <string>Show</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_api_key">
+        <property name="text">
+         <string>NudgisPlugin.settings.Api_Key</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox_live_setting">
-     <property name="title">
-      <string>NudgisPlugin.settings.Live_Settings</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_title">
-        <item>
-         <widget class="QLabel" name="label_title">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.settings.Title</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="stream_title">
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.Title.toolTip</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_url">
+        <property name="text">
+         <string>NudgisPlugin.settings.URL</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_channel">
-        <item>
-         <widget class="QLabel" name="label_channel">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.settings.Channel</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="stream_channel">
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.Channel.toolTip</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="btn_sw_EchoMode">
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.Api_Key.BtnSwEchoMode.toolTip</string>
+        </property>
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="url">
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.URL.toolTip</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -173,85 +90,67 @@
      <property name="title">
       <string>NudgisPlugin.settings.Upload_Settings</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_upload_channel">
-        <item>
-         <widget class="QLabel" name="label_upload_channel">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.settings.UploadChannel</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="upload_channel">
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.UploadChannel.toolTip</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_upload_channel">
+        <property name="text">
+         <string>NudgisPlugin.settings.UploadChannel</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_publish_recording_automatically">
-        <item>
-         <widget class="QLabel" name="label_publish_recording_automatically">
-          <property name="minimumSize">
-           <size>
-            <width>320</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.settings.PublishRecordingAutomatically</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="publish_recording_automatically">
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.PublishRecordingAutomatically.toolTip</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="upload_channel">
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.UploadChannel.toolTip</string>
+        </property>
+       </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_auto_delete_uploaded_file">
-        <item>
-         <widget class="QLabel" name="label_auto_delete_uploaded_file">
-          <property name="minimumSize">
-           <size>
-            <width>320</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>NudgisPlugin.settings.AutoDeleteUploadedFile</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="auto_delete_uploaded_file">
-          <property name="toolTip">
-           <string>NudgisPlugin.settings.AutoDeleteUploadedFile.toolTip</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_publish_recording_automatically">
+        <property name="text">
+         <string>NudgisPlugin.settings.PublishRecordingAutomatically</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="publish_recording_automatically">
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.PublishRecordingAutomatically.toolTip</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_auto_delete_uploaded_file">
+        <property name="text">
+         <string>NudgisPlugin.settings.AutoDeleteUploadedFile</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="auto_delete_uploaded_file">
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.AutoDeleteUploadedFile.toolTip</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
    <item row="3" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_btn">
-     <item alignment="Qt::AlignHCenter">
+    <layout class="QGridLayout" name="gridLayout_btn">
+     <property name="verticalSpacing">
+      <number>6</number>
+     </property>
+     <item row="0" column="0" alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="btn_saveSettings">
        <property name="toolTip">
         <string>NudgisPlugin.settings.BtnSaveSettings.toolTip</string>
@@ -261,7 +160,7 @@
        </property>
       </widget>
      </item>
-     <item alignment="Qt::AlignHCenter">
+     <item row="0" column="1" alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="btn_test">
        <property name="toolTip">
         <string>NudgisPlugin.settings.BtnTest.toolTip</string>
@@ -271,7 +170,7 @@
        </property>
       </widget>
      </item>
-     <item alignment="Qt::AlignHCenter">
+     <item row="0" column="2" alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="btn_DefaultReset">
        <property name="toolTip">
         <string>NudgisPlugin.settings.BtnDefaultReset.toolTip</string>
@@ -281,11 +180,7 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item row="4" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_warning">
-     <item>
+     <item row="1" column="0" colspan="3">
       <widget class="QLabel" name="label_warning">
        <property name="text">
         <string>NudgisPlugin.settings.Warning_Msg</string>
@@ -299,6 +194,55 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox_live_setting">
+     <property name="title">
+      <string>NudgisPlugin.settings.Live_Settings</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_title">
+        <property name="text">
+         <string>NudgisPlugin.settings.Title</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="stream_title">
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.Title.toolTip</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_channel">
+        <property name="text">
+         <string>NudgisPlugin.settings.Channel</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="stream_channel">
+        <property name="toolTip">
+         <string>NudgisPlugin.settings.Channel.toolTip</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
