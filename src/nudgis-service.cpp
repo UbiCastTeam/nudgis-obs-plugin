@@ -552,21 +552,10 @@ enum NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT NudgisData::TestLive()
     NudgisStreams nudgis_streams{};
 
     this->PostData(this->GetPrepareUrl(), this->GetPreparePostdata(&nudgis_streams));
-    if (!this->http_client.getSendSuccess())
-        goto end;
-
-    this->InitFromPrepareResponse(this->http_client.getResponse());
-    this->PostData(this->GetStartUrl(), this->GetStartPostdata());
-    if (!this->http_client.getSendSuccess())
-        goto end;
-
-    this->PostData(this->GetStopUrl(), this->GetStopPostdata());
-    if (!this->http_client.getSendSuccess())
-        goto end;
-
-    this->PostData(this->GetMediasDeleteUrl(), this->GetMediasDeletePostdata(true, true));
-
-end:
+    if (!this->http_client.getSendSuccess()) {
+        this->InitFromPrepareResponse(this->http_client.getResponse());
+        this->PostData(this->GetMediasDeleteUrl(), this->GetMediasDeletePostdata(true, true));
+    }
 
     if (this->http_client.getSendSuccess())
         result = NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT_SUCESS;
