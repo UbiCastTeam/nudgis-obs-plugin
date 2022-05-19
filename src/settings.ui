@@ -6,21 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
+    <width>601</width>
     <height>513</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>NudgisPlugin.settings.WindowTitle</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_settings">
-   <property name="spacing">
-    <number>20</number>
-   </property>
+  <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
     <enum>QLayout::SetFixedSize</enum>
    </property>
-   <item>
+   <property name="verticalSpacing">
+    <number>20</number>
+   </property>
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_configuration">
      <property name="title">
       <string>NudgisPlugin.settings.Configuration</string>
@@ -105,7 +105,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox_live_setting">
      <property name="title">
       <string>NudgisPlugin.settings.Live_Settings</string>
@@ -168,7 +168,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="QGroupBox" name="groupBox_upload_setting">
      <property name="title">
       <string>NudgisPlugin.settings.Upload_Settings</string>
@@ -249,7 +249,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="3" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_btn">
      <item alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="btn_saveSettings">
@@ -283,15 +283,15 @@
      </item>
     </layout>
    </item>
-   <item>
+   <item row="4" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_warning">
-     <item alignment="Qt::AlignHCenter">
+     <item>
       <widget class="QLabel" name="label_warning">
        <property name="text">
         <string>NudgisPlugin.settings.Warning_Msg</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+        <set>Qt::AlignCenter</set>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
