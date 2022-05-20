@@ -351,11 +351,11 @@ jobs:
         run: |
           Get-ChildItem -Filter "*-Win32.zip" -File | Expand-Archive -Force -DestinationPath ./release/
           Get-ChildItem -Filter "*-Win64.zip" -File | Expand-Archive -Force -DestinationPath ./release/
-          CI/windows/04_package_plugin.ps1 -BuildInstaller -CombinedArchs
+          CI/windows/04_package_plugin.ps1 -BuildInstaller -CombinedArchs -PluginVersion "${{ env.OBS_VERSION }}_${{ env.PRODUCT_VERSION }}"
 
       - name: 'Upload build Artifact'
         if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
         uses: actions/upload-artifact@v2
         with:
-          name: '${{ env.PRODUCT_NAME }}-windows-release_${{ env.OBS_VERSION }}_${{ env.PRODUCT_VERSION }}'
-          path: '${{ github.workspace }}/*-Windows-Installer.exe'
+          name: '${{ env.PRODUCT_NAME }}-windows_${{ env.OBS_VERSION }}_${{ env.PRODUCT_VERSION }}'
+          path: '${{ github.workspace }}/nudgis-obs-plugin-windows_${{ env.OBS_VERSION }}_${{ env.PRODUCT_VERSION }}.exe'
