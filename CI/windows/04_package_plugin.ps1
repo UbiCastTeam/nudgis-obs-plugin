@@ -3,7 +3,8 @@ Param(
     [Switch]$Quiet = $(if (Test-Path variable:Quiet) { $Quiet }),
     [Switch]$Verbose = $(if (Test-Path variable:Verbose) { $Verbose }),
     [Switch]$BuildInstaller = $(if ($BuildInstaller.isPresent) { $true }),
-    [String]$ProductName = $(if (Test-Path variable:ProductName) { "${ProductName}" } else { "obs-plugin" }),
+    [String]$ProductName = $(if (Test-Path variable:ProductName) { "${ProductName}" } else { "nudgis-obs-plugin" }),
+    [String]$PluginVersion = $(if (Test-Path variable:PluginVersion) { "${PluginVersion}" } else { "27.2.4_1.0.0" }),
     [Switch]$CombinedArchs = $(if ($CombinedArchs.isPresent) { $true }),
     [String]$BuildDirectory = $(if (Test-Path variable:BuildDirectory) { "${BuildDirectory}" } else { "build" }),
     [String]$BuildArch = $(if (Test-Path variable:BuildArch) { "${BuildArch}" } elseif ([System.Environment]::Is64BitOperatingSystem) { "64-bit" } else { "32-bit" }),
@@ -51,7 +52,7 @@ function Package-OBS-Plugin {
         Compress-Archive -Force @CompressVars
         if(($BuildInstaller.isPresent) -And (Test-CommandExists "iscc")) {
             Write-Step "Creating installer..."
-            & iscc ${CheckoutDir}/installer/installer-Windows.generated.iss /O. /F"${FileName}-Windows-Installer"
+            & iscc ${CheckoutDir}/installer/installer-Windows.generated.iss /O. /F"${ProductName}-windows_${PluginVersion}"
         }
     } elseif ($BuildArch -eq "64-bit") {
         cmake --build ${BuildDirectory}64 --config ${BuildConfiguration} -t install
@@ -110,7 +111,7 @@ function Package-Plugin-Standalone {
         $GitTag=$ProductVersion
     }
 
-    $FileName = "${ProductName}-${GitTag}-${GitHash}"
+    $FileName = "${ProductName}-${PluginVersion}"
 
     Package-OBS-Plugin
 }
