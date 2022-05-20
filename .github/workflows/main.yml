@@ -147,14 +147,14 @@ jobs:
       - name: 'Create build artifact'
         if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
         working-directory: 'plugin'
-        run: CI/macos/04_package_plugin.sh
+        run: CI/macos/04_package_plugin.sh --plugin-version "${{ env.OBS_VERSION }}_${{ env.PRODUCT_VERSION }}" --architecture "${{ matrix.arch }}"
 
       - name: 'Upload build Artifact'
         if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
         uses: actions/upload-artifact@v2
         with:
           name: '${{ env.PRODUCT_NAME }}-macos-${{ matrix.arch }}_${{ env.OBS_VERSION }}_${{ env.PRODUCT_VERSION }}'
-          path: '${{ github.workspace }}/plugin/build/nudgis-obs-plugin-package.tar.gz'
+          path: '${{ github.workspace }}/plugin/build/nudgis-obs-plugin-macos-${{ matrix.arch }}_${{ env.OBS_VERSION }}_${{ env.PRODUCT_VERSION }}.pkg'
 
   linux_build:
     name: '02 - Linux (Ubuntu, 20.04)'
