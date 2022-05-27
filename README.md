@@ -15,7 +15,7 @@ The plugin is available for the following platforms:
 
 ## Usage
 
-Check out [our tutorials](https://help.ubicast.tv/channels/#obs_54803)
+Check out [our tutorials](https://help.ubicast.tv/channels/#obs_54803).
 
 ## Installation
 
@@ -23,9 +23,17 @@ OS-specific packages are available in the [releases github page](https://github.
 
 An [AUR package](https://aur.archlinux.org/packages/nudgis-obs-plugin) is available for Arch Linux.
 
-### Ubuntu-20.04 instructions
+### Windows
 
-#### Installing OBS
+Double click the .exe and follow the instructions. A "Windows protected your PC" popup will appear; click "More info" and confirm to allow installation; follow the wizard, and confirm you want to install the plugin into the same folder as OBS (important).
+
+### macOS
+
+The installation package must be installed by carrying out a ```right click``` and ```Open``` and finally click ```Open``` in order to authorize the installation.
+
+### Ubuntu 20.04
+
+#### Install OBS
 
 <pre>
 sudo apt install software-properties-common
@@ -34,7 +42,7 @@ sudo apt update
 sudo apt install ffmpeg obs-studio
 </pre>
 
-#### Installing the Nudgis OBS Studio plugin
+#### Install the Nudgis OBS Studio plugin
 
 Download the .deb package from the [releases github page](https://github.com/UbiCastTeam/nudgis-obs-plugin/releases).
 
@@ -42,15 +50,25 @@ Download the .deb package from the [releases github page](https://github.com/Ubi
 sudo apt install ./nudgis-obs-plugin-1.0.0-Linux.deb
 </pre>
 
-### macOS
+## Uninstallation
 
-The installation package must be installed by carrying out a ```right click``` and ```Open``` and finally click ```Open``` in order to authorize the installation.
+### Windows
+
+The plugin can be uninstalled like any other installed software in the "Add or remove programs" menu.
+
+### macOS
 
 Removing OBS from your system will uninstall the plugin too; however, an uninstallation script is available at the following URI (find it by entering the OBS APP package contents, then ```right click``` and ```Open```):
 
 <pre>
 /Applications/OBS.app/Contents/Resources/data/obs-plugins/nudgis-obs-plugin/nudgis-obs-plugin-uninstall.command
 </pre>
+
+### Ubuntu 20.04
+
+```
+sudo apt remove nudgis-obs-plugin
+```
 
 ## Development
 
