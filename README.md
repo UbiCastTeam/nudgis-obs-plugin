@@ -126,7 +126,7 @@ sudo cmake --install build
 sudo ldconfig
 </pre>
 
-#### nudgis-obs-plugiin compilation and installation in debug mode
+#### nudgis-obs-plugin compilation and installation in debug mode
 
 <pre>
 git clone git@github.com:UbiCastTeam/nudgis-obs-plugin.git
