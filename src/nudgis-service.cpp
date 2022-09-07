@@ -731,6 +731,8 @@ struct obs_service_info nudgis_service_info =
 
                 NULL, //void (*get_max_bitrate)(void *data, int *video_bitrate,
                       //int *audio_bitrate);
+
+                NULL, //const char **(*get_supported_video_codecs)(void *data);
 };
 
 NudgisUpload::NudgisUpload(const char *filename)
