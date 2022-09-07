@@ -7,6 +7,7 @@
 #include <obs-frontend-api.h>
 #include <fstream>
 #include <cmath>
+#include <cinttypes>
 
 #define NUDGIS_NAME "Nudgis"
 #define ORIGIN "nudgis-obs-plugin"
@@ -781,7 +782,7 @@ void NudgisUpload::run()
                     std::streamsize chunk = file.gcount();
                     current_offset += chunk;
                     chunk_index++;
-                    mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
+                    mlog(LOG_INFO, "Uploading chunk %" PRIu64 "/%" PRIu64, chunk_index, chunks_count);
                     if (this->check_md5)
                         md5sum.addData(read_buffer, chunk);
 

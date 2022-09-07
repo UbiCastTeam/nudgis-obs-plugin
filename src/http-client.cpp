@@ -145,10 +145,10 @@ bool HttpClient::send()
 
         mlog(LOG_DEBUG, "try to send http request to %s (method: %s)", url.c_str(), HTTP_CLIENT_METHOD_STR[this->method]);
         this->error.curl_code = curl_easy_perform(curl);
-        mlog(LOG_DEBUG, "  curl_code           : %d", this->error.curl_code);
+        mlog(LOG_DEBUG, "  curl_code           : %d", (int)this->error.curl_code);
 
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &this->error.http_code);
-        mlog(LOG_DEBUG, "  http_code           : %ld", this->error.http_code);
+        mlog(LOG_DEBUG, "  http_code           : %d", (int)this->error.http_code);
 
         mlog(LOG_DEBUG, "  response            : %s", response.c_str());
 
