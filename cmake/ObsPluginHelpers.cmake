@@ -591,6 +591,7 @@ else()
                 /W3
                 /WX
                 /wd4201
+                /wd4458
                 "$<$<CONFIG:RELWITHDEBINFO>:/Ob2>"
                 "$<$<CONFIG:DEBUG>:/DDEBUG=1;/D_DEBUG=1>"
                 /DUNICODE
