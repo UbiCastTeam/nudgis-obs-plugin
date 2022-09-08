@@ -17,10 +17,9 @@ target_sources(
           src/nudgis-upload-ui.cpp src/http-client.cpp src/obs/obs-utils.cpp)
 
 # Import libobs as main plugin dependency
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-
 find_package(libobs REQUIRED)
-find_package(Libcurl REQUIRED)
+
+find_package(CURL REQUIRED)
 
 include(cmake/ObsPluginHelpers.cmake)
 find_package(obs-frontend-api REQUIRED)
@@ -41,13 +40,12 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
 # --- Platform-independent build settings ---
 
 target_include_directories(
-  ${CMAKE_PROJECT_NAME}
-  PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/obs
-          ${LIBCURL_INCLUDE_DIRS})
+  ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src
+                                ${CMAKE_SOURCE_DIR}/src/obs)
 
 target_link_libraries(
-  ${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs OBS::obs-frontend-api
-                                ${LIBCURL_LIBRARIES} Qt::Core Qt::Widgets)
+  ${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs OBS::obs-frontend-api CURL::libcurl
+                                Qt::Core Qt::Widgets)
 
 # --- End of section ---
 
@@ -101,7 +99,7 @@ target_sources(
           src/test.cpp)
 
 target_link_libraries(test PRIVATE OBS::libobs OBS::obs-frontend-api
-                                   ${LIBCURL_LIBRARIES} Qt::Core Qt::Widgets)
+                                   CURL::libcurl Qt::Core Qt::Widgets)
 
 set_target_properties(
   test
@@ -109,6 +107,5 @@ set_target_properties(
              AUTOUIC ON
              AUTORCC ON)
 
-target_include_directories(
-  test PRIVATE ${CMAKE_SOURCE_DIR}/src/obs ${CMAKE_SOURCE_DIR}/src
-               ${LIBCURL_INCLUDE_DIRS})
+target_include_directories(test PRIVATE ${CMAKE_SOURCE_DIR}/src/obs
+                                        ${CMAKE_SOURCE_DIR}/src)
