@@ -20,7 +20,6 @@ target_sources(
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 find_package(libobs REQUIRED)
-find_package(Jansson REQUIRED)
 find_package(Libcurl REQUIRED)
 
 include(cmake/ObsPluginHelpers.cmake)
@@ -44,12 +43,11 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
 target_include_directories(
   ${CMAKE_PROJECT_NAME}
   PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/obs
-          ${LIBCURL_INCLUDE_DIRS} ${JANSSON_INCLUDE_DIRS})
+          ${LIBCURL_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${CMAKE_PROJECT_NAME}
-  PRIVATE OBS::libobs OBS::obs-frontend-api ${LIBCURL_LIBRARIES}
-          ${JANSSON_LIBRARIES} Qt::Core Qt::Widgets)
+  ${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs OBS::obs-frontend-api
+                                ${LIBCURL_LIBRARIES} Qt::Core Qt::Widgets)
 
 # --- End of section ---
 
@@ -102,9 +100,8 @@ target_sources(
           src/obs/obs-utils.cpp
           src/test.cpp)
 
-target_link_libraries(
-  test PRIVATE OBS::libobs OBS::obs-frontend-api ${LIBCURL_LIBRARIES}
-               ${JANSSON_LIBRARIES} Qt::Core Qt::Widgets)
+target_link_libraries(test PRIVATE OBS::libobs OBS::obs-frontend-api
+                                   ${LIBCURL_LIBRARIES} Qt::Core Qt::Widgets)
 
 set_target_properties(
   test
@@ -114,4 +111,4 @@ set_target_properties(
 
 target_include_directories(
   test PRIVATE ${CMAKE_SOURCE_DIR}/src/obs ${CMAKE_SOURCE_DIR}/src
-               ${LIBCURL_INCLUDE_DIRS} ${JANSSON_INCLUDE_DIRS})
+               ${LIBCURL_INCLUDE_DIRS})
