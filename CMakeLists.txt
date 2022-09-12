@@ -16,6 +16,10 @@ target_sources(
   PRIVATE src/nudgis-plugin.cpp src/nudgis-service.cpp src/nudgis-config.cpp
           src/nudgis-upload-ui.cpp src/http-client.cpp src/obs/obs-utils.cpp)
 
+# Disable linux portable mode otherwise plugin get installed in folder not
+# looked upon by OBS (obs-plugins/{32,64}bits)
+set(LINUX_PORTABLE OFF)
+
 # Import libobs as main plugin dependency
 find_package(libobs REQUIRED)
 
