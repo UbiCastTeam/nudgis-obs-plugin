@@ -11,7 +11,7 @@ The functionality of the plugin covers the following actions:
 The plugin is available for the following platforms:
 - Windows 7/8/10/11 64 bits
 - macOS (arm64 and x86)
-- Linux: Ubuntu 64 22.04 (Jammy Jellyfish) bits and [Arch Linux](https://aur.archlinux.org/packages/nudgis-obs-plugin)  (Flatpack installation is also possible - see [Flatback Installation](#flatpack))
+- Linux: Ubuntu 64 22.04 (Jammy Jellyfish) bits and [Arch Linux](https://aur.archlinux.org/packages/nudgis-obs-plugin)  (Flatpack installation is also possible - see [Flatpack Installation](#flatpack))
 
 See the release notes for the minimal version of each OS
 
