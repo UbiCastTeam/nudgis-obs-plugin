@@ -40,7 +40,7 @@ public:
     int audio_bitrate;
     int framerate;
 
-    const std::string &GetJson() const;
+    const std::string GetJson() const;
 };
 
 class NudgisData {

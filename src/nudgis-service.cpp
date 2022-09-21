@@ -3,10 +3,10 @@
 
 #include <sstream>
 #include <obs-module.h>
-#include <jansson.h>
 #include <obs-frontend-api.h>
 #include <fstream>
 #include <cmath>
+#include <cinttypes>
 
 #define NUDGIS_NAME "Nudgis"
 #define ORIGIN "nudgis-obs-plugin"
@@ -99,28 +99,17 @@ NudgisStreams::NudgisStreams(obs_output_t *output)
     }
 }
 
-const std::string &NudgisStreams::GetJson() const
+const std::string NudgisStreams::GetJson() const
 {
-    static std::string result;
+    std::ostringstream res{};
 
-    json_t *streams = json_array();
-    if (streams != NULL) {
-        json_t *stream = json_object();
-        if (stream != NULL) {
-            json_object_set(stream, "width", json_integer(this->width));
-            json_object_set(stream, "height", json_integer(this->height));
-            json_object_set(stream, "video_bitrate", json_integer(this->video_bitrate));
-            json_object_set(stream, "audio_bitrate", json_integer(this->audio_bitrate));
-            json_object_set(stream, "framerate", json_integer(this->framerate));
+    res << "[{\"width\": " << this->width
+        << ", \"height\": " << this->height
+        << ", \"video_bitrate\": " << this->video_bitrate
+        << ", \"audio_bitrate\": " << this->audio_bitrate
+        << ", \"framerate\": " << framerate << "}]";
 
-            json_array_append_new(streams, stream);
-        }
-
-        result = json_dumps(streams, 0);
-        json_decref(streams);
-    }
-
-    return result;
+    return res.str();
 }
 
 HttpClient &NudgisData::GetHttpClient()
@@ -731,6 +720,8 @@ struct obs_service_info nudgis_service_info =
 
                 NULL, //void (*get_max_bitrate)(void *data, int *video_bitrate,
                       //int *audio_bitrate);
+
+                NULL, //const char **(*get_supported_video_codecs)(void *data);
 };
 
 NudgisUpload::NudgisUpload(const char *filename)
@@ -779,7 +770,7 @@ void NudgisUpload::run()
                     std::streamsize chunk = file.gcount();
                     current_offset += chunk;
                     chunk_index++;
-                    mlog(LOG_INFO, "Uploading chunk %lu/%lu.", chunk_index, chunks_count);
+                    mlog(LOG_INFO, "Uploading chunk %" PRIu64 "/%" PRIu64, chunk_index, chunks_count);
                     if (this->check_md5)
                         md5sum.addData(read_buffer, chunk);
 

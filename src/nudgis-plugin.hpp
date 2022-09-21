@@ -3,6 +3,7 @@
 
 #include "nudgis-config.hpp"
 
+#include <QtCore>
 #include <QWidget>
 #include <QLineEdit>
 #include <obs-frontend-api.h>
