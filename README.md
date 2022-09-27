@@ -135,8 +135,8 @@ The plugin can be uninstalled like any other installed software in the "Add or r
 To remove this plugin open the terminal and type:
 
 ```
-rm -rf "~/Library/Application Support/obs-studio/plugins/nudgis-obs-plugin.plugin/"
-pkgutils --volume ~ --forget eu.ubicast.nudgis-obs-plugin
+rm -rf "$HOME/Library/Application Support/obs-studio/plugins/nudgis-obs-plugin.plugin/"
+pkgutil --volume ~ --forget eu.ubicast.nudgis-obs-plugin
 ```
 
 ### Ubuntu
