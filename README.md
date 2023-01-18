@@ -70,58 +70,93 @@ After download follow these steps:
 
 ### Linux
 
-#### Ubuntu
-
-Depending on the release version some minimal Ubuntu version is needed, check the release note for details.
+#### Ubuntu 
 
 ##### Install OBS
 
-You may choose to install the latest version of OBS from project PPA:
+With Ubuntu, OBS can be installed by different means:
 
-```
-sudo apt install software-properties-common
-sudo add-apt-repository ppa:obsproject/obs-studio
-sudo apt update
-sudo apt install ffmpeg obs-studio
-```
+* Ubuntu packages (with `apt install obs-studio`)
+	
+	```
+	sudo apt install obs-studio
+	```
+	
+* OBS offical ppa https://obsproject.com/wiki/install-instructions#linux
 
-Or install the Ubuntu version
+	```
+	sudo apt install software-properties-common
+	sudo add-apt-repository ppa:obsproject/obs-studio
+	sudo apt update
+	sudo apt install ffmpeg obs-studio
+	```
 
-```
-sudo apt install obs-studio
-```
+* flatpak https://flathub.org/apps/details/com.obsproject.Studio
+
+	```
+	flatpak install flathub com.obsproject.Studio
+	```
 
 ##### Install the corresponding Nudgis OBS Studio plugin
 
+Depending on the Ubuntu version and OBS installation method, the version of Nudgis OBS plugin will vary and may need some adjustement. 
+
 Check the release note and download the .deb package from the [releases github page](https://github.com/UbiCastTeam/nudgis-obs-plugin/releases).
 
+**Nudgis OBS compatibility table (as of 16 Jan 2023)**
+
+|                   | Ubuntu OBS package               | OBS PPA                          | flatpak                          |
+| ----------------- | -------------------------------- | -------------------------------- | -------------------------------- |
+| Focal 20.04 (LTS) | OBS-25/QT5, Not supported        | OBS-29/QT5, [v1.0.0 (OBS 27)][1] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] |
+| Jammy 22.04 (LTS) | OBS-27/QT5, [v1.0.0 (OBS 27)][1] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] |
+| Kinetic 22.10     | OBS-28/QT5, [v1.0.0 (OBS 27)][1] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] |
+
+[1]: https://github.com/UbiCastTeam/nudgis-obs-plugin/releases/download/v1.0.0-rc2/nudgis-obs-plugin-1.0.0-Linux.deb
+[2]: https://github.com/UbiCastTeam/nudgis-obs-plugin/releases/download/v1.0.0_OBS-28/nudgis-obs-plugin-1.0.0-linux-x86_64.deb
+
+After you download the right DEB package install it (and do some adjustement)
+
+###### Ubuntu package and OBS ppa:
+
+For [v1.0.0 (OBS 27)][1]:
+
 ```
-sudo apt install ./nudgis-ob-plugin-1.0.0-Linux.deb
+sudo apt install ./nudgis-obs-plugin-1.0.0-Linux.deb
+# Multiarch Ubuntu distribution needs some adjustements for this versrion of plugin:
+sudo cp /usr/lib/obs-plugins/nudgis-obs-plugin.so /usr/lib/x86_64-linux-gnu/obs-plugins/
 ```
 
-#### Flatpack
-
-With flatpack you will get the latest version of OBS:
+For [v1.0.0 (OBS 28)][2]:
 
 ```
-flatpack install com.obsproject.Studio
+sudo apt install ./nudgis-obs-plugin-1.0.0-linux-x86_64.deb
 ```
 
-Then you shall install the `nugdis-obs-plugin` to the right place:
+######  Flatpack
 
-* create a tmp folder and extract the deb file inside:
+As of 16/01/2023, flatpak OBS is based on org.kde.Platform v6.4 which uses QT6 so the right DEB is [v1.0.0 (OBS 28)][2], but this DEB is meant for local install, for flatpak some extra step is needed:
 
-```
-mkdir /tmp/obs-nudgis-flatpack; cd /tmp/obs-nudgis-flatpack
-dpkg-deb -x /path/to/nudgis-obs-plugin-1.0.0-Linux.deb .
-```
+1. create a tmp folder and extract the deb file inside:
+
+	```
+	mkdir /tmp/obs-nudgis-flatpack; cd /tmp/obs-nudgis-flatpack
+	dpkg-deb -x /path/to/nudgis-obs-plugin-1.0.0-linux-x86_64.deb .
+	```
 
 * then copy the files to the right place
 
+	```
+	mkdir ~/.var/app/com.obsproject.Studio/config/obs-studio/plugins/nudgis-obs-plugin/{bin/64bit,data}
+	cp usr/lib/x86_64-linux-gnu/obs-plugins/nudgis-obs-plugin.so ~/.var/app/com.obsproject.Studio/config/obs-studio/plugins/nudgis-obs-plugin/bin/64bit
+	cp -r usr/share/obs/obs-plugins/nudgis-obs-plugin/locale ~/.var/app/com.obsproject.Studio/config/obs-studio/plugins/nudgis-obs-plugin/data
+	```
+	
+#### Archlinux
+
+Nudgis OBS plugin is available from AUR https://aur.archlinux.org/packages/nudgis-obs-plugin, use you prefered AUR packet manager to install it, for instance with `yay`:
+
 ```
-mkdir ~/.var/app/com.obsproject.Studio/config/obs-studio/plugins/nudgis-obs-plugin/{bin/64bit,data}
-cp usr/lib/obs-plugins/nudgis-obs-plugin.so ~/.var/app/com.obsproject.Studio/config/obs-studio/plugins/nudgis-obs-plugin/bin/64bit
-cp -r usr/share/obs/obs-plugins/nudgis-obs-plugin/locale ~/.var/app/com.obsproject.Studio/config/obs-studio/plugins/nudgis-obs-plugin/data
+yay -S nudgis-obs-plugin
 ```
 
 ## Uninstallation
