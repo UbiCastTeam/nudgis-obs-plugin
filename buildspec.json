@@ -36,14 +36,14 @@
             "bundleId": "com.example.obs-plugintemplate"
         }
     },
-    "name": "obs-plugintemplate",
+    "name": "nudgis-obs-plugin",
     "version": "1.0.0",
-    "author": "Your Name Here",
-    "website": "https://example.com",
-    "email": "me@example.com",
+    "author": "UbiCast team",
+    "website": "https://www.ubicast.eu",
+    "email": "noreply@ubicast.eu",
     "uuids": {
-        "macosPackage": "00000000-0000-0000-0000-000000000000",
-        "macosInstaller": "00000000-0000-0000-0000-000000000000",
-        "windowsApp": "00000000-0000-0000-0000-000000000000"
+        "macosPackage": "e18f0cae-0ee8-4368-847e-5471aa504bac",
+        "macosInstaller": "7371a247-a25c-40de-b69c-a81bd5aa090c",
+        "windowsApp": "1c3a5355-4e8b-4c78-bc1b-853a12726fa0"
     }
 }

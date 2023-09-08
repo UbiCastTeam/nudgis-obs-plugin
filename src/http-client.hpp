@@ -10,7 +10,6 @@
 typedef long http_code_t;
 
 #define HTTP_CODE_UNDEF ((http_code_t)-1)
-#define CURL_CODE_UNDEF ((CURLcode)-1)
 
 class HttpClientFormField {
 public:
@@ -27,7 +26,7 @@ public:
 	std::string url = {};
 	std::string error = {};
 	http_code_t http_code = HTTP_CODE_UNDEF;
-	CURLcode curl_code = CURL_CODE_UNDEF;
+	CURLcode curl_code = CURLE_OK;
 };
 
 class HttpClient {

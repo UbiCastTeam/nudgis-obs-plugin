@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
 #define DEF_FILE_NAME "nudgis_config.json"
 #define DEF_CHANNEL "Personal channel"
@@ -33,7 +34,7 @@ public:
 	std::string upload_channel;
 	const AutoState *auto_delete_uploaded_file;
 	const AutoState *publish_recording_automatically;
-	uint64_t upload_chunk_size;
+	long long int upload_chunk_size;
 	NudgisConfig();
 	void load(const char *filename = DEF_FILE_NAME);
 	void save(const char *filename = DEF_FILE_NAME);
