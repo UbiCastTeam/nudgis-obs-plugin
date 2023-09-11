@@ -54,7 +54,6 @@ set(_obs_clang_c_options
     -Wparentheses
     -Wpointer-sign
     -Wquoted-include-in-framework-header
-    -Wshadow
     -Wshorten-64-to-32
     -Wuninitialized
     -Wunreachable-code
