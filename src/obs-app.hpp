@@ -21,29 +21,29 @@
 #include <util/util.hpp>
 
 class OBSApp : public QApplication {
-    Q_OBJECT
+	Q_OBJECT
 
 private:
-    std::string locale;
-    std::string theme;
-    bool themeDarkMode = true;
-    ConfigFile globalConfig;
-    TextLookup textLookup;
+	std::string locale;
+	std::string theme;
+	bool themeDarkMode = true;
+	ConfigFile globalConfig;
+	TextLookup textLookup;
 
 public:
-    inline const char *GetString(const char *lookupVal) const
-    {
-        return textLookup.GetString(lookupVal);
-    }
+	inline const char *GetString(const char *lookupVal) const
+	{
+		return textLookup.GetString(lookupVal);
+	}
 };
 
 inline OBSApp *App()
 {
-    return static_cast<OBSApp *>(qApp);
+	return static_cast<OBSApp *>(qApp);
 }
 
 inline const char *Str(const char *lookup)
 {
-    return App()->GetString(lookup);
+	return App()->GetString(lookup);
 }
 #define QTStr(lookupVal) QString::fromUtf8(Str(lookupVal))
