@@ -33,7 +33,7 @@ outputs:
     value: ${{ steps.provisioning.outputs.haveProvisioningProfile }}
   haveNotarizationUser:
     description: True if necessary notarization credentials were found
-    value: ${{ steps.notarization.outputs.haveNotarizationUser }}
+    value: ${{ !!steps.notarization.outputs.haveNotarizationUser }}
   codesignIdent:
     description: Codesigning identity
     value: ${{ steps.codesign.outputs.codesignIdent }}
