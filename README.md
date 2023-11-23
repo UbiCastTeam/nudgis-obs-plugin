@@ -9,9 +9,12 @@ The functionality of the plugin covers the following actions:
 - uploading recordings
 
 The plugin is available for the following platforms:
-- Windows 7/8/10/11 64 bits
-- macOS (arm64 and x86)
-- Linux: Ubuntu 64 22.04 (Jammy Jellyfish) bits and [Arch Linux](https://aur.archlinux.org/packages/nudgis-obs-plugin)  (Flatpack installation is also possible - see [Flatpack Installation](#flatpack))
+- [Windows](#Windows) 10/11 64 bits
+- [macOS](#macOS) (arm64 and x86)
+- [Linux](#Linux):
+  - [Ubuntu](#Ubuntu) >= 22.04 (Jammy Jellyfish) with latest OBS Studio via the official [PPA](https://launchpad.net/~obsproject/+archive/ubuntu/obs-studio)
+  - [Arch Linux](#Archlinux)
+  - Add distribution with the Flatpack installation [Flatpack Installation](#Flatpack))
 
 See the release notes for the minimal version of each OS
 
@@ -72,61 +75,26 @@ After download follow these steps:
 
 #### Ubuntu 
 
-##### Install OBS
+For Ubuntu we only support OBS studio from the official OBS PPA as
+described on the [OBS website](https://obsproject.com/download#linux)
 
-With Ubuntu, OBS can be installed by different means:
+Before installing OBS you have to check that the major version (i.e. `30` for
+obs-studio 30.0.0) match with the `nudgis-obs-plugin` available in the
+[releases github page](https://github.com/UbiCastTeam/nudgis-obs-plugin/releases)
 
-* Ubuntu packages (with `apt install obs-studio`)
-	
-	```
-	sudo apt install obs-studio
-	```
-	
-* OBS offical ppa https://obsproject.com/wiki/install-instructions#linux
+See the [PPA page](https://launchpad.net/~obsproject/+archive/ubuntu/obs-studio/+packages)
+to check the version.
 
-	```
-	sudo apt install software-properties-common
-	sudo add-apt-repository ppa:obsproject/obs-studio
-	sudo apt update
-	sudo apt install ffmpeg obs-studio
-	```
-
-* flatpak https://flathub.org/apps/details/com.obsproject.Studio
-
-	```
-	flatpak install flathub com.obsproject.Studio
-	```
-
-##### Install the corresponding Nudgis OBS Studio plugin
-
-Depending on the Ubuntu version and OBS installation method, the version of Nudgis OBS plugin will vary and may need some adjustement. 
-
-Check the release note and download the .deb package from the [releases github page](https://github.com/UbiCastTeam/nudgis-obs-plugin/releases).
-
-**Nudgis OBS compatibility table (as of 16 Jan 2023)**
-
-|                   | Ubuntu OBS package               | OBS PPA                          | flatpak                          |
-| ----------------- | -------------------------------- | -------------------------------- | -------------------------------- |
-| Focal 20.04 (LTS) | OBS-25/QT5, Not supported        | OBS-29/QT5, [v1.0.0 (OBS 27)][1] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] |
-| Jammy 22.04 (LTS) | OBS-27/QT5, [v1.0.0 (OBS 27)][1] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] |
-| Kinetic 22.10     | OBS-28/QT5, [v1.0.0 (OBS 27)][1] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] | OBS-29/QT6, [v1.0.0 (OBS 28)][2] |
-
-[1]: https://github.com/UbiCastTeam/nudgis-obs-plugin/releases/download/v1.0.0-rc2/nudgis-obs-plugin-1.0.0-Linux.deb
-[2]: https://github.com/UbiCastTeam/nudgis-obs-plugin/releases/download/v1.0.0_OBS-28/nudgis-obs-plugin-1.0.0-linux-x86_64.deb
-
-After you download the right DEB package install it (and do some adjustement)
-
-###### Ubuntu package and OBS ppa:
-
-For [v1.0.0 (OBS 27)][1]:
+If you have a match then you can install OBS:
 
 ```
-sudo apt install ./nudgis-obs-plugin-1.0.0-Linux.deb
-# Multiarch Ubuntu distribution needs some adjustements for this versrion of plugin:
-sudo cp /usr/lib/obs-plugins/nudgis-obs-plugin.so /usr/lib/x86_64-linux-gnu/obs-plugins/
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:obsproject/obs-studio
+sudo apt update
+sudo apt install obs-studio
 ```
 
-For [v1.0.0 (OBS 28)][2]:
+Then install the plugin:
 
 ```
 sudo apt install ./nudgis-obs-plugin-1.0.0-linux-x86_64.deb
@@ -134,7 +102,11 @@ sudo apt install ./nudgis-obs-plugin-1.0.0-linux-x86_64.deb
 
 ######  Flatpack
 
-As of 16/01/2023, flatpak OBS is based on org.kde.Platform v6.4 which uses QT6 so the right DEB is [v1.0.0 (OBS 28)][2], but this DEB is meant for local install, for flatpak some extra step is needed:
+Flatpack offer an isolated, distribution agnostic way to install and use OBS studio, but requires some extra work to install this plugin.
+
+Check Flatpack version of the OBS https://flathub.org/apps/com.obsproject.Studio that is compatible with our latest release and install it with either the flatpack store or command line:
+
+``flatpak install com.obsproject.Studio``
 
 1. create a tmp folder and extract the deb file inside:
 
@@ -199,11 +171,10 @@ Below is the listing of Artifact names, containing the deployment binaries for e
 
 | Platform | Artifact Name                                        | Note                                                                                                                              |
 | -------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Linux    | nudgis-obs-plugin-1.0.0-linux-x86_64.deb             | Debian .deb package, may be used for other Linux platforms                                                                        |
-| MacOS    | nudgis-obs-plugin-1.0.0-macos-arm64.pkg              | MacOS ARM machine (M1)                                                                                                            |
+| Linux    | nudgis-obs-plugin-1.0.0-linux-x86_64.deb             | Debian .deb package, may be used for other Linux platforms[1]                                                                     |
 | MacOS    | nudgis-obs-plugin-1.0.0-macos-universal.pkg          | Universal MacOS package (intel x86 and ARM based)                                                                                 |
-| MacOS    | nudgis-obs-plugin-1.0.0-macos-x86_64.pkg             | MacOS intel x86                                                                                                                   |
 | Windows  | nudgis-obs-plugin-1.0.0-windows-x64-Installer.exe    | Universal 64 bits windows package                                                                                                 |
+
 ### Setting up the development environment on Ubuntu 20.04
 
 #### OBS compilation and installation in debug mode
