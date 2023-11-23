@@ -4,17 +4,20 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCO
 
 project(${_name} VERSION ${_version})
 
+# Custom prameters ------------------------------------------------------------
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" ON)
 option(ENABLE_QT "Use Qt functionality" ON)
+# Disable linux portable mode otherwise plugin get installed in folder not looked upon by OBS (obs-plugins/{32,64}bits)
+set(LINUX_PORTABLE OFF)
+# set a custom package version for debian .deb
+set(CPACK_DEBIAN_PACKAGE_VERSION "${_version}+OBS-30.0.0")
+# -----------------------------------------------------------------------------
 
 include(compilerconfig)
 include(defaults)
 include(helpers)
 
 add_library(${CMAKE_PROJECT_NAME} MODULE)
-
-# Disable linux portable mode otherwise plugin get installed in folder not looked upon by OBS (obs-plugins/{32,64}bits)
-set(LINUX_PORTABLE OFF)
 
 # Import dependencies
 find_package(libobs REQUIRED)
