@@ -31,10 +31,7 @@ private:
 	TextLookup textLookup;
 
 public:
-	inline const char *GetString(const char *lookupVal) const
-	{
-		return textLookup.GetString(lookupVal);
-	}
+	inline const char *GetString(const char *lookupVal) const { return textLookup.GetString(lookupVal); }
 };
 
 inline OBSApp *App()

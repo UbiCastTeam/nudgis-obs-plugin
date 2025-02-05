@@ -16,7 +16,9 @@ void NudgisUploadThead::run()
 }
 
 NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
-	: QDialog(parent), ui(new Ui_NudgisUpload), nudgis_upload(fileName)
+	: QDialog(parent),
+	  ui(new Ui_NudgisUpload),
+	  nudgis_upload(fileName)
 {
 	this->ui->setupUi(this);
 	this->nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
@@ -24,15 +26,10 @@ NudgisUploadUi::NudgisUploadUi(QWidget *parent, const char *fileName)
 	this->updateLabelsTemplate();
 
 	if (this->fileName != NULL) {
-		this->nudgis_upload_thead =
-			new NudgisUploadThead(&this->nudgis_upload);
-		connect(&this->nudgis_upload, SIGNAL(progressUpload(int)), this,
-			SLOT(on_progressUpload(int)));
-		connect(&this->nudgis_upload, SIGNAL(endUpload()), this,
-			SLOT(on_endUpload()));
-		this->manageUploadFile(
-			this->nudgis_config->publish_recording_automatically
-				->type);
+		this->nudgis_upload_thead = new NudgisUploadThead(&this->nudgis_upload);
+		connect(&this->nudgis_upload, SIGNAL(progressUpload(int)), this, SLOT(on_progressUpload(int)));
+		connect(&this->nudgis_upload, SIGNAL(endUpload()), this, SLOT(on_endUpload()));
+		this->manageUploadFile(this->nudgis_config->publish_recording_automatically->type);
 	}
 }
 
@@ -45,19 +42,15 @@ NudgisUploadUi::~NudgisUploadUi()
 
 void NudgisUploadUi::updateFileUploadedUrl()
 {
-	this->ui->label_FileUploadedUrl->setText(
-		this->nudgis_upload.GetFileUploadedUrlHtml());
+	this->ui->label_FileUploadedUrl->setText(this->nudgis_upload.GetFileUploadedUrlHtml());
 }
 
 void NudgisUploadUi::updateError(const HttpClientError *http_client_error)
 {
-	this->ui->value_Error_Code->setText(
-		QString::number(http_client_error->curl_code));
-	this->ui->value_Error_HttpCode->setText(
-		QString::number(http_client_error->http_code));
+	this->ui->value_Error_Code->setText(QString::number(http_client_error->curl_code));
+	this->ui->value_Error_HttpCode->setText(QString::number(http_client_error->http_code));
 	this->ui->value_Error_Url->setText(http_client_error->url.c_str());
-	this->ui->value_Error_Message->setText(
-		http_client_error->error.c_str());
+	this->ui->value_Error_Message->setText(http_client_error->error.c_str());
 }
 
 void NudgisUploadUi::updateError()
@@ -68,12 +61,10 @@ void NudgisUploadUi::updateError()
 void NudgisUploadUi::on_endUpload()
 {
 	this->nudgis_upload_thead->wait();
-	if (this->nudgis_upload.GetState() ==
-	    NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL) {
+	if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_SUCESSFULL) {
 		this->updateFileUploadedUrl();
 		this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_DONE);
-	} else if (this->nudgis_upload.GetState() ==
-		   NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED) {
+	} else if (this->nudgis_upload.GetState() == NudgisUpload::NUDGIS_UPLOAD_STATE_UPLOAD_FAILED) {
 		this->updateError();
 		this->updateState(NUDGIS_UPLOAD_UI_ERROR);
 	} else
@@ -113,8 +104,7 @@ void NudgisUploadUi::on_pushButton_Cancel_clicked()
 
 void NudgisUploadUi::on_pushButton_Done_clicked()
 {
-	this->manageDeleteUploadedFile(
-		this->nudgis_config->auto_delete_uploaded_file->type);
+	this->manageDeleteUploadedFile(this->nudgis_config->auto_delete_uploaded_file->type);
 }
 
 void NudgisUploadUi::on_pushButton_Error_Done_clicked()
@@ -129,8 +119,7 @@ void NudgisUploadUi::manageUploadFile(AutoState::Types auto_state)
 	} else {
 		if (auto_state == AutoState::AUTOSTATE_YES) {
 			this->nudgis_upload_thead->start();
-			this->updateState(
-				NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS);
+			this->updateState(NUDGIS_UPLOAD_UI_UPLOAD_FILE_PROGRESS);
 		} else
 			this->on_pushButton_Done_clicked();
 	}
@@ -155,8 +144,8 @@ void NudgisUploadUi::updateLabelsTemplate()
 	};
 
 	for (QLabel *updated_label : updated_labels) {
-		updated_label->setText(updated_label->text().replace(
-			"$$NUDGIS_URL$$", this->nudgis_config->url.c_str()));
+		updated_label->setText(
+			updated_label->text().replace("$$NUDGIS_URL$$", this->nudgis_config->url.c_str()));
 	}
 }
 
@@ -191,16 +180,14 @@ void NudgisUploadUi::updateState(NUDGIS_UPLOAD_UI_STATE state)
 	this->currentState = state;
 }
 
-NudgisTestParamsUi::NudgisTestParamsUi(
-	QWidget *parent, const NudgisTestParamsData *test_params_data,
-	const char *windowTitle)
+NudgisTestParamsUi::NudgisTestParamsUi(QWidget *parent, const NudgisTestParamsData *test_params_data,
+				       const char *windowTitle)
 	: NudgisUploadUi(parent)
 {
 	this->setWindowTitle(windowTitle);
 
 	if (test_params_data != NULL &&
-	    test_params_data->result ==
-		    NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT_FAILED) {
+	    test_params_data->result == NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT_FAILED) {
 		this->updateError(test_params_data->http_client_error);
 		this->updateState(NUDGIS_UPLOAD_UI_ERROR);
 	} else

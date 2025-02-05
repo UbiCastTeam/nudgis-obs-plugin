@@ -41,12 +41,14 @@ endif()
 
 target_sources(
   ${CMAKE_PROJECT_NAME}
-  PRIVATE src/nudgis-plugin.cpp
-          src/nudgis-service.cpp
-          src/nudgis-config.cpp
-          src/nudgis-upload-ui.cpp
-          src/http-client.cpp
-          src/obs/obs-utils.cpp)
+  PRIVATE
+    src/nudgis-plugin.cpp
+    src/nudgis-service.cpp
+    src/nudgis-config.cpp
+    src/nudgis-upload-ui.cpp
+    src/http-client.cpp
+    src/obs/obs-utils.cpp
+)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/obs)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs CURL::libcurl Qt6::Core Qt6::Widgets)
@@ -67,8 +69,7 @@ target_link_libraries(test PRIVATE ${target_libs})
 
 set_target_properties(
   test
-  PROPERTIES AUTOMOC ON
-             AUTOUIC ON
-             AUTORCC ON)
+  PROPERTIES AUTOMOC ON AUTOUIC ON AUTORCC ON
+)
 
 target_include_directories(test PRIVATE ${CMAKE_SOURCE_DIR}/src/obs ${CMAKE_SOURCE_DIR}/src)
