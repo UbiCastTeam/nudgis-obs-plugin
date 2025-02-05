@@ -1,6 +1,6 @@
 #include "nudgis-upload-ui.hpp"
 #include "ui_nudgis-upload.h"
-#include "plugin-macros.generated.h"
+#include "plugin-support.h"
 #include "obs-app.hpp"
 
 #include <obs-module.h>

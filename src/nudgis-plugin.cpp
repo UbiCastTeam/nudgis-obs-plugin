@@ -4,7 +4,7 @@ Copyright (C) 2021 Ubicast
 */
 #include "nudgis-plugin.hpp"
 #include "nudgis-service.hpp"
-#include "plugin-macros.generated.h"
+#include "plugin-support.h"
 #include "ui_settings.h"
 #include "obs-app.hpp"
 #include "nudgis-upload-ui.hpp"
@@ -27,7 +27,7 @@ static obs_service_t *nudgis_service = nullptr;
 
 NudgisSettings::NudgisSettings() : QWidget(nullptr), ui(new Ui_Settings)
 {
-	mlog(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
+	obs_log(LOG_INFO, "Plugin Settings Opened (version %s)", PLUGIN_VERSION);
 	ui->setupUi(this);
 	QComboBox *combos_auto_state[] = {ui->auto_delete_uploaded_file,
 					  ui->publish_recording_automatically};
@@ -198,7 +198,7 @@ static void obs_event(enum obs_frontend_event event, void *private_data)
 	const char *event_str = "UNKNOW EVENT";
 	if (event < OBS_FRONTEND_EVENT_STR_LEN)
 		event_str = obs_frontend_event_str[event];
-	mlog(LOG_INFO, "event: %s", event_str);
+	obs_log(LOG_INFO, "event: %s", event_str);
 
 	if (event == OBS_FRONTEND_EVENT_RECORDING_STOPPED) {
 		obs_output_t *recording_output =
@@ -213,7 +213,7 @@ static void obs_event(enum obs_frontend_event event, void *private_data)
 				    AutoState::AUTOSTATE_NEVER) {
 					const char *path = obs_data_get_string(
 						settings, "path");
-					mlog(LOG_INFO, "path: %s", path);
+					obs_log(LOG_INFO, "path: %s", path);
 					//nudgis_upload_file(path);
 
 					obs_frontend_push_ui_translation(
@@ -225,7 +225,7 @@ static void obs_event(enum obs_frontend_event event, void *private_data)
 					obs_frontend_pop_ui_translation();
 					nudgis_upload_ui.exec();
 
-					mlog(LOG_INFO,
+					obs_log(LOG_INFO,
 					     "nudgis_upload_ui->show pass");
 				}
 
@@ -255,11 +255,11 @@ void openWindow()
 
 bool obs_module_load()
 {
-	mlog(LOG_INFO, "Nudgis plugin loaded successfully (version %s)",
+	obs_log(LOG_INFO, "Nudgis plugin loaded successfully (version %s)",
 	     PLUGIN_VERSION);
 	QAction *menu_action = (QAction *)obs_frontend_add_tools_menu_qaction(
 		TEXT_NUDGISPLUGIN_SETTINGS_MENUTITLE);
-	mlog(LOG_INFO, "%s", "Menu entry for Settings added");
+	obs_log(LOG_INFO, "%s", "Menu entry for Settings added");
 	menu_action->connect(menu_action, &QAction::triggered, openWindow);
 	obs_register_service(&nudgis_service_info);
 	nudgis_service = obs_service_create(
@@ -273,7 +273,7 @@ bool obs_module_load()
 
 void obs_module_unload()
 {
-	mlog(LOG_INFO, "%s", "Nudgis Plugin Successfully Unloaded");
+	obs_log(LOG_INFO, "%s", "Nudgis Plugin Successfully Unloaded");
 	if (settingsWindow != NULL)
 		delete settingsWindow;
 	if (nudgis_service != NULL)

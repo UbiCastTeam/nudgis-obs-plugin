@@ -1,6 +1,5 @@
 #include "http-client.hpp"
-
-#define mlog(level, msg, ...) blog(level, "[http-client] " msg, ##__VA_ARGS__)
+#include "plugin-support.h"
 
 #include <obs-module.h>
 
@@ -151,29 +150,29 @@ bool HttpClient::send()
 		if (this->form_fields.size() > 0)
 			curl_easy_setopt(curl, CURLOPT_MIMEPOST, form);
 
-		mlog(LOG_DEBUG, "try to send http request to %s (method: %s)",
+		obs_log(LOG_DEBUG, "try to send http request to %s (method: %s)",
 		     url.c_str(), HTTP_CLIENT_METHOD_STR[this->method]);
 		this->error.curl_code = curl_easy_perform(curl);
-		mlog(LOG_DEBUG, "  curl_code           : %d",
+		obs_log(LOG_DEBUG, "  curl_code           : %d",
 		     (int)this->error.curl_code);
 
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE,
 				  &this->error.http_code);
-		mlog(LOG_DEBUG, "  http_code           : %d",
+		obs_log(LOG_DEBUG, "  http_code           : %d",
 		     (int)this->error.http_code);
 
-		mlog(LOG_DEBUG, "  response            : %s", response.c_str());
+		obs_log(LOG_DEBUG, "  response            : %s", response.c_str());
 
 		if (this->error.curl_code == CURLE_OK) {
 			this->response_obs_data = obs_data_create_from_json(
 				this->response.c_str());
-			mlog(LOG_DEBUG, "  response is         : %s",
+			obs_log(LOG_DEBUG, "  response is         : %s",
 			     this->response_obs_data ? "json" : "not json");
 
 			if (this->response_obs_data) {
 				bool has_success_item = obs_data_has_user_value(
 					this->response_obs_data, "success");
-				mlog(LOG_DEBUG, "  has_success_item    : %s",
+				obs_log(LOG_DEBUG, "  has_success_item    : %s",
 				     has_success_item ? "yes" : "no");
 				if (has_success_item)
 					this->success_json_item =
@@ -185,7 +184,7 @@ bool HttpClient::send()
 
 				bool has_error_item = obs_data_has_user_value(
 					this->response_obs_data, "error");
-				mlog(LOG_DEBUG, "  has_error_item      : %s",
+				obs_log(LOG_DEBUG, "  has_error_item      : %s",
 				     has_error_item ? "yes" : "no");
 				if (has_error_item)
 					this->error_json_item =
@@ -195,9 +194,9 @@ bool HttpClient::send()
 			}
 		}
 
-		mlog(LOG_DEBUG, "  success_json_item   : %s",
+		obs_log(LOG_DEBUG, "  success_json_item   : %s",
 		     HTTP_CLIENT_BOOL_ITEM_STR[this->success_json_item]);
-		mlog(LOG_DEBUG, "  error_json_item     : %s",
+		obs_log(LOG_DEBUG, "  error_json_item     : %s",
 		     this->error_json_item.c_str());
 
 		if (this->error.curl_code == CURLE_OK &&
@@ -221,9 +220,9 @@ bool HttpClient::send()
 		curl_easy_cleanup(curl);
 	}
 
-	mlog(LOG_DEBUG, "  errorStr            : %s",
+	obs_log(LOG_DEBUG, "  errorStr            : %s",
 	     this->error.error.c_str());
-	mlog(LOG_DEBUG, "  send_success        : %s",
+	obs_log(LOG_DEBUG, "  send_success        : %s",
 	     this->send_success ? "TRUE" : "FALSE");
 	return this->send_success;
 }

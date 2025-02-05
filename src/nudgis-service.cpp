@@ -1,5 +1,5 @@
 #include "nudgis-service.hpp"
-#include "plugin-macros.generated.h"
+#include "plugin-support.h"
 
 #include <sstream>
 #include <obs-module.h>
@@ -126,7 +126,7 @@ bool NudgisData::GetResponseSuccess(obs_data_t *obs_data)
 	if (obs_data != NULL) {
 		obs_data_set_default_bool(obs_data, "success", false);
 		result = obs_data_get_string(obs_data, "success");
-		mlog(LOG_DEBUG, "success: %s", result ? "TRUE" : "FALSE");
+		obs_log(LOG_DEBUG, "success: %s", result ? "TRUE" : "FALSE");
 	}
 	return result;
 }
@@ -216,7 +216,7 @@ bool NudgisData::PostData(const std::string &url, const std::string &postData)
 
 bool NudgisData::InitFromPrepareResponse(const std::string &prepare_response)
 {
-	mlog(LOG_DEBUG, "Enter in %s", __func__);
+	obs_log(LOG_DEBUG, "Enter in %s", __func__);
 	bool result = false;
 	obs_data_t *obs_data =
 		obs_data_create_from_json(prepare_response.c_str());
@@ -254,10 +254,10 @@ bool NudgisData::InitFromPrepareResponse(const std::string &prepare_response)
 		obs_data_release(obs_data);
 	}
 
-	mlog(LOG_INFO, "success   : %s", result ? "TRUE" : "FALSE");
-	mlog(LOG_INFO, "server_uri: %s", this->server_uri.c_str());
-	mlog(LOG_INFO, "stream_id : %s", this->stream_id.c_str());
-	mlog(LOG_INFO, "oid       : %s", this->oid.c_str());
+	obs_log(LOG_INFO, "success   : %s", result ? "TRUE" : "FALSE");
+	obs_log(LOG_INFO, "server_uri: %s", this->server_uri.c_str());
+	obs_log(LOG_INFO, "stream_id : %s", this->stream_id.c_str());
+	obs_log(LOG_INFO, "oid       : %s", this->oid.c_str());
 
 	return result;
 }
@@ -338,7 +338,7 @@ const std::string &NudgisData::GetPrepareUrl()
 	std::ostringstream prepare_url;
 	prepare_url << this->nudgis_config->url << PATH_PREPARE_URL;
 	result = prepare_url.str();
-	mlog(LOG_DEBUG, "prepare_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "prepare_url: %s", result.c_str());
 
 	return result;
 }
@@ -355,7 +355,7 @@ NudgisData::GetPreparePostdata(const NudgisStreams *nudgis_streams)
 			 << PARAM_TITLE << this->nudgis_config->stream_title
 			 << "&" << PARAM_CHANNEL << this->GetStreamChannel();
 	result = prepare_postdata.str();
-	mlog(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "prepare_postdata: %s", result.c_str());
 
 	return result;
 }
@@ -367,7 +367,7 @@ const std::string &NudgisData::GetStartUrl()
 	std::ostringstream start_url;
 	start_url << this->nudgis_config->url << PATH_START_URL;
 	result = start_url.str();
-	mlog(LOG_DEBUG, "start_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "start_url: %s", result.c_str());
 
 	return result;
 }
@@ -380,7 +380,7 @@ const std::string &NudgisData::GetStartPostdata()
 	start_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&"
 		       << PARAM_OID << this->oid;
 	result = start_postdata.str();
-	mlog(LOG_DEBUG, "start_postdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "start_postdata: %s", result.c_str());
 
 	return result;
 }
@@ -392,7 +392,7 @@ const std::string &NudgisData::GetStopUrl()
 	std::ostringstream stop_url;
 	stop_url << this->nudgis_config->url << PATH_STOP_URL;
 	result = stop_url.str();
-	mlog(LOG_DEBUG, "stop_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "stop_url: %s", result.c_str());
 
 	return result;
 }
@@ -405,7 +405,7 @@ const std::string &NudgisData::GetStopPostdata()
 	stop_postdata << PARAM_API_KEY << this->nudgis_config->api_key << "&"
 		      << PARAM_OID << this->oid;
 	result = stop_postdata.str();
-	mlog(LOG_DEBUG, "stop_postdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "stop_postdata: %s", result.c_str());
 
 	return result;
 }
@@ -417,7 +417,7 @@ const std::string &NudgisData::GetApiBaseUrl()
 	std::ostringstream apibase_url;
 	apibase_url << this->nudgis_config->url << PATH_API_BASE_URL;
 	result = apibase_url.str();
-	mlog(LOG_DEBUG, "api_base_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "api_base_url: %s", result.c_str());
 
 	return result;
 }
@@ -429,7 +429,7 @@ const std::string &NudgisData::GetApiBaseGetdata()
 	std::ostringstream apibaseurl_getdata;
 	apibaseurl_getdata << PARAM_API_KEY << this->nudgis_config->api_key;
 	result = apibaseurl_getdata.str();
-	mlog(LOG_DEBUG, "apibaseurl_getdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "apibaseurl_getdata: %s", result.c_str());
 
 	return result;
 }
@@ -442,7 +442,7 @@ const std::string &NudgisData::GetUploadUrl()
 	upload_url << this->GetApiBaseUrl() << this->GetUrlPrefix()
 		   << PATH_UPLOAD_URL;
 	result = upload_url.str();
-	mlog(LOG_DEBUG, "upload_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "upload_url: %s", result.c_str());
 
 	return result;
 }
@@ -473,7 +473,7 @@ const std::string &NudgisData::GetUploadCompleteUrl()
 	uploadcomplete_url << this->GetApiBaseUrl() << this->GetUrlPrefix()
 			   << PATH_UPLOADCOMPLETE_URL;
 	result = uploadcomplete_url.str();
-	mlog(LOG_DEBUG, "uploadcomplete_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "uploadcomplete_url: %s", result.c_str());
 
 	return result;
 }
@@ -494,7 +494,7 @@ NudgisData::GetUploadCompletePostdata(std::string &upload_id, bool check_md5,
 	else
 		uploadcomplete_postdata << PARAM_NO_MD5 << "yes";
 	result = uploadcomplete_postdata.str();
-	mlog(LOG_DEBUG, "uploadcomplete_postdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "uploadcomplete_postdata: %s", result.c_str());
 
 	return result;
 }
@@ -507,7 +507,7 @@ const std::string &NudgisData::GetMediasAddUrl()
 	mediasadd_url << this->GetApiBaseUrl() << this->GetUrlPrefix()
 		      << PATH_MEDIASADD_URL;
 	result = mediasadd_url.str();
-	mlog(LOG_DEBUG, "mediasadd_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "mediasadd_url: %s", result.c_str());
 
 	return result;
 }
@@ -524,7 +524,7 @@ const std::string &NudgisData::GetMediasAddPostdata(std::string &upload_id,
 			   << title << "&" << PARAM_CHANNEL
 			   << this->GetUploadChannel();
 	result = mediasadd_postdata.str();
-	mlog(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "mediasadd_postdata: %s", result.c_str());
 
 	return result;
 }
@@ -537,7 +537,7 @@ const std::string &NudgisData::GetChannelsPersonalUrl()
 	channelspersonal_url << this->nudgis_config->url
 			     << PATH_CHANNELS_PERSONAL_URL;
 	result = channelspersonal_url.str();
-	mlog(LOG_DEBUG, "channelspersonal_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "channelspersonal_url: %s", result.c_str());
 
 	return result;
 }
@@ -550,7 +550,7 @@ const std::string &NudgisData::GetChannelsPersonalGetdata()
 	channelspersonal_getdata << PARAM_API_KEY
 				 << this->nudgis_config->api_key;
 	result = channelspersonal_getdata.str();
-	mlog(LOG_DEBUG, "channelspersonal_getdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "channelspersonal_getdata: %s", result.c_str());
 
 	return result;
 }
@@ -567,7 +567,7 @@ const std::string &NudgisData::GetMediasDeleteUrl()
 	std::ostringstream medias_delete_url;
 	medias_delete_url << this->nudgis_config->url << PATH_MEDIAS_DELETE_URL;
 	result = medias_delete_url.str();
-	mlog(LOG_DEBUG, "medias_delete_url: %s", result.c_str());
+	obs_log(LOG_DEBUG, "medias_delete_url: %s", result.c_str());
 
 	return result;
 }
@@ -584,7 +584,7 @@ const std::string &NudgisData::GetMediasDeletePostdata(bool delete_metadata,
 			       << "&" << PARAM_DELETE_RESOURCES
 			       << delete_resources;
 	result = medias_delete_postdata.str();
-	mlog(LOG_DEBUG, "medias_delete_postdata: %s", result.c_str());
+	obs_log(LOG_DEBUG, "medias_delete_postdata: %s", result.c_str());
 
 	return result;
 }
@@ -620,7 +620,7 @@ enum NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT NudgisData::TestLive()
 	this->nudgis_config->stream_title = backup_stream_title;
 	this->nudgis_config->stream_channel = backup_stream_channel;
 
-	mlog(LOG_DEBUG, "TestLive result: %s",
+	obs_log(LOG_DEBUG, "TestLive result: %s",
 	     NUDGISDATA_LIVE_TEST_RESULT_STR[result]);
 
 	return result;
@@ -654,13 +654,13 @@ static void update_video_keyint_sec(int new_value, obs_output_t *output)
 static const char *nudgis_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	mlog(LOG_DEBUG, "Enter in %s", __func__);
+	obs_log(LOG_DEBUG, "Enter in %s", __func__);
 	return obs_module_text(NUDGIS_NAME);
 }
 
 static void nudgis_destroy(void *data)
 {
-	mlog(LOG_DEBUG, "Enter in %s", __func__);
+	obs_log(LOG_DEBUG, "Enter in %s", __func__);
 	NudgisData *nudgis_data = (NudgisData *)data;
 	delete nudgis_data;
 }
@@ -669,7 +669,7 @@ static void *nudgis_create(obs_data_t *settings, obs_service_t *service)
 {
 	UNUSED_PARAMETER(settings);
 	UNUSED_PARAMETER(service);
-	mlog(LOG_DEBUG, "Enter in %s", __func__);
+	obs_log(LOG_DEBUG, "Enter in %s", __func__);
 	NudgisData *nudgis_data = new NudgisData(settings);
 	return nudgis_data;
 }
@@ -678,7 +678,7 @@ static bool nudgis_initialize(void *data, obs_output_t *output)
 {
 	bool result = false;
 	UNUSED_PARAMETER(output);
-	mlog(LOG_DEBUG, "Enter in %s", __func__);
+	obs_log(LOG_DEBUG, "Enter in %s", __func__);
 	NudgisData *nudgis_data = (NudgisData *)data;
 
 	update_video_keyint_sec(DEF_KEYINT_SEC, output);
@@ -705,7 +705,7 @@ const char *nudgis_get_protocol(void *data)
 
 const char *nudgis_get_connect_info(void *data, uint32_t type)
 {
-	mlog(LOG_DEBUG, "Enter in %s for type %d", __func__, type);
+	obs_log(LOG_DEBUG, "Enter in %s for type %d", __func__, type);
 	NudgisData *nudgis_data = (NudgisData *)data;
 
 	switch ((enum obs_service_connect_info)type) {
@@ -721,7 +721,7 @@ const char *nudgis_get_connect_info(void *data, uint32_t type)
 static void nudgis_deactivate(void *data)
 {
 	UNUSED_PARAMETER(data);
-	mlog(LOG_DEBUG, "Enter in %s", __func__);
+	obs_log(LOG_DEBUG, "Enter in %s", __func__);
 	NudgisData *nudgis_data = (NudgisData *)data;
 	nudgis_data->PostData(nudgis_data->GetStopUrl(),
 			      nudgis_data->GetStopPostdata());
@@ -730,7 +730,7 @@ static void nudgis_deactivate(void *data)
 static obs_properties_t *nudgis_properties(void *data)
 {
 	UNUSED_PARAMETER(data);
-	mlog(LOG_DEBUG, "Enter in %s", __func__);
+	obs_log(LOG_DEBUG, "Enter in %s", __func__);
 	NudgisConfig *nudgis_config = NudgisConfig::GetCurrentNudgisConfig();
 	obs_property_t *p;
 	obs_properties_t *ppts = obs_properties_create();
@@ -832,7 +832,7 @@ void NudgisUpload::run()
 	this->state = NUDGIS_UPLOAD_STATE_UPLOAD_IN_PROGRESS;
 	std::string file_basename =
 		QFileInfo(this->filename).fileName().toStdString();
-	mlog(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)",
+	obs_log(LOG_INFO, "enter in nudgis_upload_file with filename: %s (%s)",
 	     this->filename, file_basename.c_str());
 	QCryptographicHash md5sum(QCryptographicHash::Md5);
 	std::ifstream file(this->filename,
@@ -868,7 +868,7 @@ void NudgisUpload::run()
 					std::streamsize chunk = file.gcount();
 					current_offset += chunk;
 					chunk_index++;
-					mlog(LOG_INFO,
+					obs_log(LOG_INFO,
 					     "Uploading chunk %" PRIu64
 					     "/%" PRIu64,
 					     chunk_index, chunks_count);
@@ -902,7 +902,7 @@ void NudgisUpload::run()
 
 					http_client->send();
 					if (http_client->getSendSuccess()) {
-						mlog(LOG_INFO,
+						obs_log(LOG_INFO,
 						     "90.0 * current_offset / total_size: %f",
 						     90.0 * (double)current_offset /
 							     (double)total_size);
@@ -972,7 +972,7 @@ void NudgisUpload::run()
 	if (this->canceled)
 		this->state = NUDGIS_UPLOAD_STATE_UPLOAD_CANCEL;
 
-	mlog(LOG_DEBUG, "  NudgisUpload state: %s",
+	obs_log(LOG_DEBUG, "  NudgisUpload state: %s",
 	     NUDGIS_UPLOAD_STATE_STR[this->state]);
 
 	emit this->endUpload();

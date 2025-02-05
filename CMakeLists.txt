@@ -39,7 +39,6 @@ if(ENABLE_QT)
   )
 endif()
 
-configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
 target_sources(
   ${CMAKE_PROJECT_NAME}
   PRIVATE src/nudgis-plugin.cpp
@@ -47,8 +46,7 @@ target_sources(
           src/nudgis-config.cpp
           src/nudgis-upload-ui.cpp
           src/http-client.cpp
-          src/obs/obs-utils.cpp
-          src/plugin-macros.generated.h)
+          src/obs/obs-utils.cpp)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/obs)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs CURL::libcurl Qt6::Core Qt6::Widgets)
@@ -59,17 +57,13 @@ set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_nam
 
 add_executable(test)
 
-target_sources(
-  test
-  PRIVATE src/nudgis-plugin.cpp
-          src/nudgis-service.cpp
-          src/nudgis-config.cpp
-          src/nudgis-upload-ui.cpp
-          src/http-client.cpp
-          src/obs/obs-utils.cpp
-          src/test.cpp)
+# same src as main project + test.cpp
+get_target_property(target_srcs ${CMAKE_PROJECT_NAME} SOURCES)
+target_sources(test PRIVATE ${target_srcs} src/test.cpp)
 
-target_link_libraries(test PRIVATE OBS::libobs OBS::obs-frontend-api CURL::libcurl Qt6::Core Qt6::Widgets)
+# same lib as main project
+get_target_property(target_libs ${CMAKE_PROJECT_NAME} LINK_LIBRARIES)
+target_link_libraries(test PRIVATE ${target_libs})
 
 set_target_properties(
   test
