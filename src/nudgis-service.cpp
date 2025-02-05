@@ -874,10 +874,9 @@ void NudgisUpload::run()
 					     chunk_index, chunks_count);
 					if (this->check_md5) {
 						// For QT > 6.5
-						/* md5sum.addData(QByteArrayView( */
-						/* 	read_buffer, chunk)); */
-						md5sum.addData(read_buffer,
-							       chunk);
+						md5sum.addData(QByteArrayView(read_buffer, chunk));
+						// md5sum.addData(read_buffer,
+						// 	       chunk);
 					}
 
 					std::ostringstream headers;

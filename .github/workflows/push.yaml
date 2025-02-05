@@ -1,4 +1,4 @@
-name: Push to master
+name: Push
 run-name: ${{ github.ref_name }} push run 🚀
 on:
   push:
@@ -10,9 +10,6 @@ on:
       - '*'
 permissions:
   contents: write
-concurrency:
-  group: '${{ github.workflow }} @ ${{ github.ref }}'
-  cancel-in-progress: ${{ github.ref_type == 'tag' }}
 jobs:
   check-format:
     name: Check Formatting 🔍
@@ -31,7 +28,7 @@ jobs:
   create-release:
     name: Create Release 🛫
     if: github.ref_type == 'tag'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: build-project
     defaults:
       run:
@@ -45,16 +42,21 @@ jobs:
           shopt -s extglob
 
           case "${GITHUB_REF_NAME}" in
-            v+([0-9]).+([0-9]).+([0-9])_OBS-+([0-9]) )
+            +([0-9]).+([0-9]).+([0-9]) )
               echo 'validTag=true' >> $GITHUB_OUTPUT
               echo 'prerelease=false' >> $GITHUB_OUTPUT
+              echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+              ;;
+            +([0-9]).+([0-9]).+([0-9])-@(beta|rc)*([0-9]) )
+              echo 'validTag=true' >> $GITHUB_OUTPUT
+              echo 'prerelease=true' >> $GITHUB_OUTPUT
               echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
               ;;
             *) echo 'validTag=false' >> $GITHUB_OUTPUT ;;
           esac
 
       - name: Download Build Artifacts 📥
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         if: fromJSON(steps.check.outputs.validTag)
         id: download
 
@@ -101,12 +103,12 @@ jobs:
       - name: Create Release 🛫
         if: fromJSON(steps.check.outputs.validTag)
         id: create_release
-        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+        uses: softprops/action-gh-release@9d7c94cfd0a1f3ed45544c887983e9fa900f0564
         with:
           draft: true
           prerelease: ${{ fromJSON(steps.check.outputs.prerelease) }}
           tag_name: ${{ steps.check.outputs.version }}
-          name: OBS Studio ${{ steps.check.outputs.version }}
+          name: ${{ needs.build-project.outputs.pluginName }} ${{ steps.check.outputs.version }}
           body_path: ${{ github.workspace }}/CHECKSUMS.txt
           files: |
             ${{ github.workspace }}/*.exe

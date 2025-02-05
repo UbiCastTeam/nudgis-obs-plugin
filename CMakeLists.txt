@@ -1,16 +1,14 @@
-cmake_minimum_required(VERSION 3.16...3.26)
+cmake_minimum_required(VERSION 3.28...3.30)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCOPE)
 
 project(${_name} VERSION ${_version})
 
 # Custom prameters ------------------------------------------------------------
-option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" ON)
-option(ENABLE_QT "Use Qt functionality" ON)
 # Disable linux portable mode otherwise plugin get installed in folder not looked upon by OBS (obs-plugins/{32,64}bits)
 set(LINUX_PORTABLE OFF)
 # set a custom package version for debian .deb
-set(CPACK_DEBIAN_PACKAGE_VERSION "${_version}+OBS-30.0.0")
+set(CPACK_DEBIAN_PACKAGE_VERSION "${_version}+OBS-31.0.0")
 # -----------------------------------------------------------------------------
 
 include(compilerconfig)
@@ -29,16 +27,16 @@ if(ENABLE_FRONTEND_API)
 endif()
 
 if(ENABLE_QT)
-  find_qt(COMPONENTS Widgets Core)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::Core Qt::Widgets)
+  find_package(Qt6 COMPONENTS Widgets Core)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets)
   target_compile_options(
-    ${CMAKE_PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:Clang,AppleClang>:-Wno-quoted-include-in-framework-header
-                                  -Wno-comma>)
+    ${CMAKE_PROJECT_NAME}
+    PRIVATE $<$<C_COMPILER_ID:Clang,AppleClang>:-Wno-quoted-include-in-framework-header -Wno-comma>
+  )
   set_target_properties(
     ${CMAKE_PROJECT_NAME}
-    PROPERTIES AUTOMOC ON
-               AUTOUIC ON
-               AUTORCC ON)
+    PROPERTIES AUTOMOC ON AUTOUIC ON AUTORCC ON
+  )
 endif()
 
 configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
@@ -53,7 +51,7 @@ target_sources(
           src/plugin-macros.generated.h)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/obs)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs CURL::libcurl Qt::Core Qt::Widgets)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs CURL::libcurl Qt6::Core Qt6::Widgets)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
 
@@ -71,7 +69,7 @@ target_sources(
           src/obs/obs-utils.cpp
           src/test.cpp)
 
-target_link_libraries(test PRIVATE OBS::libobs OBS::obs-frontend-api CURL::libcurl Qt::Core Qt::Widgets)
+target_link_libraries(test PRIVATE OBS::libobs OBS::obs-frontend-api CURL::libcurl Qt6::Core Qt6::Widgets)
 
 set_target_properties(
   test
