@@ -6,7 +6,6 @@ Copyright (C) 2021 Ubicast
 #include "nudgis-service.hpp"
 #include "plugin-support.h"
 #include "ui_settings.h"
-#include "obs-app.hpp"
 #include "nudgis-upload-ui.hpp"
 
 #include <obs-module.h>
@@ -105,13 +104,15 @@ void NudgisSettings::on_btn_sw_EchoMode_clicked()
 
 void NudgisSettings::Set_sw_EchoMode(QLineEdit::EchoMode mode)
 {
+	obs_frontend_push_ui_translation(obs_module_get_string);
 	if (mode == QLineEdit::Password) {
 		ui->api_key->setEchoMode(QLineEdit::Password);
-		ui->btn_sw_EchoMode->setText(QTStr("Show"));
+		ui->btn_sw_EchoMode->setText(tr("NudgisPlugin.general.Show"));
 	} else {
 		ui->api_key->setEchoMode(QLineEdit::Normal);
-		ui->btn_sw_EchoMode->setText(QTStr("Hide"));
+		ui->btn_sw_EchoMode->setText(tr("NudgisPlugin.general.Hide"));
 	}
+	obs_frontend_pop_ui_translation();
 }
 
 void NudgisSettings::on_btn_test_clicked()
