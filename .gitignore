@@ -1,14 +1,6 @@
-*~
-.DS_Store
-/build/
-/build32/
-/build64/
-/release/
-/installer/Output/
-
-.vscode
-.idea
-
-# ignore generated files
-*.generated.*
-CI/include/build_environment.sh
+CMakeFiles
+.CMakeBuildNumber
+.flatpak-builder
+build
+.cache
+local_repo

@@ -1,4 +1,4 @@
-# Windows Micrsoft Defender bypass
+# Windows Microsoft Defender bypass
 
 In case the plugin is detected as a malware, follow this instruction to bypass
 Microsoft Defender:
@@ -16,5 +16,3 @@ Then go back and finally tick the `Allow on device` box:
 ![Defender_allow](img/windows/MS_AV_allow.png)
 
 You can then follow the regular installation procedure
-
-

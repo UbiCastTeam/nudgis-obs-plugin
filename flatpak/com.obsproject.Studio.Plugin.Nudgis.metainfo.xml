@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>com.obsproject.Studio.Plugin.Nudgis</id>
+  
+  <name>nudgis-obs-plugin</name>
+  <summary>OBS plugin for UbiCast Nudgis</summary>
+  
+  <metadata_license>MIT</metadata_license>
+  <project_license>GPL-2.0-only</project_license>
+  
+  <extends>
+    <id>com.obsproject.Studio</id>
+  </extends>
+  
+  <description>
+    <p>
+      OBS plugin for live streaming and recording on UbiCast Nudgis video platform.
+    </p>
+  </description>
+</component>

@@ -31,8 +31,7 @@ public:
 class NudgisStreams {
 public:
 	NudgisStreams();
-	NudgisStreams(int width, int height, int video_bitrate,
-		      int audio_bitrate, int framerate);
+	NudgisStreams(int width, int height, int video_bitrate, int audio_bitrate, int framerate);
 	NudgisStreams(obs_output_t *output);
 
 	int width;
@@ -58,10 +57,8 @@ public:
 
 	HttpClient &GetHttpClient();
 	const std::string &GetUrlPrefix();
-	const std::string &GetData(const std::string &url,
-				   const std::string &getData, bool *result);
-	const std::string &PostData(const std::string &url,
-				    const std::string &postData, bool *result);
+	const std::string &GetData(const std::string &url, const std::string &getData, bool *result);
+	const std::string &PostData(const std::string &url, const std::string &postData, bool *result);
 	bool PostData(const std::string &url, const std::string &postData);
 	bool InitFromPrepareResponse(const std::string &prepare_response);
 	const QVersionNumber *GetServerVersion();
@@ -69,8 +66,7 @@ public:
 	const std::string &GetUploadChannel();
 	const std::string &GetStreamChannel();
 	const std::string &GetPrepareUrl();
-	const std::string &
-	GetPreparePostdata(const NudgisStreams *nudgis_streams);
+	const std::string &GetPreparePostdata(const NudgisStreams *nudgis_streams);
 	const std::string &GetStartUrl();
 	const std::string &GetStartPostdata();
 	const std::string &GetStopUrl();
@@ -78,23 +74,18 @@ public:
 	const std::string &GetApiBaseUrl();
 	const std::string &GetApiBaseGetdata();
 	const std::string &GetUploadUrl();
-	std::list<HttpClientFormField> &
-	GetUploadFormFields(std::string &file_basename, const char *read_buffer,
-			    size_t chunk, std::string &upload_id);
+	std::list<HttpClientFormField> &GetUploadFormFields(std::string &file_basename, const char *read_buffer,
+							    size_t chunk, std::string &upload_id);
 	const std::string &GetUploadCompleteUrl();
-	const std::string &
-	GetUploadCompletePostdata(std::string &upload_id, bool check_md5,
-				  QCryptographicHash &md5sum);
+	const std::string &GetUploadCompletePostdata(std::string &upload_id, bool check_md5,
+						     QCryptographicHash &md5sum);
 	const std::string &GetMediasAddUrl();
-	const std::string &GetMediasAddPostdata(std::string &upload_id,
-						std::string &title);
+	const std::string &GetMediasAddPostdata(std::string &upload_id, std::string &title);
 	const std::string &GetChannelsPersonalUrl();
 	const std::string &GetChannelsPersonalGetdata();
 	uint64_t GetUploadChunkSize();
 	const std::string &GetMediasDeleteUrl();
-	const std::string &
-	GetMediasDeletePostdata(bool delete_metadata = false,
-				bool delete_resources = false);
+	const std::string &GetMediasDeletePostdata(bool delete_metadata = false, bool delete_resources = false);
 
 	enum NudgisTestParamsData::NUDGISDATA_LIVE_TEST_RESULT TestLive();
 
