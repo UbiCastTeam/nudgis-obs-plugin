@@ -25,15 +25,15 @@ void obs_log(int log_level, const char *format, ...)
 {
 	size_t length = 4 + strlen(PLUGIN_NAME) + strlen(format);
 
-	char *template = malloc(length + 1);
+	char *tpl = (char *)malloc(length + 1);
 
-	snprintf(template, length, "[%s] %s", PLUGIN_NAME, format);
+	snprintf(tpl, length, "[%s] %s", PLUGIN_NAME, format);
 
 	va_list(args);
 
 	va_start(args, format);
-	blogva(log_level, template, args);
+	blogva(log_level, tpl, args);
 	va_end(args);
 
-	free(template);
+	free(tpl);
 }
