@@ -1,0 +1,18 @@
+id: com.obsproject.Studio.Plugin.Nudgis
+branch: stable
+runtime: com.obsproject.Studio
+runtime-version: stable
+sdk: org.kde.Sdk//6.6
+build-extension: true
+separate-locales: false
+build-options:
+  prefix: /app/plugins/Nudgis
+modules:
+  - name: nudgis-obs-plugin
+    buildsystem: cmake-ninja
+    builddir: true
+    post-install:
+      - install -Dm644 --target-directory=${FLATPAK_DEST}/share/metainfo ../flatpak/${FLATPAK_ID}.metainfo.xml
+    sources:
+      - type: dir
+        path: ../
