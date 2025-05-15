@@ -56,8 +56,8 @@ folder (this will also work if you have a portable OBS version installed):
 
 1. plugin binaries:
 
-Copy the `nudgis-obs-plugin.dll` and `nudgis-obs-plugin.pdb` into you OBS
-`obs-studio\bin\64bits` folder (`C:\windows\Program Files\obs-studio\bin\64bits` for
+Copy the `nudgis-obs-plugin.dll` and `nudgis-obs-plugin.pdb` into you OBS 
+`obs-studio\obs-plugins\64bit` folder (`C:\Program Files\obs-studio\obs-plugins\64bit` for
 regular installation)
 
 ![win_0](docs/img/windows/windows_bin.png)
